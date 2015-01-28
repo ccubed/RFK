@@ -1,0 +1,226 @@
+@	Reach Mux
+@	+Roll system v2
+@	Coded by: Gizmo AKA Ourea, Alzie, Oukranos
+@	Coded for: The Reach Mux
+@	Email: ccubed.techno@gmail.com
+@	Date Last Touched: 1/28/2014
+@----------------------------------------------------------------------------
+@	Purpose: Recode the existing +roll system on the reach in a more
+@	understandable way so that it may be more easily modified later
+@----------------------------------------------------------------------------
+@	Organization
+@	F.* - Function - Player does not interact
+@	CMD.* - Command - Player does interact
+@	LIT.* - Literal - Player sees but does not interact
+@	PARSE.* - Parser - Player does not interact
+@	DISPLAY.* - Display Formatter - Player sees but does not interact
+@----------------------------------------------------------------------------
+@	Master list of all registers used and when they are initialized
+@
+@   0 - Dice to Roll - CMD.ROLL or CMD.ROLL.SWITCHES
+@   2 - Original input spaced out - PARSE.GETDICE
+@	3 - Hold Failures for ROLL.EXTRAS and ROLL.SIMPLE
+@	4 - Hold Rerolls for ROLL.EXTRSA and ROLL.SIMPLE 
+@   5 - temp var/holds stat pair - PARSE.GETDICE
+@   9 - Parsed Text String of Stats - PARSE.GETDICE
+@   T - Temp Holder: OUtput - DISPLAY.OUTPUT.*
+@   U - Uncolored String - F.ROLL
+@   S - Sux - F.ROLL
+@   F - Failures - F.ROLL
+@   Z - Reroll tracker - F.ROLL
+@   E - Exceptional Sux Tracker - F.ROLL
+@   G - Tracks sux per roll to determine exceptional - F.ROLL
+@   4 - Holds Chance Die - F.ROLL
+@   3 - Used by Parse.Target.Pemit to hold input - here if necessary - PARSE.TARGET.PEMIT
+@   6 - used by parse.target.pemit to hold results. - PARSE.TARGET.PEMIT
+@   R - tracks number of rolls - F.ROLL
+@	A - 8 for 8again, 9 for 9again, 10 for 10 again, 11 for no rerolls (set with /0)
+@	B - 1 for rote, 0 for no rote
+@	D - 1 for weak, 0 for not weak
+@	Y - Target Number or 0
+@	H - Roll Number or 0
+@	I - 1 for literal, 0 for not
+@	J - 1 for permanent stats only, 0 for current stats
+@	C - Temp Variable for Roll Number to not lose place on rerolls and rotes
+@	V - Temp Variable for checking teamwork mage rolls
+@	X - Blind Switch
+@	litrolls - Holds list of rolls made during extendeds
+
+@	CMD.ROLL
+@	Usage: +roll list of stats=people or/and here
+@	Returns: Pemits the resulting roll to some target
+@
+@	Registers Used: None
+&CMD.ROLL #3376=$+roll *:@switch [t(after(%0,=))]=0,[u(PARSE.GETDICE,%0)][setq(B,0)][u(DISPLAY.OUTPUT.SIMPLE,%q0,1,0,10,0,0,0,0,0)],1,[u(PARSE.GETDICE,[before(%0,=)])][setq(B,0)][switch([strmatch(after(%0,=),Job*)][strmatch(after(%0,=),Ticket*)],00,[u(DISPLAY.OUTPUT.SIMPLE,%q0,[if(strmatch(after(%0,=),*here*),1,0)],[u(PARSE.TARGET.PEMIT,after(%0,=))],10,0,0,0,0,0)])]
+
+@	CMD.ROLL.SWITCHES
+@	Usage: +roll but with switches!
+@	Returns: Pemit the resulting roll text to some target
+@
+@	Registers Used: None
+&CMD.ROLL.SWITCHES #3376=$+roll/*=*:[u(PARSE.GETDICE,[if(after(%1,=),[if(and(gt(words(before(%1,=)),1),strmatch(%0,*extended*)),[after(before(%1,=),%b)],[before(%1,=)])],[if(and(gt(words(before(%1,=)),1),strmatch(%0,*extended*)),[after(%1,%b)],%1)])])];[u(PARSE.FLAGS,%0,%1)];@switch [t(after(%1,=))]=0,[u(DISPLAY.OUTPUT.SIMPLE,%q0,1,0,%qA,%qB,%qD,%qY,%qH,%qI)],1,[switch([strmatch(after(%1,=),Job*)][strmatch(after(%1,=),Ticket*)],00,[u(DISPLAY.OUTPUT.SIMPLE,%q0,[if(strmatch(after(%1,=),*here*),1,0)],[u(PARSE.TARGET.PEMIT,after(%1,=))],%qA,%qB,%qD,%qY,%qH,%qI)])]
+
+@	PARSE.FLAGS
+@	Usage: Parses flags on a roll
+@	Returns: nothing, sets registers
+@
+@	Passed:
+@	%0 - Flags
+@	%1 - Everything after flags (Required for some flags)
+@
+@	Registers Used
+@	A - 8 for 8again, 9 for 9again, 10 for 10 again, 11 for no rerolls (set with /0)
+@	B - 1 for rote, 0 for no rote
+@	D - 1 for weak, 0 for not weak
+@	Y - Target Number or 0
+@	H - Roll Number or 0
+@	I - 1 for literal, 0 for not
+@	J - 1 for permanent stats only, 0 for current stats
+@	X - 1 for Blind, 0 for Not Blind
+&PARSE.FLAGS #3376=[setq(A,0)][setq(B,0)][setq(D,0)][setq(Y,0)][setq(H,0)][setq(I,0)][setq(J,0)][setq(X,0)][iter(%0,[if(eq(%i0,8),setq(A,8))][if(and(eq(%i0,9),or(eq(%qA,11),eq(%qA,0))),[setq(A,9)])][if(strmatch(%i0,0),[setq(A,11)])][if(strmatch(lcstr(%i0),*rote*),[setq(B,1)])][if(strmatch(lcstr(%i0),*weak*),[setq(D,1)])][if(strmatch(lcstr(%i0),*perm*),[setq(J,1)])][if(strmatch(lcstr(%i0),*literal*),[setq(I,1)])][if(strmatch(lcstr(%i0),*extended*),[if(isnum(before(%1,/)),[setq(Y,[before(%1,/)])])][if(isnum(before(after(%1,/),%b)),[setq(H,before(after(%1,/),%b))])])][if(strmatch(lcstr(%i0),*ritual*),[if(isnum(before(%1,/)),[setq(Y,[before(%1,/)])])][if(isnum(before(after(%1,/),%b)),[setq(H,before(after(%1,/),%b))])][if(words(after(%i0,%b)),[u(PARSE.RITUAL.TEAMWORK,after(%i0,%b))])])][if(strmatch(lcstr(%i0),*blind*),[setq(X,1)])],/,[space(0)])][if(eq(%qA,0),[setq(A,10)])]
+-
+@	PARSE.RITUAL.TEAMWORK
+@	Usage: Just runs through teamwork bonuses to make sure we're not passing non numbers
+@
+@	Passed:
+@	%0 - Space Separated List of Teamwork Bonuses for each roll
+@
+@	Registers Used:
+@	K - Teamwork Bonuses for Ritual
+&PARSE.RITUAL.TEAMWORK #3376=[iter(%0,[if(isnum(%i0),[setq(K,%qK %i0)])], ,[space(0)])]
+
+@	PARSE.TARGET.PEMIT
+@	Usage: Parse list of pemit targets
+@	Returns: 0 or list of targets to pemit
+@
+@	%0 - List of targets
+&PARSE.TARGET.PEMIT #3376=[if(strmatch(%0,*here*),[setq(3,[setdiff(lcstr(%0),here)])])][if(t(%q3),[iter(%q3,[if(pmatch([trim(%i0)]),[setq(6,%q6 [pmatch([trim(%i0)])])])],[if(strmatch(%q3,*[chr(44)]*),chr(44), )],[space(0)])],[iter(%0,[if(pmatch([trim(%i0)]),[setq(6,%q6 [pmatch([trim(%i0)])])])],[if(strmatch(%0,*[chr(44)]*),chr(44), )],[space(0)])])][if(words(%q6),%q6,0)]
+
+@	DISPLAY.OUTPUT.SIMPLE
+@	Usage: Outputs a roll with no flags
+@	%0 - Number of Dice to Roll
+@	%1 - 1 for REMIT here or 0 for no remit
+@	%2 - 0 or a list of DBREFs for pemit
+@	%3-%8 - Roll Flags
+&DISPLAY.OUTPUT.SIMPLE #3376=[u(F.ROLL,%0,%3,%4,%5,%6,%7,%8)][if(not(or(eq(%3,8),eq(%3,9))),[setq(A,0)])][setq(T,[u(LIT.HEADER,%1,%2)][if(or(%6,%7),%RExtended Roll%RRolls: %qR%RSuccesses: %qS%RExceptional Successes: %qE%R[switch([t(%6)][gte(%qS,%6)],11,You succeeded at meeting the Target Number,10,You did not meet the Target Number,There was no Target Number)]%R[iter(%q<litrolls>,[if(%8,Roll [inum(0)]: [map(FIL_COLOR,[sort(%i0)])],Roll [inum(0)]: [map(FIL_COLOR,%i0)])],|,%R)]%R,%R[space(4)]Rolled [if(gt(%q0,0),%qS [if(gt(%qS,1),Successes,Success)] [if(%qE,for an exceptional success.)],a chance die for [switch(%qS,0,a failure,1,a success,-1,a dramatic failure,successes)])]%R[space(4)]< [map(FIL_COLOR,trim(%qU))] >%R)][u(LIT.FOOTER,[trim(%q9,l,+)])])][if(%1,[remit(where(%#),%qT)])][if(t(%2),[pemit([if(t(%qX),%2,[setunion(%2,%#)])],%qT)])][if(or(%6,%7),[cemit(debug,[name(%#)] rolled [trim(%q9,l,+)] (%0 Dice) with %3-Again[if(%4,%band Rote)] %qR times on an extended action. They rolled %qS Successes. Their Target Number was %6.,1)],[cemit(debug,[name(%#)] rolled [trim(%q9,l,+)] (%0 Dice) with %3-Again[if(%4,%band Rote)] for %qS successes,1)])]
+
+@	DISPLAY.OUTPUT.TICKET
+@ 	Usage: Outputs a roll to a ticket
+@	%0 - what to roll
+@	%1 - ticket number
+&DISPLAY.OUTPUT.TICKET #3376=$+roll *=ticket *:[u(PARSE.GETDICE,%0)][setq(B,0)][u(F.ROLL,%q0,10,0,0,0,0,0)][if(not(or(eq(%3,8),eq(%3,9))),[setq(A,0)])][setq(T,%R[u(LIT.HEADER,0,Comm %1)][if(or(%6,%7),%RExtended Roll%RRolls: [dec(%qR)]%RSuccesses: %qS%RExceptional Successes: %qE%R[if(gte(%qS,%6),You succeeded at meeting the Target Number,You did not meet the Target Number)]%R,%R[space(4)]Rolled [if(gt(%q0,0),%qS [if(gt(%qS,1),Successes,Success)] [if(%qE,for an exceptional success.)],a chance die for [switch(%qS,0,a failure,1,a success,-1,a dramatic failure,successes)])]%R[space(4)]< [iter(trim(%qU),[if(or(and(gt(%q0,0),gte(%i0,8)),and(eq(%i0,10),eq(%q0,0))),[ansi(hw,%i0)],[ansi(hx,%i0)])], ,%b)] >%R)][u(LIT.FOOTER,[trim(%q9,l,+)])])];@if [and(t(setr(u, u(#4370/FN_FIND-TICKET, %1))), or(isstaff(%#), t(match(u(%qu/OPENED_BY), %#))))]={@pemit %#=Comments to [name(%qu)] added.; @trigger #4370/TRIG_ADD=%qu,%qT,%!,ADD; @trigger #4370/TRIG_BROADCAST=%qu,%!,ADD; @wait .5=[set(%qu/[last(lattr(%qu/COMMENT_*))], no_inherit)]; &status %qu=[if(isstaff(%#), 7, 2)]; [pemit(remove(u(%qu/OPENED_BY), %!), Comments added to [name(%qu)] by [name(%!)].)]};@pemit %#=%qT
+
+@	DISPLAY.OUTPUT.TICKET.SWITCH
+@ 	Usage: Outputs a roll to a ticket
+@	%0 - flags
+@	%1 - what to roll
+@	%2 - ticket number
+&DISPLAY.OUTPUT.TICKET.SWITCH #3376=$+roll/*=*=ticket *:[u(PARSE.GETDICE,[if(after(%1,=),[if(and(gt(words(before(%1,=)),1),strmatch(%0,*extended*)),[after(before(%1,=),%b)],[before(%1,=)])],[if(and(gt(words(before(%1,=)),1),strmatch(%0,*extended*)),[after(%1,%b)],%1)])])];[u(PARSE.FLAGS,%0,%1)];[u(F.ROLL,%q0,%qA,%qB,%qD,%qY,%qH,%qI)];[setq(T,%R[u(LIT.HEADER,0,Comm %2)][if(or(%qY,%qH),%RExtended Roll%RRolls: %qR%RSuccesses: %qS%RExceptional Successes: %qE%R[switch([t(%qY)][gte(%qS,%qY)],11,You succeeded at meeting the Target Number,10,You did not meet the Target Number,0*,There was no Target Number)]%R,%R[space(4)]Rolled [if(gt(%q0,0),%qS [if(gt(%qS,1),Successes,Success)] [if(%qE,for an exceptional success.)],a chance die for [switch(%qS,0,a failure,1,a success,-1,a dramatic failure,successes)])]%R[space(4)]< [iter(trim(%qU),[if(or(and(gt(%q0,0),gte(%i0,8)),and(eq(%i0,10),eq(%q0,0))),[ansi(hw,%i0)],[ansi(hx,%i0)])], ,%b)] >%R)][u(LIT.FOOTER,[trim(%q9,l,+)])])];@if [and(t(setr(u, u(#4370/FN_FIND-TICKET, %2))), or(isstaff(%#), t(match(u(%qu/OPENED_BY), %#))))]={@pemit %#=Comments to [name(%qu)] added.; @trigger #4370/TRIG_ADD=%qu,%qT,%!,ADD; @trigger #4370/TRIG_BROADCAST=%qu,%!,ADD; @wait .5=[set(%qu/[last(lattr(%qu/COMMENT_*))], no_inherit)]; &status %qu=[if(isstaff(%#), 7, 2)]; [pemit(remove(u(%qu/OPENED_BY), %!), Comments added to [name(%qu)] by [name(%!)].)]};@pemit %#=%qT
+
+@	DISPLAY.OUTPUT.JOB
+@ 	Usage: Outputs a roll to a job
+@	%0 - what to roll
+@	%1 - job number
+&DISPLAY.OUTPUT.JOB #3376=$+roll *=job *:[u(PARSE.GETDICE,%0)][setq(B,0)][u(F.ROLL,%q0,10,0,0,0,0,0)][if(not(or(eq(%3,8),eq(%3,9))),[setq(A,0)])][setq(T,%R[u(LIT.HEADER,0,Job %1)][if(or(%6,%7),%RExtended Roll%RRolls: [dec(%qR)]%RSuccesses: %qS%RExceptional Successes: %qE%R[if(gte(%qS,%6),You succeeded at meeting the Target Number,You did not meet the Target Number)]%R,%R[space(4)]Rolled [if(gt(%q0,0),%qS [if(gt(%qS,1),Successes,Success)] [if(%qE,for an exceptional success.)],a chance die for [switch(%qS,0,a failure,1,a success,-1,a dramatic failure,successes)])]%R[space(4)]< [iter(trim(%qU),[if(or(and(gt(%q0,0),gte(%i0,8)),and(eq(%i0,10),eq(%q0,0))),[ansi(hw,%i0)],[ansi(hx,%i0)])], ,%b)] >%R)][u(LIT.FOOTER,[trim(%q9,l,+)])])];@switch [and(t(setr(u, u(#18/FN_FIND-JOB, %1))), or(orflags(%#,Wr), t(match(u(%qu/OPENED_BY), %#))))]=1,{@pemit %#=Comments to [name(%qu)] added.;@trigger #18/TRIG_ADD=%qu,%qT,%!,ADD;@trigger #18/TRIG_BROADCAST=%qu,%!,ADD;@wait 1=[set(%qu/[last(lattr(%qu/COMMENT_*))], no_inherit)];@pemit %#=%qT;@cemit/noisy debug=[name(%#)] rolled [trim(%q9,l,+)] (%0 Dice) with 10-Again for %qS successes to [name(%qu)]},0,{@pemit %#=[ansi(hw,ROLL:)]%bInvalid Job or Job not yours.}
+
+@	DISPLAY.OUTPUT.JOB.SWITCH
+@ 	Usage: Outputs a roll to a job
+@	%0 - flags
+@	%1 - what to roll
+@	%2 - ticket number
+&DISPLAY.OUTPUT.JOB.SWITCH #3376=$+roll/*=*=job *:[u(PARSE.GETDICE,[if(after(%1,=),[if(and(gt(words(before(%1,=)),1),strmatch(%0,*extended*)),[after(before(%1,=),%b)],[before(%1,=)])],[if(and(gt(words(before(%1,=)),1),strmatch(%0,*extended*)),[after(%1,%b)],%1)])])];[u(PARSE.FLAGS,%0,%1)];[u(F.ROLL,%q0,%qA,%qB,%qD,%qY,%qH,%qI)];[setq(T,%R[u(LIT.HEADER,0,Job %2)][if(or(%qY,%qH),%RExtended Roll%RRolls: %qR%RSuccesses: %qS%RExceptional Successes: %qE%R[switch([t(%qY)][gte(%qS,%qY)],11,You succeeded at meeting the Target Number,10,You did not meet the Target Number,0*,There was no target number)]%R,%R[space(4)]Rolled [if(gt(%q0,0),%qS [if(gt(%qS,1),Successes,Success)] [if(%qE,for an exceptional success.)],a chance die for [switch(%qS,0,a failure,1,a success,-1,a dramatic failure,successes)])]%R[space(4)]< [iter(trim(%qU),[if(or(and(gt(%q0,0),gte(%i0,8)),and(eq(%i0,10),eq(%q0,0))),[ansi(hw,%i0)],[ansi(hx,%i0)])], ,%b)] >%R)][u(LIT.FOOTER,[trim(%q9,l,+)])])];@switch [and(t(setr(u, u(#18/FN_FIND-JOB, %2))), or(orflags(%#,Wr), t(match(u(%qu/OPENED_BY), %#))))]=1,{@pemit %#=Comments to [name(%qu)] added.;@trigger #18/TRIG_ADD=%qu,%qT,%!,ADD;@trigger #18/TRIG_BROADCAST=%qu,%!,ADD;@wait 1=[set(%qu/[last(lattr(%qu/COMMENT_*))], no_inherit)];@pemit %#=%qT;@cemit/noisy debug=[if(or(%qY,%qH),[name(%#)] rolled [trim(%q9,l,+)] (%q0 Dice) with %qA-Again[if(%qB,%band Rote)] %qR times on an extended action  to [name(%qu)]. They rolled %qS Successes. Their Target Number was %qY.,[name(%#)] rolled [trim(%q9,l,+)] (%q0 Dice) with %qA-Again[if(%qB,%band Rote)] for %qS successes to [name(%qu)])]},0,{@pemit %#=[ansi(hw,ROLL:)]%bInvalid Job or Job not yours.}
+
+@	F.ROLL
+@	Usage: Rolls Dice
+@	%0 - Number of Dice to roll
+@	%1 - Reroll Number (8 for 8-again, 9 for 9-again, 10 for regular, 11 for no rerolls)
+@	%2 - Rote (1 for rote, 0 or absent otherwise)
+@	%3 - Weak (Subtract 1s)
+@	%4 - TN (If extended, Target Number)
+@	%5 - RN (If extended, Maximum number of rolls) (0 or absent for unlimited)
+@	%6 - 1 for Literal, 0 for Sorte
+@
+@	Registers Used
+@	U - Hold uncolored string of roll results
+@	S - # of Sux
+@	Z - Number of Rerolls
+@	E - Number of Exceptional Sux rolls
+@	G - Tracks Sux needed for Exceptional
+@	R - Tracks Number of Rolls (only used for extended)
+@	F - Failures
+@	litrolls - holds list of rolls for each extended roll
+@	
+&F.ROLL #3376=[setq(S,0)][setq(E,0)][setq(R,0)][setq(G,0)][setq(Z,0)][setq(F,0)][if(gt(%0,0),[iter(die([if(and(t(%qK),or(t(%4),t(%5))),[if(%qR,[if(t(setr(V,extract(%qK,%qR,1, ))),[add(%0,%qV)],%0)],[if(t(setr(V,extract(%qK,1,1, ))),[add(%0,%qV)],%0)])],%0)],10,1),[if(gte(%i0,8),[setq(S,inc(%qS))][setq(G,inc(%qG))],[setq(F,inc(%qF))])][setq(U,%qU %i0)][if(gte(%i0,%1),[setq(Z,inc(%qZ))])][if(and(eq(%i0,1),t(%3)),[setq(S,dec(%qS))])], ,[space(0)])][setq(R,inc(%qR))][if(and(not(%3),gt(%qZ,0)),[u(F.ROLL.SIMPLE,%qZ,%1,0,%3,%4,%5,%6)])][if(and(%2,gt(%qF,0)),[u(F.ROLL.SIMPLE,%qF,%1,0,%3,%4,%5,%6)])][if(gte(%qG,5),[setq(E,inc(%qE))])][setq(G,0)][switch([t(%4)][t(%5)],10,[if(lt(%qS,%4),[setq(litrolls,[setunion(%q<litrolls>,%qu,|)])][u(F.ROLL.EXTRAS,%0,%1,%2,%3,%4,%5,%6)])],11,[if(and(lt(%qS,%4),lte(%qR,%5)),[setq(litrolls,[setunion(%q<litrolls>,%qu,|)])][u(F.ROLL.EXTRAS,%0,%1,%2,%3,%4,%5,%6)])],01,[if(lte(%qR,%5),[setq(litrolls,[setunion(%q<litrolls>,%qu,|)])][u(F.ROLL.EXTRAS,%0,%1,%2,%3,%4,%5,%6)])])],[u(F.CHANCE.DIE)])][if(not(%6),[setq(U,sort(%qU))])]
+
+@	F.ROLL.EXTRAS
+@	Usage: Rolls rolls after the first so cleanup code doesn't get run every time.
+@	%0 - Number of Dice to roll
+@	%1 - Reroll Number (8 for 8-again, 9 for 9-again, 10 for regular, 11 for no rerolls)
+@	%2 - Rote (1 for rote, 0 or absent otherwise)
+@	%3 - Weak (Subtract 1s)
+@	%4 - TN (If extended, Target Number)
+@	%5 - RN (If extended, Maximum number of rolls) (0 or absent for unlimited)
+@	%6 - 1 for Literal, 0 for Sorted
+&F.ROLL.EXTRAS #3376=[if(or(t(%4),t(%5)),[unsetq(u)])][setq(3,0)][setq(4,0)][iter(die([if(and(t(%qK),or(t(%4),t(%5))),[if(%qR,[if(t(setr(V,extract(%qK,%qR,1, ))),[add(%0,%qV)],%0)],[if(t(setr(V,extract(%qK,1,1, ))),[add(%0,%qV)],%0)])],%0)],10,1),[if(gte(%i0,8),[setq(S,inc(%qS))][setq(G,inc(%qG))],[setq(4,inc(%q4))])][if(gte(%i0,%1),[setq(3,inc(%q3))])][if(and(eq(%i0,1),t(%3)),[setq(S,dec(%qS))])][setq(U,%qU %i0)], ,[space(0)])][setq(R,inc(%qR))][if(and(not(%3),gt(%q3,0)),[u(F.ROLL.SIMPLE,%q3,%1,%2,%3,%4,%5,%6)])][if(and(%2,gt(%q4,0)),[u(F.ROLL.SIMPLE,%q4,%1,%2,%3,%4,%5,%6)])][if(gte(%qG,5),[setq(E,inc(%qE))])][setq(G,0)][switch([t(%4)][t(%5)],10,[if(lt(%qS,%4),[setq(litrolls,[setunion(%q<litrolls>,%qu,|)])][u(F.ROLL.EXTRAS,%0,%1,%2,%3,%4,%5,%6)])],11,[if(and(lt(%qS,%4),lte(%qR,%5)),[setq(litrolls,[setunion(%q<litrolls>,%qu,|)])][u(F.ROLL.EXTRAS,%0,%1,%2,%3,%4,%5,%6)])],01,[if(lte(%qR,%5),[setq(litrolls,[setunion(%q<litrolls>,%qu,|)])][u(F.ROLL.EXTRAS,%0,%1,%2,%3,%4,%5,%6)])])]
+
+@	F.ROLL.SIMPLE
+@	Usage: Rolls extra dice that should not increase the roll number
+@	See F.ROLL and F.ROLL.EXTRAS
+&F.ROLL.SIMPLE #3376=[setq(3,0)][setq(4,0)][iter(die(%0,10,1),[if(gte(%i0,8),[setq(S,inc(%qS))][setq(G,inc(%qG))],[setq(4,inc(%q4))])][if(gte(%i0,%1),[setq(3,inc(%q3))])][if(and(eq(%i0,1),t(%3)),[setq(S,dec(%qS))])][setq(U,%qU %i0)], ,[space(0)])][if(and(not(%3),gt(%q3,0)),[u(F.ROLL.SIMPLE,%q3,%1,%2,%3,%4,%5,%6)])]
+
+@	F.CHANCE.DIE
+@	Usage: Rolls a chance die and outputs results
+@
+@	Passed: Nothing
+@
+@	Registers Used:
+@	S - Sux
+@	Z - Rerolls
+&F.CHANCE.DIE #3376=[switch([setr(4,[die(1,10,1)])],1,[setq(S,-1)][setq(U,%qU 1)],10,[setq(S,inc(%qS))][setq(U,%qU 10)][u(F.CHANCE.DIE)],[setq(U,%qU %q4)])]
+
+@	PARSE.GETDICE
+@	Usage: Parses a pool and returns a number of dice
+@	%0 - Stats to roll - str+dex-1
+@	Returns: Number of Dice to Roll, Sets A register for parsed pool string
+@
+@	Registers Used: 
+@		%q0 - Number of Dice to roll
+@		%q9 - Parsed text of the stats (turns str+dex into Strength+Dexterity)
+@		%q2 - Holds the original input spaced out for parsing
+@		%q5 - Temp Var. Holds Stat/# pair.
+&PARSE.GETDICE #3376=[setq(0,0)][setq(9,[space(0)])][setq(2,[edit([edit([edit([lcstr(%0)],blood-potency,blood,blood potency,blood,primal-urge,primal,primal urge,primal,feral heart,feral,feral-heart,feral,animal ken,animal_ken,animal-ken,animal_ken)],%b,)],-,%b-,+,%b+)])][iter(%q2,[switch([u(F.POSNEG,%i0)],1,[if(after(%i0,+),[if(isnum(after(%i0,+)),[setq(0,[add(%q0,[after(%i0,+)])])][setq(9,[setunion(%q9,[after(%i0,+)],+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,+),%qJ)])])])][setq(9,[setunion(%q9,[capstr([after(%i0,+)])],+)])])],[if(isnum(%i0),[setq(0,add(%q0,%i0))][setq(9,[setunion(%q9,%i0,+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,%i0,%qJ)])])])][setq(9,[setunion(%q9,[capstr(%i0)],+)])])])],0,[if(isnum(after(%i0,-)),[setq(0,sub(%q0,after(%i0,-)))][setq(9,[setunion(%q9,[after(%i0,-)],-)])],[setq(0,[sub(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,-),%qJ)])])][setq(9,[setunion(%q9,[capstr(%i0)],-)])])])])], ,[space(0)])]
+
+@	F.POSNEG
+@	Usage: Takes an input and returns whether that is positive or negative
+@	Returns: 
+@		0 - Negative (If first char in word is -)
+@		1 - Positive (If first char in word is +) (Anything else is assumed positive)
+&F.POSNEG #3376=[switch([strmatch(mid(%0,0,1),-)][strmatch(mid(%0,0,1),+)],01,1,10,0,1)]
+
+@	PARSE.STAT
+@	Usage: Determines whether or not a given stat is a specialty and returns the number of dice to roll
+@	%0 - stat to check
+@	%1 - /perm
+@	Returns: The stat pair. IE: stat name/value
+&PARSE.STAT #3376=[setq(0,[GET_ATTRIB(%#,%0)])][setq(1,[GET_DISCIPLINE(%#,%0)])][setq(2,[GET_DISCIPLINE_THEME(%#,%0)])][setq(3,[GET_MERIT(%#,%0)])][setq(4,[GET_SKILL(%#,%0)])][switch([t(%q0)][t(%q1)][t(%q2)][t(%q3)][t(%q4)][t(%q5)],1*,%q0,01*,%q1,001*,%q2,0001*,%q3,00001*,%q4,0)]
+
+@	F.GET.ROLL.DICE
+@	Usage: Returns a stat pair. IE: stat name/value
+@
+@	Arguments Passed:
+@		%0 - DBREF of player
+@		%1 - The Stat 
+@		%2 - Permanent Stats (For /perm flag) (0 for no, 1 for yes)
+@		%3 - The specialty if applicable (Optional)
+@
+@	No code here. Included for note purposes.
+
+@	LIT.HEADER
+@	Header Literal for Roll. Change this to change the roll header
+@	%0 - Here
+@	%1 - People
+&LIT.HEADER #3376=[ansi(nr,====)][ljust([ansi(hx,> [ansi(hw,[name(%#)] [if(or(strmatch(setunion(%0,%1),*job*),strmatch(setunion(%0,%1),*comm*)),to %1,to [itemize([setr(W,[if(t(%1),[iter([setdiff(%1,%#)],[name(itext(0))], ,|)])])][setr(W,[if(t(%0),[if(t(%qW),|Here,Here)])])][if(strmatch(%1,*%#*),[if(t(%qW),|Me,Me)])],|)])] )] <)],74,[ansi(nr,=)])]
+
+@	LIT.FOOTER
+@	Footer Literal for Roll. Change this to change the roll footer
+&LIT.FOOTER #3376=[rjust([ansi(hx,> [ansi(hw,%0%b\[)][itemize(trim([ansi(hx,[if(and(t(%qA),lt(%qA,10)),%qA-Again)][if(t(%qB),%bRote)][if(t(%qX),%bBlind)])]))][if(cand(cor(not(t(%qA)),eq(%qA,10)),not(t(%qB)),not(t(%qX))),[ansi(hx,No Flags)])][ansi(hw,\])] <)],74,[ansi(nr,=)])][ansi(nr,====)]

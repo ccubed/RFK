@@ -1,0 +1,74 @@
+@	Self Service Boons
+@	Coded by: Gizmo AKA Ourea, Alzie, Oukranos
+@	Email: ccubed.techno@gmail.com
+@	Date Last Touched: 1/28/15
+@----------------------------------------------------------------------------
+@	Purpose: Self Service Boons Commands
+@----------------------------------------------------------------------------
+@	Commands:
+@	+boons - Display your outstanding boon totals
+@	+boons/report - Display an indepth list of the people you owe boons to or that owe you boons along with the last reason a boon was added and amounts
+@	+boons/credit # - If you have more than 10 entries, they're paginated. This allows you to view a specific page of entries for Boons owed to you.
+@	+boons/debt # - If you have more than 10 entries, they're paginated. This allows you to view a specific page of entries for Boons you owe.
+@	+boons/detail # - Show details on a boon group. Shows each boon that adds to the total and what it was given for.
+@
+@	Notes:
+@	approved = 0 (unapproved), 1 (approved), 2 (denied)
+@
+@	@sql CREATE TABLE boons (id INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL, reason TEXT NOT NULL, to_name VARCHAR(255) NOT NULL, approved INT(11) NOT NULL
+@	DEFAULT 0, trivial INT(11) NOT NULL DEFAULT 0, minor INT(11) NOT NULL DEFAULT 0, major INT(11) NOT NULL DEFAULT 0, transactions TEXT)
+@
+
+&SQL`INSERT_BOON #2885=INSERT INTO boons (name,reason,to_name,approved,trivial,minor,major) VALUES ('[sqlescape(%0)]','[sqlescape(%1)]','[sqlescape(%2)]',[sqlescape(%3)],[sqlescape(%4)],[sqlescape(%5)],[sqlescape(%6)])
+
+&SQL`GET_HIGHEST_BOON #2885=SELECT COUNT(*) FROM boons
+
+&SQL`GET_SOME_ROWS #2885=SELECT * FROM boons WHERE id > [sub([sqlescape(%0)],1)] AND id < [add([sqlescape(%1)],1)]
+
+&SQL`GET_UNAPPROVED #2885=SELECT * FROM boons WHERE approved = 0
+
+&SQL`GET_MY_BOONS_DEBT #2885=SELECT * FROM boons WHERE name = '[sqlescape(%0)]'
+
+&SQL`GET_MY_BOONS_CREDIT #2885=SELECT * FROM boons WHERE to_name = '[sqlescape(%0)]'
+
+&SQL`GET_ALL_MY_BOONS #2885=SELECT * FROM boons WHERE name = '[sqlescape(%0)]' OR to_name = '[sqlescape(%0)]'
+
+&SQL`DO_THEY_HAVE_BOONS #2885=SELECT COUNT(*) FROM boons WHERE name = '[sqlescape(%0)]' OR to_name = '[sqlescape(%0)]'
+
+&SQL`CHECK_BOON_BALANCE_EXISTS #2885=SELECT * FROM boons WHERE name = '[sqlescape(%0)]' AND to_name = '[sqlescape(%1)]'
+
+&SQL`ARCHIVE_BOON_BANK #2885=INSERT INTO boons_archive SELECT * FROM boons WHERE id = [sqlescape(%0)]
+
+&SQL`GET_SPECIFIC_ID #2885=SELECT * FROM boons WHERE id = [sqlescape(%0)]
+
+&SQL`GET_ALL_BOONS #2885=SELECT * FROM boons
+
+&DATA`HARPIES #2885=#1798 #2668 #2121
+
+&CMD`BOONS #2885=$+boons:@pemit %#=[if([sql(u(SQL`DO_THEY_HAVE_BOONS,[name(%#)]))],[u(DISP`BOON.OVERVIEW,%#)],[header(Boons)]%R%R[center([ansi(hw,You have no boons.)],78)]%R)]%R[header(Type +boons/report for Details)]
+
+&DISP`BOON.OVERVIEW #2885=[header(Outstanding Boons Owed to You)]%R[center([ansi(hw,Trivial)],26)][center([ansi(hw,Minor)],26)][center([ansi(hw,Major)],26)]%R%b[repeat(-,76)]%R[center([if(setr(a,[sql(SELECT SUM(trivial) FROM boons WHERE to_name = '[sqlescape([name(%0)])]')]),%qA,0)],26)][center([if(setr(a,[sql(SELECT SUM(minor) FROM boons WHERE to_name = '[sqlescape([name(%0)])]')]),%qA,0)],26)][center([if(setr(a,[sql(SELECT SUM(major) FROM boons WHERE to_name = '[sqlescape([name(%0)])]')]),%qA,0)],26)]%R%R[header(Outstanding Boons You Owe)]%R[center([ansi(hw,Trivial)],26)][center([ansi(hw,Minor)],26)][center([ansi(hw,Major)],26)]%R%b[repeat(-,76)]%R[center([if(setr(a,[sql(SELECT SUM(trivial) FROM boons WHERE name = '[sqlescape([name(%0)])]')]),%qA,0)],26)][center([if(setr(a,[sql(SELECT SUM(minor) FROM boons WHERE name = '[sqlescape([name(%0)])]')]),%qA,0)],26)][center([if(setr(a,[sql(SELECT SUM(major) FROM boons WHERE name = '[sqlescape([name(%0)])]')]),%qA,0)],26)]%R
+
+&CMD`BOONS.REPORT #2885=$+boons/report:@pemit %#=[if([sql(u(SQL`DO_THEY_HAVE_BOONS,[name(%#)]))],[u(DISP`BOON.DETAILS,%#)],[header(Boons)]%R%R[center([ansi(hw,You have no boons.)],78)]%R)]
+
+&DISP`BOON.DETAILS #2885=[setq(A,[sql(u(SQL`GET_MY_BOONS_DEBT,[name(%0)]),:,~)])][setq(B,[sql(u(SQL`GET_MY_BOONS_CREDIT,[name(%0)]),:,~)])][header(Outstanding Boons Owed to You)]%R[u(DISP`DETAILS.HEADER)]%R[switch([gt(words(%qB,:),10)],1,[iter(%qB,[if(lte(inum(0),10),[u(DISP`BOON.ROW.CREDIT,%i0)])],:,%R)][footer(Pg. 1/[u(F`CALC.PAGES,[words(%qB,:)])]. Use +boons/credit # for more)],0,[iter(%qB,[u(DISP`BOON.ROW.CREDIT,%i0)],:,%R)])]%R%R[header(Outstanding Boons You Owe)]%R[u(DISP`DETAILS.HEADER)]%R[switch([gt(words(%qB,:),10)],1,[iter(%qA,[if(lte(inum(0),10),[u(DISP`BOON.ROW.DEBT,%i0)])],:,%R)]%R[footer(Pg. 1/[u(F`CALC.PAGES,[words(%qB,:)])]. Use +boons/debt # for more)],0,[iter(%qA,[u(DISP`BOON.ROW.DEBT,%i0)],:,%R)]%R%R[footer()])]
+
+&DISP`DETAILS.HEADER #2885=[ljust(ID,5)][ljust(Name,10)][ljust(Reason,33)][ljust(Trivial,10)][ljust(Minor,10)][ljust(Major,10)]%R%b[repeat(-,76)]
+
+&F`CALC.PAGES #2885=[setq(0,[div(%0,10)])][setq(1,[mod(%0,10)])][if(%q1,[setq(2,[add(%q0,%q1)])]%q2,%q0)]
+
+&DISP`BOON.ROW.DEBT #2885=[ljust([extract(%0,1,1,~)],5)][ljust([extract(%0,4,1,~)],10)][ljust([before([last([extract(%0,3,1,~)],|)],/)],33)][ljust([extract(%0,6,1,~)],10)][ljust([extract(%0,7,1,~)],10)][ljust([extract(%0,8,1,~)],10)]
+
+&DISP`BOON.ROW.CREDIT #2885=[ljust([extract(%0,1,1,~)],5)][ljust([extract(%0,2,1,~)],10)][ljust([before([last([extract(%0,3,1,~)],|)],/)],33)][ljust([extract(%0,6,1,~)],10)][ljust([extract(%0,7,1,~)],10)][ljust([extract(%0,8,1,~)],10)]
+
+&CMD`BOONS.CREDIT.PAGE #2885=$+boons/credit *:@assert [cand(isnum(%0),lte(%0,[u(F`CALC.PAGES,[words([setr(A,sql(u(SQL`GET_MY_BOONS_CREDIT,[name(%#)]),:,~))],:)])]))]={@pemit %#=[ansi(hr,ERR:)]%b%0 is either not a number or more than the pages available. There are [u(F`CALC.PAGES,[words(%qA,:)])] pages available.};@pemit %#=[u(DISP`BOONS.PAGES,%qA,%#,[mul(10,%0)],0,%0)]
+
+&CMD`BOONS.DEBT.PAGE #2885=$+boons/debt *:@assert [cand(isnum(%0),lte(%0,[u(F`CALC.PAGES,[words([setr(A,sql(u(SQL`GET_MY_BOONS_DEBT,[name(%#)]),:,~))],:)])]))]={@pemit %#=[ansi(hr,ERR:)]%b%0 is either not a number or more than the pages available. There are [u(F`CALC.PAGES,[words(%qA,:)])] pages available.};@pemit %#=[u(DISP`BOONS.PAGES,%qA,%#,[mul(10,%0)],1,%0)]
+
+&DISP`BOONS.PAGES #2885=[switch(%3,0,[header(Outstanding Boons Owed to You)]%R[u(DISP`DETAILS.HEADER)]%R[iter(lnum(1,10),[u(DISP`BOON.ROW.CREDIT,[extract(%0,[add(%2,inum(0))],1,:)])], ,%R)]%R[if(lt(%4,u(F`CALC.PAGES,words(%0,:))),[footer(P.%0/[u(F`CALC.PAGES,words(%0,:))])],[footer()])],1,[header(Outstanding Boons You Owe)]%R[u(DISP`DETAILS.HEADER)]%R[iter(lnum(1,10),[u(DISP`BOON.ROW.DEBT,[extract(%0,[add(%2,inum(0))],1,:)])], ,%R)]%R[if(lt(%4,u(F`CALC.PAGES,words(%0,:))),[footer(P.%0/[u(F`CALC.PAGES,words(%0,:))])],[footer()])])]
+
+&CMD`BOON.BANK.DETAILS #2885=$+boons/detail *:@assert [t([setr(A,[sql(u(SQL`GET_SPECIFIC_ID,%0),:,~)])])]={@pemit %#=[ansi(hr,ERR:)]%bCan't find ID %0.};@assert [cor(strmatch(name(%#),[extract(%qA,2,1,~)]),strmatch(name(%#),[extract(%qA,4,1,~)]))]={@pemit %#=[ansi(hr,ERR:)]%bID %0 is not yours.};@pemit %#=[header(Details of ID %0)]%R[u(DISP`BOON.BANK.DETAILS,%qA)]%R[footer()]
+
+&DISP`BOON.BANK.DETAILS #2885=[u(DISP`BBDETAILS.HEADER)]%R[iter([extract(%qA,3,1,~)],[ljust([before(%i0,/)],65)][ljust(after(%i0,/),13)],|,%R)]
+
+&DISP`BBDETAILS.HEADER #2885=[ljust(Reason,65)][ljust(Boons,13)]%R%b[repeat(-,76)]

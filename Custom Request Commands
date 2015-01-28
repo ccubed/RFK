@@ -1,0 +1,43 @@
+@	Custom Request Commands
+@	Coded by: Gizmo AKA Ourea, Alzie, Oukranos
+@	Email: ccubed.techno@gmail.com
+@	Date Last Touched: 1/28/15
+@----------------------------------------------------------------------------
+@	Purpose: Custom Request commands to sort jobs into different buckets and autoassign
+@----------------------------------------------------------------------------
+@	Commands:
+@	+req/<territory name> <title>/<players>=<description> - open a job about <territory name> with title <title>. Players is optional but adds extra people to a job.
+@	+req/beats <description> - Open a request to spend beats on <description>
+@	+req/infl <title>/<people>=<description> - Open a job about influence groups with title <title>. People is an optional parameter that adds extra people to a job.
+
+
+
+&CMDS`TERRITORY #3287=$+req/* *=*:@break [strmatch(%0,infl)];@assert [setq(2,0)][setq(1,[u(F`FIND_AREA,%0)])][if(not(%q1),[setq(2,1)][setq(1,[u(F`FIND_AREA,%0 [first(%1)])])])][setq(1,trim(%q1))][t(%q1)]={@pemit %#=[ansi(hw,REQ:)]%bThat wasn't a valid territory.};@assert [switch([t(after(%1,/))],0,1,1,[setr(3,[u(F`VERIFY_PLAYERS,[after(%1,/)])])])]={@pemit %#=[ansi(hw,REQ:)]%bSome of the players specified for the job weren't found.};[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,[u(F`GRAB_BUCKET,%q1)],[xget([u(F`GRAB_BUCKET,%q1)],PRIORITY)],[if(%q2,[before([after(%1,%b)],/)],[before(%1,/)])],Territory:[if(%q2,%0 [first(%1)],%0)]%R%R%2,[if(%q3,%q3 %#,%#)],[xget([u(F`GRAB_BUCKET,%q1)],staffer)];@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for [if(%q2,[before([after(%1,%b)],/)],[before(%1,/)])]
+
++req/beats text (What you're buying)
+&CMDS`BEATS #3287=$+req/beats *:[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,#2011,2,[name(%#)]'s Beat Spends,%0;@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for Beat Spends
+
++req/infl Title/other people=text
+&CMDS`INFLUENCE #3287=$+req/infl *=*:@assert [switch([t(after(%0,/))],0,1,1,[setr(3,[u(F`VERIFY_PLAYERS,[after(%1,/)])])])]={@pemit %#=[ansi(hw,REQ:)]%bSome of the players specified for the job weren't found.};[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,#2994,2,%0,%1,[if(%q3,%q3 %#,%#)];@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for %0
+
+&F`FIND_AREA #3287=[setq(0,0)][iter(lattr(me/data`*),[if([match([xget(me,%i0)],%0,|)],[setq(0,[after(%i0,`)])])])]%q0
+
+&F`VERIFY_PLAYERS #3287=[setq(4,0)][iter(%0,[if(pmatch(%i0),[setq(5,[setunion(%q5,[pmatch(%i0)])])],[setq(4,1)])])][if(%q4,0,%q5)]
+
+&F`GRAB_BUCKET #3287=[after([extract([xget(me,DATA`BUCKETS)],[element([xget(me,DATA`BUCKETS)],%0*,|)],1,|)],:)]
+
+&DATA`NINN #3287=Ramsay|Verwood|Oldtown
+&DATA`OUTR #3287=Outskirts|Arkham Heights|Airport|Derrick
+&DATA`NSIDE #3287=Borden Rim|Arkham Green|Lassiter|Grafton
+&DATA`DTWN #3287=Kirby|Chapman Fields|Asbury Marsh|Monaughey
+&DATA`RTWN #3287=East-town|Dalton|Bister Shore
+&DATA`MDIST #3287=Casford|Fairbridge|Wingrave
+&DATA`SSIDE #3287=University Ruins|Whitechapel|Birchen|Loftus
+&DATA`FHILL #3287=Covenside|Crowninshield|Merecroft|Derby
+&DATA`SINN #3287=Bridgewater|Tarbock|Newton
+&DATA`BAY #3287=Merceyside|Isley|Kingsport Head
+&DATA`MBAY #3287=Osyth|Chirk Point|Hartford|Stratton
+&DATA`WSIDE #3287=The Hollow|Central Hill|Sagecroft
+&DATA`HTWN #3287=Tiverton|Kerne|Prospect
+
+&DATA`BUCKETS #3287=NINN:#3849|BAY:#3403|SINN:#3884|MBAY:#3868|WSIDE:#3838|HTWN:#3881|FHILL:#3889|MDIST:#3159|OUTR:#2923|SSIDE:#3590|NSIDE:#3901|DTWN:#3902|RTWN:#3903
