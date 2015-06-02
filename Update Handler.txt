@@ -1,0 +1,85 @@
+@decomp update
+@@ Update Handler (#2280)
+@create Update Handler
+@link Update Handler = #39
+@set Update Handler = NO_COMMAND
+@power %wu=see_all
+@power %wu=announce
+@power %wu=sql_ok
+@@ Triggered by Player`Connect on event handler
+
+@@ Heal all bashing @ Dawn, then reduce 1 lethal to bashing.
+&EVENT`DAWN.HEAL_BASH %wu=[if([cand([get(%0/CHARGEN`APPROVED)],[not([get(%0/PC_DATA`EVENT`DAWN)])])],[if([cand([not([strmatch([get_template(%0)],VAMPIRE)])],[gt([get_hp(%0,current)],0)],[neq([right([get_hp(%0,current)],1)],3)])],[set_hp(%0,[trim([get_hp(%0,current)],1,r)])][setq(HP_EDIT,[edit([get_hp(%0,current)],,%b)])][if([eq([right([get_hp(%0,current)],1)],2)],[setq(NEW_HP_EDIT,[replace(%q<HP_EDIT>,[strlen([get_hp(%0,current)])],[dec([right(%q<HP_EDIT>,1)])])])][setq(NEW_HP,[edit(%q<NEW_HP_EDIT>,%b,)])][set_hp(%0,%q<NEW_HP>)])][remit([loc(%0)],[name(%0)] auto-heals all bashing damage and reduces 1 lethal to bashing at dawn.)])])]
+
+&EVENT`DAWN.REGAINWP %wu=[if([cand([get(%0/CHARGEN`APPROVED)],[not([get(%0/PC_DATA`EVENT`DAWN)])])],[if([cand([not([strmatch([get_template(%0)],VAMPIRE)])],[lt([get_willpower(%0,current)],[get_willpower(%0,max)])])],[set_willpower(%0,[inc([get_willpower(%0,current)])])][remit([loc(%0)],[name(%0)] auto-regains 1 willpower at dawn.)])])]
+
+&EVENT`DAWN.VAMPTORPCHK %wu=@switch/inplace [get(%0/CHARGEN`APPROVED)][strmatch([get_template(%0)],VAMPIRE)][not([get(%0/PC_DATA`EVENT`DAWN)])][lte([get_vitae(%0,current)],0)]=1111,{@nspemit/silent %0=\[[ansi(wh,**)]\] You have fallen into Torpor due to lack of blood. A job has been automatically created to your friendly ST.;+request 0 Vitae at Dawn=[name(%0)] has fallen into torpor due to lack of blood at dawn.}
+
+&EVENT`DAWN.ZZZZ_ResetDawn %wu=[attrib_set2(%0/PC_DATA`EVENT`DAWN,1)]
+
+@@ Input player %0.
+&EVENT`DUSKZZZ.AUTOWAKE %wu=@switch/inplace [get(%0/CHARGEN`APPROVED)][strmatch([get_template(%0)],VAMPIRE)][not([get(%0/PC_DATA`EVENT`DUSK)])]=111,{@switch/inplace [gt([get_vitae(%0,current)],0)]=1,{[set_vitae(%0,[dec([get_vitae(%0,current)])])]@remit [loc(%0)]=[name(%0)] auto-spends 1 vitae for waking up on a new day.},+request 0 vitae on autowake=Code tried to auto-wake [name(%0)] and failed as their current vitae is 0.}
+
+@@ [if([gt([get_vitae(%0,current)],0)],[set_vitae_new(%0,[dec([get_vitae(%0,current)])])][remit([loc(%0)],[name(%0)] auto-spends 1 vitae for waking up on a new day.)])]
+&EVENT`DUSK.AUTOWAKE %wu=[if(eq([get(%0/CHARGEN`APPROVED)][strmatch([get_template(%0)],VAMPIRE)][not([get(%0/PC_DATA`EVENT`DUSK)])],111),[switch([gt(get_vitae(%0,current),0)][hasattrval(%0,PC_DATA`EXTRAWAKE)],0*,[pemit(%0,[ansi(hr,TORPOR:)]%bYou have 0 vitae. If you don't get vitae by next dawn you will enter torpor.)],11,[set_vitae_new(%0,[sub([get_vitae(%0,current)],[inc([xget(%0,PC_DATA`EXTRAWAKE)])])])][remit(loc(%0),[name(%0)] auto-spends [inc([xget(%0,PC_DATA`EXTRAWAKE)])] for waking up on a new day.)],10,[set_vitae_new(%0,[dec([get_vitae(%0,current)])])][remit(loc(%0),[name(%0)] auto-spends 1 vitae for waking up on a new day.)])])]
+
+
+
+&EVENT`DUSK.VAMP_HEALAGG %wu=[if([cand([get(%0/CHARGEN`APPROVED)],[not([get(%0/PC_DATA`EVENT`DUSK)])])],[switch([get_template(%0)],VAMPIRE,[attrib_set2(%0/PC_DATA`VAMP.HEALAGG,0)])])]
+
+&EVENT`DUSK.ZZZZ_ResetDusk %wu=[attrib_set2(%0/PC_DATA`EVENT`DUSK,1)]
+
+@@ if player has EVENT`GHOUL_MAINT == 0, then the player needs to spend their maintenance vitae point.
+&EVENT`GHOUL.MAINT %wu=@switch/inplace [get(%0/CHARGEN`APPROVED)][strmatch([get_template(%0)],GHOUL)][not([get(%0/PC_DATA`EVENT`GHOUL_MAINT)])]=111,{@switch/inplace gt(get_vitae(%0,current),0)=1,{[set_vitae_new(%0,[dec([get_vitae(%0,current)])])][attrib_set2(%0/PC_DATA`EVENT`GHOUL_MAINT,1)]@remit loc(%0)=[name(%0)] auto-spends 1 Vitae for Ghoul Maintenance.},+request 0 Vitae Ghoul Maint=Code attempted to Auto-Spend 1 Vitae for [apostrophe_name(%0)] monthly ghoul maintenance and failed as [poss(%0)] vitae is 0.}
+
+
+&FN`DAWN %wu=[iter([lsearch(all,type,player)],[attrib_set2(%i0/PC_DATA`EVENT`DAWN,0)])][iter([mwho()],[iter([lattr(%wu/EVENT`DAWN.**)],[u(%wu/%i0,%i1)])])];@wall/emit The sun rises in the east as a new day begins.
+
+&FN`DUSK %wu=[iter([lsearch(all,type,player)],[attrib_set2(%i0/PC_DATA`EVENT`DUSK,0)])][iter([mwho()],[iter([lattr(%wu/EVENT`DUSK.**)],[u(%wu/%i0,%i1)])])];@wall/emit The sun slowly sets in the west.
+
+@@ New, I only need to parse mwho() once.
+&FN`UPDATE_HANDLER %wu=@dol mwho()=@dolist/inline lattr(%wu/update`**)=@include %wu/%i0=%i1
+
+&TICK %wu=@trigger me/fn`update_handler; @wait [rand(530,630)]={@trigger me/tick}
+
+@startup %wu=@trigger me/tick
+
+@@ Sends player to their 'home' if sendhome attribute is 1.
+&UPDATE`SENDHOME %wu=[u(SENDHOME_CHECK,%0,0)][if([get(%0/PC_DATA`SENDHOME)],[cemit(Debug,SENDHOME [name(%0)] sent home., NOISY)][pemit(%0,\[[ansi(hw,**)]\] Anti-idle sending you home!.)][tel(%0,[home(%0)],1)][attrib_set2(%0/PC_DATA`AVAILABLE,1)][set_flag(%0,!Unfindable)][attrib_set2(%0/PC_DATA`SENDHOME,0)])][u(SENDHOME_CHECK,%0,1)]
+
+@@ Sets player sendhome attribute to 1 if player has been idle for > 30 min and is approved.
+&SENDHOME_CHECK %wu=[if([cand([not(strmatch([num(loc(%0))],#0))],[get(%0/CHARGEN`APPROVED)],[gte([floordiv([idle(%0)],60)],45)],[not([strmatch([loc(%0)],[home(%0)])])])],[IF(%1,[cemit(Debug,SENDHOME [name(%0)] warned and set to go home., NOISY)][pemit(%0,\[[ansi(hw,**)]\] Anti-idle will send you Home in ~10 minutes. To cancel\, issue any pose or command to the game.)])][attrib_set2(%0/PC_DATA`SENDHOME,1)],[attrib_set2(%0/PC_DATA`SENDHOME,0)])]
+
+@@ Output 'You are Hungry' to Vampires.
+&UPDATE`VAMP_HUNGER %wu=[if([cand([not(strmatch([num(loc(%0))],#0))],[get(%0/CHARGEN`APPROVED)])],[switch([get_template(%0)],VAMPIRE,[switch([get_vitae(%0,current)],4,[pemit(%0,\[[ansi(hw,**)]\]You are getting hungry. Take -1 to frenzy checks.)],3,[pemit(%0,\[[ansi(hw,**)]\]You are almost starving. Take -1 to frenzy checks.)],2,[pemit(%0,\[[ansi(hw,**)]\]You are starving! Take -3 to frenzy checks.)],1,[pemit(%0,\[[ansi(hw,**)]\]Your hunger is ravenous! Take -3 to frenzy checks.)],0,[pemit(%0,\[[ansi(hw,**)]\]If you do not feed before dawn\, you will fall into torpor! Take -3 to frenzy checks.)])])])]
+
+
+&FN`CENSUS_BASIC_UPDATE %wu=[cemit(Debug,Basic Census Update Triggered, NOISY)][cemit(Debug,Basic Census Update Result [sql([u(FN`CENSUS_BASIC_SQL,[u(FN`CENSUS_BASIC_DATA)])])],NOISY)]
+&FN`CENSUS_CLAN_UPDATE %wu=[sql([u(FN`CENSUS_CLAN_SQL,[u(%FN`CENSUS_CLAN_DATA)])])]
+&FN`CENSUS_COVENANT_UPDATE %wu=[sql([u(FN`CENSUS_COVENANT_SQL,[u(%FN`CENSUS_COVENANT_DATA)])])]
+
+&FN`CENSUS_BASIC_DATA %wu=[setq(ALL,[active_pc_list()])][edit([trim([map(FN`CENSUS_MAP_BASIC,[active_pc_list()])][iter([get(%wl/CG_LIST`PLAYSTYLE)],[words([r(%i0)])],|)][space(1)][iter([get(%wl/CG_LIST`TEMPLATE)],[words([r(%i0)])],|)][space(1)][words(%Q<ALL>)][space(1)][words(%Q<ALT>)])],[space(1)],\,)]
+&FN`CENSUS_MAP_BASIC %wu=[setq([get(%0/PC_DATA`TEMPLATE)],[cat([r([get(%0/PC_DATA`TEMPLATE)])],%0)])][setq([get(%0/PC_DATA`PLAYSTYLE)],[cat([r([get(%0/PC_DATA`PLAYSTYLE)])],%0)])][IF([NOT([get(%0/PC_DATA`ALT_OF)])],[setq(ALT,[cat([r(ALT)],%0)])])]
+
+&FN`CENSUS_CLAN_DATA %wu=[lcstr([edit([edit([trim([map(FN`CENSUS_MAP_CLAN,[active_pc_list()])][iter([get(%wl/CG_LIST`CLAN_STATUS)],%i0=[words([r(%i0)])],|)])],[space(1)],\,)],Status_,,)])]
+&FN`CENSUS_MAP_CLAN %wu=[iter([get(%wl/CG_LIST`CLAN_STATUS)],[if([has_merit(%0,%i0)],[setq(%i0,[cat([r(%i0)],%0)])])],|)]
+
+&FN`CENSUS_COVENANT_DATA %wu=[lcstr([edit([edit([trim([map(FN`CENSUS_MAP_COVENANT,[active_pc_list()])][iter([get(%wl/CG_LIST`COVENANT_STATUS)],%i0=[words([r(%i0)])],|)])],[space(1)],\,)],Status_,,)])]
+&FN`CENSUS_MAP_COVENANT %wu=[iter([get(%wl/CG_LIST`COVENANT_STATUS)],[if([has_merit(%0,%i0)],[setq(%i0,[cat([r(%i0)],%0)])])],|)]
+
+&FN`CENSUS_BASIC_SQL %wu=INSERT INTO census (dt_time\,playstyle_civilian\,playstyle_support\,playstyle_political\,template_vampire\,template_ghoul\,template_mortal,players,characters) values(now()\,%0)
+&FN`CENSUS_CLAN_SQL %wu=UPDATE census SET %0 WHERE DATE(dt_time)=DATE(now())
+&FN`CENSUS_COVENANT_SQL %wu=UPDATE census SET %0 WHERE DATE(dt_time)=DATE(now())
+
+@wl %wu=#1705
+&WU Update Handler=#2280
+
+@@ Add these to cron
+&CRON_TIME_DAWN cron= |||06|00
+&CRON_JOB_DAWN cron= @trigger %wu/FN`DAWN
+
+&CRON_TIME_DUSK cron= |||18|30
+&CRON_JOB_DUSK cron= @trigger %wu/FN`DUSK
+
+&CRON_TIME_FEED cron= |||||
+&CRON_JOB_FEED cron=@dol mwho()={@set %i0=PC_DATA`FEED:;@set %i0=PC_DATA`FEED.AMT:}

@@ -1,0 +1,71 @@
+@	CG Library
+@	Coded by: Gizmo AKA Ourea, Alzie
+@	Email: ccubed.techno@gmail.com
+@	Date Last Touched: 3/16/2014
+@----------------------------------------------------------------------------
+@	Purpose: The Library Object stores all the important information
+@	as far as a list of merits, attributes, skills, etc
+@----------------------------------------------------------------------------
+@	Object Overview
+@	1. Library Object - Master Object
+@	2. Library Controller - Functions for adding, deleting and editing data
+
+th Library Object
+
+@create CG Library
+@desc CG Library=General Purpose CG Library. Do not delete me.
+@create CG Description DB
+@desc CG Description DB=CG Description Library. Holds description text for all stats. I can be safely deleted.%RCoded by Gizmo AKA Oureadalf AKA Ourea AKA Alzie
+th [set(CG Library,va:[num(CG Description DB)])]
+th [set(CG Library,platform:[switch(version(),*penn*,0,*tinymux*,1,You must have rhostmush or another type of MU distribution. Please set the platform attribute of the CG Library to 0 if your system supports attrib_set or 1 if it only supports set. If it supports neither then you cannot use this system.)])]
+
+th End Library Object
+
+th Library Controller
+
+@create Library Controller
+th [set(Library Controller,va:[num(CG Library)])]
+th [set(Library Controller,vb:[num(CG Description DB)])]
+
+&CMD.NEW.STAT.TYPE #4079=$+stat/addtype *:@assert [isstaff(%#)]={@pemit %#=[ansi(hr,DENIED:)]%bStaff Only};@assert [t(%0)]={@pemit %#=[ansi(hr,ALERT:)]%bYou didn't specify the name of the type.};[set(%va,LIST_STATS:[setunion(xget(%va,LIST_STATS),edit(%0,%b,-))])];@pemit %#=[ansi(hw,NOTICE:)]%bAdded a new stat type to the system: %0. You may now use +stat/lock %0/Stat-Type\=Value to lock it to specific combinations of stats and +stat/aspect %0/Stat\=lock/value to lock individual stats to a specific combination of things. Also, don't forget to use +stat/display *\=\[Single|Dual\] to tell me how to display the stats when asked.
+
+&CMD.ADD.STAT #4079=$+stat/add *=*:@assert [isstaff(%#)]={pemit %#=[ansi(hr,DENIED:)]%bStaff Only};@assert [gte([words(%1,/)],1)]={@pemit %#=[ansi(hr,ALERT:)]%bYou didn't specify any details about the stat you are adding.};@assert [match(xget(%va,LIST_STATS),[edit(%0,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%bThat's not a valid stat type.};[set(%va,LIST_[edit(%0,%b,-)]:[setunion(xget(%va,LIST_[edit(%0,%b,-)]),%1,|,|)])];@pemit %#=[ansi(hw,NOTICE:)]%bAdded %1 to %0.
+
+&CMD.ADD.STAT.EX #4079=$+stat/addex *=*:@assert [isstaff(%#)]={pemit %#=[ansi(hr,DENIED:)]%bStaff Only};@assert [gte([words(%1,/)],1)]={@pemit %#=[ansi(hr,ALERT:)]%bYou didn't specify any details about the stat you are adding.};@assert [match(xget(%va,LIST_STATS),[edit(%0,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%bThat's not a valid stat type.};@switch [words(%1,/)]=1,[set(%va,LIST_[edit(%0,%b,-)]:[setunion([if(t(setr(x,xget(%va,LIST_[edit(%0,%b,-)]))),%qX,)],%1/0,|,|)])][pemit(%#,[ansi(hw,NOTICE:)]%bAdded %1 to %0. It can be set to any level.)],2,[set(%va,LIST_[edit(%0,%b,-)]:[setunion(xget(%va,LIST_[edit(%0,%b,-)]),[before(%1,/)]/[after(%1,/)],|,|)])][pemit(%#,[ansi(hw,NOTICE:)]%bAdded [before(%1,/)] to %0. It can be set to the following levels: [after(%1,/)].)]
+
+&CMD.REM.STAT #4079=$+stat/rem *=*:@assert [isstaff(%#)]={pemit %#=[ansi(hr,DENIED:)]%bStaff Only};@assert [hasattr(%va,LIST_[edit(%0,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%bThat's not a valid stat type or there are no stats defined for the type.};@set %va=LIST_[edit(%0,%b,-)]:[u(FN.REMOVE_ENTRY,[xget(%va,LIST_[edit(%0,%b,-)])],%1)];@pemit %#=[ansi(hw,NOTICE:)]%b%1 removed from %0
+
+&CMD.ADD.DESC #4079=$+stat/desc */*=*:@assert [isstaff(%#)]={pemit %#=[ansi(hr,DENIED:)]%bStaff Only};@assert [match(xget(%va,LIST_STATS),[edit(%0,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%bThat's not a valid stat type.};@assert [match(xget(%va,LIST_[edit(%0,%b,-)]),*%1*,|)]={@pemit %#=[ansi(hr,ALERT:)]%bCouldn't find that stat in the given type.};[set(%vb,[edit(%0,%b,-)]-[edit(%1,%b,-)]:%2)];@pemit %#=[ansi(hw,NOTICE:)]%bAdded description to %1
+
+
+&CMD.STAT.VIEW #4079=$+stat/view */*:@assert [match(xget(%va,LIST_STATS),[edit(%0,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%bThat's not a valid stat type.};@assert [hasattr(%vb,[edit(%0,%b,-)]-[edit(%1,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%b%1 does not have a stored description. Ask a staffer to add one.};@pemit %#=[header(%1)]%R[eval(%vb,[edit(%0,%b,-)]-[edit(%1,%b,-)])]%R[footer()]
+
+&CMD.STAT.LIST.BASE #4079=$+stat/list:@pemit %#=[header(Stat Types)]%RI have the following stat types:%R%T[itemize(xget(%va,LIST_STATS))]%R[footer()]
+
+&CMD.STAT.LIST.SPECIFIC #4079=$+stat/list *:@assert [hasattr(%va,LIST_[edit(%0,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%b%0 doesn't match any current stat type.};[setq(b,[switch(xget(%va,DISPLAY_[edit(%0,%b,-)]),Single,1,Dual,2,1)])];@pemit %#=[header(List of %0)]%RI have the following [ucstr(%0)]:%R%R[iter(setr(a,xget(%va,LIST_[edit(%0,%b,-)])),[ansi([if(mod(inum(0),2),hw,ny)],[switch(%qB,1,[ljust([edit(%i0,-,%b)],39)][if(not(mod(inum(0),2)),%R)],2,[ljust([edit(before(%i0,/),-,%b)],39)][rjust(Levels: [after(%i0,/)],39)]%R)])],|,[space(0)])]%R[footer()]
+
+[switch(%qA,1,[ljust([edit(%i0,-,%b)],39)][if(not(mod(inum(0),2)),%R)],2,[ljust([edit(before(%i0,/),-,%b)],39)][rjust(Levels: after(%i0,/),39)]%R)]
+
+&CMD.STAT.DISPLAY #4079=$+stat/display *=*:@assert [isstaff(%#)]={pemit %#=[ansi(hr,DENIED:)]%bStaff only.};@assert [match(xget(%va,LIST_STATS),[edit(%0,%b,-)])]={@pemit %#=[ansi(hr,ALERT:)]%bThat's not a valid stat type.};@assert [match(Single Dual,%1)]={@pemit %#=[ansi(hr,ALERT:)]%bDisplay type can only be Single or Dual.};[set(%va,DISPLAY_[edit(%0,%b,-)]:%1)];@pemit %#=[ansi(hw,NOTICE:)]%b%0's display type set to %1.
+
+&FN.REMOVE_ENTRY #4079=[ldelete(%0,[match(%0,%1*,|)],|)]
+
+&CMD.STAT.SET [xget(me,GNITCG)]=$+stat/set */*=*:@assert [isstaff(%#)]={@pemit %#=[ansi(hr,STAFF ONLY)]};@assert [pmatch(%0)]={@pemit %#=[ansi(hr,%0 doesn't match a player.)]};@assert [hasattr(%va,LIST_[edit(%1,%b,_)])]={@pemit %#=[ansi(hr,%1 doesn't match a stat type.)]};@assert [gte([words(%2,:)],2)]={@pemit %#=[ansi(hr,Didn't put in a stat or level)]};@switch [strmatch(%2,!*)][strmatch(%2,*Specialty*)]=00,{@pemit %#=[u(F.SET.STAT,[pmatch(%0)],[edit(%1,%b,_)],%2)]},10,{@pemit %#=[u(F.REMOVE.STAT,[pmatch(%0)],[edit(%1,%b,_)],%2)]},01,{@pemit %#=[u(F.SPEC.ADD,[pmatch(%0)],[edit(%1,%b,_)],%2)]},11,{@pemit %#=[u(F.SPEC.REM,[pmatch(%0)],[edit(%1,%b,_)],%2)]}
+
+@@ Passed - Player DBRef, Type, Merit:Level/Notes
+&F.SET.STAT #4079=[setq(a,[before(%2,:)])][switch(words(after(%2,:),/),1,[if(setr(z,match(xget(%0,%1),%qA*,|)),[set(%0,%1:[edit(xget(%0,%1),extract(xget(%0,%1),%qZ,1,|),%qA~[after(%2,:)]~)])],[set(%0,%1:[setunion(xget(%0,%1),%qA~[after(%2,:)]~,|,|)])])],2,[if(setr(z,match(xget(%0,%1),%qA~*~[after(after(%2,:),/)],|)),[set(%0,%1:[edit(xget(%0,%1),extract(xget(%0,%1),%qZ,1,|),%qA~[before(after(%2,:),/)]~[after(after(%2,:),/)])])],[set(%0,%1:[setunion(xget(%0,%1),%qA~[before(after(%2,:),/)]~[after(after(%2,:),/)],|,|)])])])][set(%0/%1,Wizard)][set(%0/%1,Mortal_dark)][ansi(hw,Stats:)]%bAdded %qA to [name(%0)] as [edit(%2,_,%b)]
+
+@@ Passed - Player DBRef, Type, Merit:Level/Notes
+&F.REMOVE.STAT #4079=[setq(a,[edit([before(%2,:)],!,)])][setq(b,[lcstr(xget(%0,%1))])][switch(words(%qB,|),0,[ansi(hw,Stats:)]%bNo [edit(%2,_,%b)] on player,[set(%0,%1:[setdiff(lcstr(xget(%0,%1)),[lcstr(%qA~[before(after(%2,:),/)]~[after(after(%2,:),/)])],|,|)])][ansi(hw,Stats:)]%bRemoved [before(%2,:)][if(t(setr(test,[after(%2,/)])),%b%q<test>)] from [name(%0)])]
+
+&FN.SPEC.ADD [xget(me,GNITCG)]=[setq(A,[before([after(%2,:)],.)])][setq(b,[after([after(%2,:)],.)])][if(member(xget(%va,LIST_%1),%qA,|),[set(%0,%1.SPECS:[setunion(xget(%0,%1.SPECS),%qA~%qB,|,|)])][ansi(hw,STAT:)]%bAdded %qB as a specialty of %qA,[ansi(hr,STAT:)]%b%qA doesn't match a skill.)]
+
+&FN.SPEC.REM [xget(me,GNITCG)]=[setq(A,[before([after(%2,:)],.)])][setq(b,[after([after(%2,:)],.)])][set(%0,%1.SPECS:[setdiff(lcstr(xget(%0,%1.SPECS)),lcstr(%qA~%qB),|,|)])][ansi(hr,STAT:)]%bRemoved %qB Specialty from [name(%0)] for skill %qA.
+
+@@ Passed - Player DBREF, Type, What
+&FN.GET.STAT [xget(me,GNITCG)]=[switch([hasattrval(%0,%1)][t([setr(num,[match(xget(%0,%1),%2*,|)])])],0*,0,10,0,11,[extract([extract(xget(%0,%1),%q<num>,1,|)],2,1,~)])]
+
+@@ passed - Player DBREF, Type, What, Note
+&FN.GET.STAT.EX [xget(me,GNITCG)]=[switch([hasattrval(%0,%1)][t([setr(num,[match(xget(%0,%1),%2~*~%3,|)])])],0*,0,10,0,11,[extract([extract(xget(%0,%1),%q<num>,1,|)],2,1,~)])]
+
+th End Library Controller

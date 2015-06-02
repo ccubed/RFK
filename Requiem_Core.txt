@@ -1,0 +1,139 @@
+@@ Code Core (#1706)
+@create Code Core
+@link Code Core = #39
+@set Code Core = SAFE
+@set Code Core = !NO_COMMAND
+@power Code Core = Chat_Privs
+@power Code Core = Functions
+@power Code Core = Long_Fingers
+@power Code Core = See_All
+
+@desc %wc=Requiem for Kingsmouth Code Core. Please DO NOT DELETE... thank you.
+
+&FUNCTIONS Code Core=Core Functions which all systems will use.
+&FUNCTIONS`FUN Code Core=Fun.functionname for @startup @function declaration.
+&FUNCTIONS`FUN.APOSTROPHE_NAME Code Core=[setr(NAME,[name(*%0)][if([strmatch([right([name(*%0)],1)],s)],','s)])]
+@@ get_attrib(player,long_stat)
+@@ returns player attribute number
+&FUNCTIONS`FUN.GET_ATTRIB %wc=[setq(STAT,[map_attrib(%1)])][if([not([strmatch(%q<STAT>,ERROR)])],[if([hasattrval(%0/PC_DATA`ATTRIBS`%q<STAT>)],[get(%0/PC_DATA`ATTRIBS`%q<STAT>)],0)],0)]
+
+&FUNCTIONS`FUN.GET_DISCIPLINE %wc=[setq(t,0)][unsetq(GDISCIPLINE)][setq(GDISCIPLINE,%1)][iter([get(%0/PC_DATA`DISCIPLINES)],[if([strmatch(%i0,%q<GDISCIPLINE>:*)],[elements(%i0,2,:)][setq(t,1)][ibreak()])],|,)][if([not(%qt)],[t(%qt)])]
+
+&FUNCTIONS`FUN.GET_DISCIPLINE_THEME %wc=[setq(t,0)][unsetq(GTHEME)][setq(GTHEME,%1)][iter([get(%0/PC_DATA`DISCIPLINES.THEMES)],[if([strmatch(%i0,%q<GTHEME>:*)],[elements(%i0,2,:)][setq(t,1)][ibreak()])],|,)][if([not(%qt)],[t(%qt)])]
+
+&FUNCTIONS`FUN.GET_HP %wc=[switch(%1,current,[get(%0/PC_DATA`STATUS`HP)],max,[add([get_attrib(%0,stamina)],[get(%0/PC_DATA`SIZE)])],[pemit(%0, BUG: Get_HP did not accept 'current' or 'max'. Please report to Kougyoku.)])]
+
+&FUNCTIONS`FUN.GET_MERIT %wc=[setq(t,0)][unsetq(GMERIT)][setq(GMERIT,[edit(%1,_,[space(1)])])][iter([get(%0/PC_DATA`MERITS)],[if([strmatch(%i0,%q<GMERIT>:*)],[elements(%i0,2,:)][setq(t,1)][ibreak()])],|,)][if([not(%qt)],[t(%qt)])]
+
+@@ input %0 "current", %1 "max". Returns percentage of current to max.
+&FUNCTIONS`FUN.GET_PERCENTAGE %wc=[setq(p,[floor([div([mul(%0,100)],%1)])])]%qp
+
+&FUNCTIONS`FUN.GET_SKILL Code Core=[setq(t,0)][unsetq(GSKILL)][setq(GSKILL,%1)][iter([strcat([get(%0/PC_DATA`SKILL.MENTAL)],|[get(%0/PC_DATA`SKILL.PHYSICAL)],|[get(%0/PC_DATA`SKILL.SOCIAL)])],[if([strmatch(%i0,%q<GSKILL>:*)],[elements(%i0,2,:)][setq(t,1)][ibreak()])],|,)][if([not(%qt)],[t(%qt)])]
+
+&FUNCTIONS`FUN.GET_TEMPLATE Code Core=[get(%0/PC_DATA`TEMPLATE)]
+&FUNCTIONS`FUN.GET_CLAN %wc=[get(%0/PC_DATA`CLAN)]
+
+@@ Input item %0. Returns ATTRIB, SKILL, MERIT, SPECIALTY, TEMPLATE, COVENANT, CLAN, or DISCIPLINE.
+&FUNCTIONS`FUN.GET_TYPE %wc=[setq(t,0)][setq(TYPE,0)][iter([get(%wl/CG_LIST`ATTRIBUTE.FOR_TABLE)],[if([strmatch(%0,%i0)],[setq(TYPE,ATTRIB)][setq(t,1)][ibreak()],[setq(t,0)])],|,)][if([not(%qt)],[iter([get(%wl/CG_LIST`SKILLS.FOR_TABLE)],[if([strmatch(%0,%i0)],[setq(TYPE,SKILL)][setq(t,1)][ibreak()],[setq(t,0)])],|,)])][if([not(%qt)],[iter([get(%wl/CG_LIST`MERITS`COST)],[if([strmatch(%i0,[edit(%0,[space(1)],_)]:*)],[setq(TYPE,MERIT)][setq(t,1)][ibreak()],[setq(t,0)])],|,)])][if([not(%qt)],[if([strmatch(%0,Spec_*)],[setq(TYPE,SPECIALTY)][setq(t,1)],[setq(t,0)])])][if([not(%qt)],[switch(%0,HUMAN,[setq(TYPE,TEMPLATE)][setq(t,1)],GHOUL,[setq(TYPE,TEMPLATE)][setq(t,1)],VAMPIRE,[setq(TYPE,TEMPLATE)][setq(t,1)],[setq(t,0)])])][if([not(%qt)],[iter([get(%wl/CG_LIST`COVENANT)],[if([strmatch(%0,%i0)],[setq(TYPE,COVENANT)][setq(t,1)][ibreak()],[setq(t,0)])],|,)])][if([not(%qt)],[iter([get(%wl/CG_LIST`CLAN)],[if([strmatch(%0,%i0)],[setq(TYPE,CLAN)][setq(t,1)][ibreak()],[setq(t,0)])],|,)])][if([not(%qt)],[iter([strcat([get(%wl/CG_LIST`DISCIPLINES.DOSTUFF)],|[get(%wl/CG_LIST`DISCIPLINES.PHYSICAL)],|[get(%wl/CG_LIST`DISCIPLINES.RITUAL)])],[if([strmatch(%0,%i0)],[setq(TYPE,DISCIPLINE)][setq(t,1)][ibreak()],[setq(t,0)])],|,)])][if([not(%qt)],[setq(TYPE,ERROR)])]%q<TYPE>
+
+&FUNCTIONS`FUN.GET_VITAE %wc=[switch(%1,current,[get(%0/PC_DATA`STATUS`VITAE)],max,[switch([get_merit(%0,Blood Potency)],0,[get_attrib(%0,Stamina)],1,10,2,11,3,12,4,13,5,15,6,20,7,25,8,30,9,50,10,75)],per_round,[switch([get_merit(%0,Blood Potency)],0,1,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,10,10,15)],[pemit(%0, BUG: Get_Vitae did not accept 'current'\, 'max'\, or per_round. Please report to Kougyoku.)])]
+
+&FUNCTIONS`FUN.GET_WILLPOWER %wc=[switch(%1,current,[get(%0/PC_DATA`STATUS`WILLPOWER)],max,[add([get_attrib(%0,resolve)],[get_attrib(%0,composure)],[get(%0/PC_DATA`STATUS`WILLPOWER`PURCHASED)])],[pemit(%0, BUG: Get_Willpower did not accept 'current' or 'max'. Please report to Kougyoku.)])]
+
+&FUNCTIONS`FUN.HAS_DISCIPLINE %wc=[gt([get_discipline(%0,%1)],0)]
+&FUNCTIONS`FUN.HAS_MERIT %wc=[gt([get_merit(%0,%1)],0)]
+&FUNCTIONS`FUN.HAS_RITUAL %wc=[iter([get(%0/PC_DATA`RITUALS)],[if([strmatch(%i0,%1)],[setq(s,1)][ibreak()],[setq(s,0)])],|,)]%qs
+
+&FUNCTIONS`FUN.HAS_SKILL %wc=[gt([get_skill(%0,%1)],0)]
+&FUNCTIONS`FUN.HAS_SPECIALTY %wc=[iter([get(%0/PC_DATA`SKILL.SPECIALTIES)],[if([strmatch(%i0,%1)],[setq(s,1)][ibreak()],[setq(s,0)])],|,)]%qs
+
+&FUNCTIONS`FUN.IF_ACTIVE_PC %wc=[setq(t,0)][if([and([not([get(%0/INACTIVE)])],[lte([sub([convtime([time()])],[convtime([get(%0/last)])])],604800)])],[setq(t,1)])][t(%qt)]
+&FUNCTIONS`FUN.ACTIVE_PC_FILTER %wc=[if(eq([get(%0/CHARGEN`APPROVED)][if_active_pc(%0)],11),1,0)]
+&FUNCTIONS`FUN.ACTIVE_PC_LIST %wc=[filter(%wc/FUNCTIONS`FUN.ACTIVE_PC_FILTER,[lsearch(all,type,player)])]
+&FUNCTIONS`FUN.SQL_DBREF %wc=[trim([num(%0)],#)]
+&FUNCTIONS`FUN.SQL_DBREF_LIST %wc=[setq(LIST,%0)][setq(DELIM,%1)][map(FUNCTIONS`FUN.SQL_DBREF,%q<LIST>,[IF(%q<DELIM>,%q<DELIM>,[space(1)])],\,)]
+&FUNCTIONS`FUN.IS_IMMORTAL Code Core=[orflags(*%0,Wr)]
+
+@@ map_attrib(attribute_long_name)
+@@ returns shortened version for use in PC_DATA`ATTRIBS
+&FUNCTIONS`FUN.MAP_ATTRIB %wc=[switch(%0,Intelligence,[setq(STAT,INT)],Wits,[setq(STAT,WITS)],Resolve,[setq(STAT,RESOLVE)],Strength,[setq(STAT,STR)],Dexterity,[setq(STAT,DEX)],Stamina,[setq(STAT,STA)],Presence,[setq(STAT,PRE)],Manipulation,[setq(STAT,MANIP)],Composure,[setq(STAT,COMP)],[setq(STAT,ERROR)])]%q<STAT>
+
+&FUNCTIONS`FUN.MAP_MPS %wc=[switch(%0,M,Mental,P,Physical,S,Social,Mental,M,Physical,P,Social,S,ERROR)]
+
+@@ roll_dice(type,num_dice), type %0, num_dice %1.
+@@ returns number of successes as %q<NSUCC>
+&FUNCTIONS`FUN.ROLL_DICE %wc=[iter([lattr(%wc/ROLL`DICE`**)],[attrib_set(%wc/%i0,0)],,)][setq(NUM_DICE,%1)][setq(SUCC_NUM,8)][setq(FAIL_NUM,0)][switch(%0,/1,[setq(X_AGAIN,11)][setq(NUM_DICE,1)][setq(SUCC_NUM,10)][setq(FAIL_NUM,1)],/8,[setq(X_AGAIN,8)],/9,[setq(X_AGAIN,9)],/0,[setq(X_AGAIN,11)],/none,[setq(X_AGAIN,11)],[setq(X_AGAIN,10)])][attrib_set(%wc/ROLL`DICE`RESULT`BASE,[die(%q<NUM_DICE>,10,1)])][iter([get(%wc/ROLL`DICE`RESULT`BASE)],[if([lte(%i0,%q<FAIL_NUM>)],[attrib_set(%wc/ROLL`DICE`TOTAL.FAIL,[inc([get(%wc/ROLL`DICE`TOTAL.FAIL)])])])][if([gte(%i0,%q<SUCC_NUM>)],[attrib_set(%wc/ROLL`DICE`TOTAL.SUCC,[inc([get(%wc/ROLL`DICE`TOTAL.SUCC)])])][if([gte(%i0,%q<X_AGAIN>)],[attrib_set(%wc/ROLL`DICE`NUM.ED,[inc([get(%wc/ROLL`DICE`NUM.ED)])])])])],,)][if([gt([get(%wc/ROLL`DICE`NUM.ED)],0)],[u(%wc/ROLL`DICE.1,[get(%wc/ROLL`DICE`NUM.ED)])])][setq(NSUCC,[add([get(%wc/ROLL`DICE`TOTAL.SUCC)],[get(%wc/ROLL`DICE`TOTAL.EDSUCC)])])]%q<NSUCC>
+
+@@ Added cheap hack to set_hp for healing to work properly.
+&FUNCTIONS`FUN.SET_HP %wc=[if([isnum(%1)],[attrib_set2(%0/PC_DATA`STATUS`HP,[trim([round(%1,0)],0)])],[set_hp(%0,0)])]
+&FUNCTIONS`FUN.SET_VITAE %wc=[cemit(Debug,set_vitae called for: [name(%0)] Caller %@ Executor %#,NOISY)]
+&FUNCTIONS`FUN.SET_VITAE_NEW %wc=[attrib_set2(%0/PC_DATA`STATUS`VITAE,[round(%1,0)])][cemit(Debug,set_vitae_new called for: [name(%0)] Caller %@ Executor %# set to [round(%1,0)],NOISY)]
+
+&FUNCTIONS`FUN.SET_WILLPOWER %wc=[attrib_set2(%0/PC_DATA`STATUS`WILLPOWER,[round(%1,0)])]
+
+&FUNCTIONS`DATA.DATE_TIME_VALID_REGEX %wc=^\[0-9\]\{4\}-\(\(\(0\[13578\]|\(10|12\)\)-\(0\[1-9\]|\[1-2\]\[0-9\]|3\[0-1\]\)\)|\(02-\(0\[1-9\]|\[1-2\]\[0-9\]\)\)|\(\(0\[469\]|11\)-\(0\[1-9\]|\[1-2\]\[0-9\]|30\)\)) (\[012\]\[01234\]:\[012345\]\\d:\[012345\]\\d\)$
+&FUNCTIONS`DATA.DATE_VALID_REGEX %wc=^\[0-9\]\{4\}-\(\(\(0\[13578\]|\(10|12\)\)-\(0\[1-9\]|\[1-2\]\[0-9\]|3\[0-1\]\)\)|\(02-\(0\[1-9\]|\[1-2\]\[0-9\]\)\)|\(\(0\[469\]|11\)-\(0\[1-9\]|\[1-2\]\[0-9\]|30\)\)\)$
+&FUNCTIONS`FUN.SQL_DATE_TIME %wc=[timefmt($Y-$m-$d $H:$M:$S)]
+&FUNCTIONS`FUN.DATE_TIME_VALID %wc=[regmatch(%0,[u(%wc/FUNCTIONS`DATA.DATE_TIME_VALID_REGEX)])]
+&FUNCTIONS`FUN.DATE_VALID %wc=[regmatch(%0,[u(%wc/FUNCTIONS`DATA.DATE_VALID_REGEX)])]
+
+&FUNCTIONS`FUN.GET_DEFENSE_UNARMED_BASE %wc=[setq(m,0)][if([not(%qm)],[setq(m,[if([has_merit(%0,Defensive Combat Brawl)],[get_skill(%0,Brawl)],0)])])][add([min([get_attrib(%0,Wits)],[get_attrib(%0,Dexterity)])],[max([get_skill(%0,Athletics)],%qm)],[get_discipline(%0,Celerity)])]
+&FUNCTIONS`FUN.GET_DEFENSE_ARMED_BASE %wc=[setq(m,0)][if([not(%qm)],[setq(m,[if([has_merit(%0,Defensive Combat Weaponry)],[get_skill(%0,Weaponry)],0)])])][add([min([get_attrib(%0,Wits)],[get_attrib(%0,Dexterity)])],[max([get_skill(%0,Athletics)],%qm)],[get_discipline(%0,Celerity)])]
+
+&FUNCTIONS`FUN.GET_DEFENSE_UNARMED %wc=[add([get_defense_unarmed_base(%0)],[get(%0/PC_DATA`STATUS`UNARMED_DEFENSE_MOD)])]
+&FUNCTIONS`FUN.GET_DEFENSE_ARMED %wc=[add([get_defense_armed_base(%0)],[get(%0/PC_DATA`STATUS`ARMED_DEFENSE_MOD)])]
+
+&FUNCTIONS`FUN.GET_INIT_MOD_BASE %wc=[add([get_attrib(%0,Dexterity)],[get_attrib(%0,Composure)],[get_merit(%0,Fast Reflexes)])]
+&FUNCTIONS`FUN.GET_INIT_MOD %wc=[add([get_init_mod_base(%0)],[get(%0/PC_DATA`STATUS`INIT_MOD_MOD)])]
+
+&FUNCTIONS`FUN.GET_SPEED %wc=[add([get_attrib(%0,Strength)],[get_attrib(%0,Dexterity)],5,[get_merit(%0,Fleet of Foot)],[get(%0/PC_DATA`STATUS`SPEED_MOD)])]
+
+&FUNCTIONS`FUN.WIELDED #1706=[iter([get(%0/PC_DATA`WIELDED)],[before([xget(#3637,%i0)],/)][space(1)]\([after([setq(0,[element([after(xget(#3637,%i0),/)],Init*,|)])][if(%q0,[extract([after(xget(#3637,%i0),/)],%q0,1,|)],0)],:)]\), ,\,[space(1)])]
+
+&HOOK`EMIT %wc=@remit [loc(%#)]=%r
+&HOOK`POSE %wc=@remit [loc(%#)]=%r
+&HOOK`SAY %wc=@remit [loc(%#)]=%r
+
+@@ Loop for roll_dice function to reroll x-again. Returns %q<RD> number of successes gained.
+@@ Set the total number of extra dice we rolled and the times we rolled ED.
+@@ Set our results.
+@@ Reset the number of ED to roll so we can explode again.
+@@ If any results < 8 (hard coded as 8 and above is success, may need changing),
+@@   Increment the number of ED Successes.
+@@   If the result is < X_AGAIN, increment number of ED to roll.
+@@ Finally, if we have any more ED to roll, kick off the other half of the loop.
+&ROLL`DICE.1 %wc=[attrib_set(%wc/ROLL`DICE`TOTAL.ED,[add([get(%wc/ROLL`DICE`TOTAL.ED)],%0)])][attrib_set(%wc/ROLL`DICE`NUM.ED.T,[inc([get(%wc/ROLL`DICE`NUM.ED.T)])])][attrib_set(%wc/ROLL`DICE`RESULT`ED.[get(%wc/ROLL`DICE`NUM.ED.T)],[die(%0,10,1)])][attrib_set(%wc/ROLL`DICE`NUM.ED,0)][iter([get(%wc/ROLL`DICE`RESULT`ED.[get(%wc/ROLL`DICE`NUM.ED.T)])],[if([gte(%i0,8)],[attrib_set(%wc/ROLL`DICE`TOTAL.EDSUCC,[inc([get(%wc/ROLL`DICE`TOTAL.EDSUCC)])])][if([gte(%i0,%q<X_AGAIN>)],[attrib_set(%wc/ROLL`DICE`NUM.ED,[inc([get(%wc/ROLL`DICE`NUM.ED)])])])])],,)][if([gt([get(%wc/ROLL`DICE`NUM.ED)],0)],[u(%wc/ROLL`DICE.2,[get(%wc/ROLL`DICE`NUM.ED)])])]
+
+@@ Same thing as ROLL`DICE.1
+&ROLL`DICE.2 %wc=[attrib_set(%wc/ROLL`DICE`TOTAL.ED,[add([get(%wc/ROLL`DICE`TOTAL.ED)],%0)])][attrib_set(%wc/ROLL`DICE`NUM.ED.T,[inc([get(%wc/ROLL`DICE`NUM.ED.T)])])][attrib_set(%wc/ROLL`DICE`RESULT`ED.[get(%wc/ROLL`DICE`NUM.ED.T)],[die(%0,10,1)])][attrib_set(%wc/ROLL`DICE`NUM.ED,0)][iter([get(%wc/ROLL`DICE`RESULT`ED.[get(%wc/ROLL`DICE`NUM.ED.T)])],[if([gte(%i0,8)],[attrib_set(%wc/ROLL`DICE`TOTAL.EDSUCC,[inc([get(%wc/ROLL`DICE`TOTAL.EDSUCC)])])][if([gte(%i0,%q<X_AGAIN>)],[attrib_set(%wc/ROLL`DICE`NUM.ED,[inc([get(%wc/ROLL`DICE`NUM.ED)])])])])],,)][if([gt([get(%wc/ROLL`DICE`NUM.ED)],0)],[u(%wc/ROLL`DICE.1,[get(%wc/ROLL`DICE`NUM.ED)])])]
+
+
+@@ q-Vars properly stored as attribs for total number of extra dice rolled 
+@@ and total number of 'extra dice successes'
+@@ Contains rolled dice on initial roll.
+&ROLL`DICE`RESULT`BASE %wc=0
+@@ Contains rolled dice on extra rolls.
+&ROLL`DICE`RESULT`ED.1 %wc=0
+&ROLL`DICE`RESULT`ED.2 %wc=0
+&ROLL`DICE`RESULT`ED.3 %wc=0
+&ROLL`DICE`RESULT`ED.4 %wc=0
+&ROLL`DICE`RESULT`ED.5 %wc=0
+@@ Number of Extra Dice to roll.
+&ROLL`DICE`NUM.ED %wc=0
+@@ Keeps track of the amount of times we rolled ED.
+&ROLL`DICE`NUM.ED.T %wc=0
+@@ Total number of extra dice rolled.
+&ROLL`DICE`TOTAL.ED %wc=0
+@@ Total number of ED Successes
+&ROLL`DICE`TOTAL.EDSUCC %wc=0
+@@ Total number of failures.
+&ROLL`DICE`TOTAL.FAIL %wc=0
+@@ Total number of regular successes on initial roll.
+&ROLL`DICE`TOTAL.SUCC %wc=0
+
+
+&TR_STARTUP Code Core=@dolist lattr(me/functions`fun.*)=@function [after(%i0,.)]=%!, %i0
+
+&WC Code Core=#1706
+&WL Code Core=#1705
+

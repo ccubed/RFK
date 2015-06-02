@@ -1,0 +1,33 @@
+@@ CG Final Touches (#1762)
+@dig/teleport CG Final Touches
+@parent here=#44
+@set here = WIZARD
+@power here = See_All
+&CMD here=
+
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+
+&CMD`ASPIRATION #1762=$+aspiration *:@include #1762/FN`ASPIRATION=%0
+&CMD`ASPIRATIONS/WIPE #1762=$+aspirations/wipe:@include #1762/FN`ASPIRATION_WIPE=%0
+&CMD`BREAK here=$+break *:@include #1762/FN`BREAK=%0
+&CMD`BREAK/WIPE here=$+break/wipe:@include #1762/FN`BREAK_WIPE=%0
+&CMD`TOUCHSTONE here=$+touchstone *:@include #1762/FN`TOUCHSTONE=%0
+
+&DESCRIBE #1762=You're almost done! We just need a few final touches to round out your character. %r%r[ansi(h,Aspirations)] are goals for your character, simple statements of intent about what you hope to accomplish in the near future. Please choose three aspirations. At least one should be short-term, something you hope to accomplish within the next week of play. At least one should be comparatively long-term, a major goal you are working toward but do not expect to complete within the month. See +HELP CG ASPIRATIONS for examples.%r%r[ansi(h,Breaking points)] set the boundaries for what your character can rationalize or handle, either in your own actions or in what they can witness without being rattled by it. These do not necessarily equate to morality - you can believe that killing in self-defense is morally right but still recognize that you would be significantly shaken by doing so. To set your initial breaking points, please answer the following five questions. See +HELP CG BREAK for examples.%r* What is the worst thing your character has ever done?%r* What is the worst thing your character can imagine doing?%r* What is the worst thing your character can imagine someone else doing?%r* What is the most traumatic thing that has ever happened to your character?%r* What important thing has your character forgotten?%r%r[ansi(h,For vampires only:)]%rMaintaining some contact with humanity helps a vampire keep the world in perspective. A Touchstone is part of the mortal world, usually a living, breathing person, though rarely it can be a place or a thing. A Touchstone is someone fundamentally positive to the vampire, associated with their Mask rather than their Dirge. Who is your touchstone? See '+HELP CG TOUCHSTONES' for examples.%R%RCommands:%R +aspiration <text>%tAdds an aspirations.%R +aspirations/wipe%tResets your aspirations%R +break <text>%t%tAdds a breaking point.%R +break/wipe%t%tResets your breaking points.%R +touchstone <text>%tVampires only, sets your touchstone to <text>.%r +review%t%tReviews your progress.%r%rIf you want to be a Political or Support player, go here and fill out this additional application: http://kingsmouth.info/wiki/Application
+
+
+&FN`ASPIRATION #1762=[attrib_set(%#/PC_DATA`ASPIRATIONS_CG,[IF([get(%#/PC_DATA`ASPIRATIONS_CG)],[get(%#/PC_DATA`ASPIRATIONS_CG)]|)][edit([decompose(%0)],\\,)])][pemit(%#,Aspiration added!)]
+&FN`ASPIRATION_WIPE #1762=[wipe(%#/PC_DATA`ASPIRATIONS_CG)][pemit(%#,Aspirations wiped!)]
+
+&FN`BREAK #1762=[attrib_set(%#/PC_DATA`BREAKING_POINTS,[IF([get(%#/PC_DATA`BREAKING_POINTS)],[get(%#/PC_DATA`BREAKING_POINTS)]|)][edit([decompose(%0)],\\,)])][pemit(%#,Breaking point set!)]
+&FN`BREAK_WIPE #1762=[wipe(%#/PC_DATA`BREAKING_POINTS)][pemit(%#,Breaking Points wiped!)]
+
+&FN`TOUCHSTONE here=[if([strmatch([get_template(%#)],VAMPIRE)],[attrib_set(%#/PC_DATA`TOUCHSTONE,[edit([decompose(%0)],\\,)])][pemit(%#,Touchstone set!)],[pemit(%#,Only vampires may set their touchstone.)])]
+
+@@ Next (#1767), in CG Final Touches (#1762)
+@open Next
+@link Next = #1766
+@lock next=FLAG^WIZARD|FLAG^ROYALTY|REQS_MET/1
+@power Next = See_All
+@ALIAS Next=N
+&REQS_MET next=[setq(i,1)][if([not([hasattrval(%#/PC_DATA`ASPIRATIONS_CG)])],[setq(i,0)][pemit(%#,You haven't set your aspirations yet.)])][if([t(%qi)],[if([not([hasattrval(%#/PC_DATA`BREAKING_POINTS)])],[setq(i,0)][pemit(%#,You haven't set your breaking points yet.)])])][if([t(%qi)],[if([cand([strmatch([get_template(%#)],VAMPIRE)],[not([hasattrval(%#/PC_DATA`TOUCHSTONE)])])],[setq(i,0)][pemit(%#,You haven't set your touchstone.)])])]%qi

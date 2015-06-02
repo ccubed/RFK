@@ -1,0 +1,184 @@
+@@ All code concerning Vitae/Hunting will go in this file.
+@@ Code to auto-refill bloodpools will also go in this file
+
+@@ Hunt Code (#2062)
+@create Hunt Code
+@link Hunt Code = #39
+@set Hunt Code = !NO_COMMAND
+
+@wipe %wh/cmd`init
+&CMD`INIT %wh=$^\+init(/\w*)?$:@include %wh/FN`INIT=%1
+@set %wh/cmd`init=regexp
+
+&CMD`INIT_NPC %wh=$+init/npc *=*:@include %wh/FN`INIT_ADD_NPC=%0,%1
+&CMD`INIT_REMOVE_NPC %wh=$+init/removenpc *:@include %wh/FN`INIT_REMOVE_NPC=%0
+
+&CMD`VITAE %wh=$+vitae *=*:[setq(VITAE_PER,[get_vitae(%#,per_round)])][setq(CURR_VITAE,[get_vitae(%#,current)])]@assert [isint(%0)]=@nspemit/silent %#=+vitae: Must pass in a valid number.;@assert [strlen(%1)]=@nspemit/silent %#=+vitae: Must pass in a valid message.;@assert [gt(%0,0)]=@nspemit/silent %#=+vitae: Vitae must be greater than 0;@assert [lte(%0,%q<VITAE_PER>)]=@nspemit/silent %#=+vitae: You can only spend %q<VITAE_PER> per round.;[setq(VITAE_CALC,[sub(%q<CURR_VITAE>,%0)])];@assert [gte(%q<VITAE_CALC>,0)]=@nspemit/silent %#=+vitae: Vitae cannot be lower than 0;[remit(loc(%#),%N spends %0 Vitae for %1)][cemit(Debug,+vitae: %N spends %0 Vitae for %1, NOISY)];@include %wh/FN`VITAE=%q<VITAE_CALC>
+
+@set %wh/CMD`VITAE_UPKEEP=regexp
+&CMD`VITAE_UPKEEP %wh=$\+vitae/upkeep (\d+)$:[setq(UPKEEP_ID,%1)][setq(PAY,0)][if([u(%wd/FN`UPKEEP.ID_CHECK,%#,%Q<UPKEEP_ID>,%Q<PAY>)],[u(%wh/FN`VITAE_UPKEEP.RUN,%#,%Q<UPKEEP_ID>,%Q<PAY>)])]
+&CMD`VITAE_UPKEEP_PARTIAL %wh=$+vitae/upkeep *=*:[setq(UPKEEP_ID,%0)][setq(PAY,%1)][if([u(%wd/FN`UPKEEP.ID_CHECK,%#,%Q<UPKEEP_ID>,%Q<PAY>)],[u(%wh/FN`VITAE_UPKEEP.RUN,%#,%Q<UPKEEP_ID>,%Q<PAY>)])]
+
+&FN`VITAE_UPKEEP.RUN %wh=[setq(CURR_VITAE,[get_vitae(%#,current)])][u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD,%0,%1)][if(eq(%q<PAY>,0),[SETQ(PAY,%q<COST>)])][pemit(%0,Type: %q<TYPE> Cost: %q<PAY> Desc: %q<DESC>)][switch(%q<TYPE>,Vitae,[setq(VITAE_CALC,[sub(%q<CURR_VITAE>,%q<PAY>)])][if([lt(%q<VITAE_CALC>,0)],[pemit(%0,+vitae: Vitae cannot be lower than 0)],[pemit(%0,You spend %q<PAY> Vitae for %Q<DESC>)][cemit(Debug,+vitae: [name(%0)] spends %q<PAY> Vitae for %Q<DESC>, NOISY)][u(%wh/FN`VITAE,%q<VITAE_CALC>)][u(%wd/FN`UPKEEP.INSERT_LOG,%1,%Q<PAY>)])],[pemit(%0,That Upkeep is not paid for in Vitae.)])]
+
+
+
+
+&CMD`FEED %wh=$+feed *=*:@include %wh/FN`FEED=%0,%1
+&CMD`FEED/ACCEPT %wh=$+feed/accept *:@include %wh/FN`FEED/ACCEPT=%#,*%0
+&CMD`FEED_HERD %wh=$+feed/herd *:@include %wh/FN`FEED_HERD=%0
+
+@@ Trigger for Checking Hunt Patrols
+@@ Passed: Player DBREF, Bloodpool DBREF
+&TRIG`FEED_PATROL_CHECK %wh=
+
+@@ Hunting code draws from the bloodpools. Replaces old feed code.
+@@ Syntax +hunt/type=#
+@@ Input type %0, number of vitae %1
+&CMD`HUNT %wh=$+hunt/*=*:@include %wh/FN`HUNT=%0,%1;@switch %q<AUTOJOB>=1,{@include %wh/FN`HUNT.AUTOJOB=%0,%1,[get(%wh/TEMP`AJOBTYPE)]};@trigger %wh/TRIG`FEED_PATROL_CHECK=%#,%q<BP_DBREF>
+
+&CMD`WIELD %wh=$+wield *:[setq(MY_INIT,[get(%#/PC_DATA`STATUS`INIT_MOD_MOD)])][setq(WPN,element(xget(%#,INVITEMS),%0*,|))];@assert %q<WPN>={@pemit %#=[ansi(hr,ERR:)]%bCouldn't find that item on you. Double check the ID on +inv.};[setq(item,[xget(#3637,[before([extract(xget(%#,INVITEMS),%q<WPN>,1,|)],:)])])][setq(INIT_MOD,[after([u(#3905/F.PULLSTAT,[after(%q<item>,/)],Init)],:)])][setq(WIELDED,[get(%#/PC_DATA`WIELDED)])];@assert INIT_MOD={@nspemit/silent %#=That is not a suitable item to wield!};@assert [not([member(%Q<WIELDED>,[before([extract(xget(%#,INVITEMS),%q<WPN>,1,|)],:)])])]={@nspemit/silent %#=You are already wielding that item.};@assert [lt([words(%Q<WIELDED>)],2)]={@nspemit/silent %#=You are already wielding more than one item\, unwield something first.};[setq(MY_INIT,[IF(%Q<WIELDED>,[sub([min(%Q<MY_INIT>,%Q<INIT_MOD>)],1)],%Q<INIT_MOD>)])][nspemit(%#,You wield the [before(%q<item>,/)]\, taking a total of %Q<MY_INIT> modifier to your Initiative rolls.)][attrib_set2(%#/PC_DATA`WIELDED,[trim([before([extract(xget(%#,INVITEMS),%q<WPN>,1,|)],:)] %Q<WIELDED>)])][attrib_set2(%#/PC_DATA`STATUS`INIT_MOD_MOD,%q<MY_INIT>)]
+
+
+
+&CMD`UNWIELD %wh=$+unwield *:[setq(MY_INIT,[get(%#/PC_DATA`STATUS`INIT_MOD_MOD)])][setq(WPN,element(xget(%#,INVITEMS),%0*,|))][setq(item,[xget(#3637,[before([extract(xget(%#,INVITEMS),%q<WPN>,1,|)],:)])])][setq(INIT_MOD,[u(#3905/F.PULLSTAT,[after(%q<item>,/)],Init)])][setq(WIELDED,[get(%#/PC_DATA`WIELDED)])];@assert %q<WPN>={@pemit %#=[ansi(hr,ERR:)]%bCouldn't find that item on you. Double check the ID on +inv.};@assert [member(%Q<WIELDED>,[before([extract(xget(%#,INVITEMS),%q<WPN>,1,|)],:)])]=@nspemit/silent %#=You are not wielding that item.;[setq(WIELDED,[remove(%Q<WIELDED>,[before([extract(xget(%#,INVITEMS),%q<WPN>,1,|)],:)])])][setq(MY_INIT,[IF(%Q<WIELDED>,[u(#3905/F.PULLSTAT,[after(xget(#3637,%q<WIELDED>),/)],Init)],0)])][nspemit(%#,You unwield the [before(%q<item>,/)]\, decreasing your Initiative modifier to %Q<MY_INIT>.)][attrib_set2(%#/PC_DATA`WIELDED,%Q<WIELDED>)][attrib_set2(%#/PC_DATA`STATUS`INIT_MOD_MOD,%q<MY_INIT>)]
+
+&CMD`WIELDED %wh=$+wielded:[setq(WIELDED,[wielded(%#)])][pemit(%#, You are wielding [IF(%q<WIELDED>,%q<WIELDED>,nothing)].)]
+&CMD`WIELDED_SHOW %wh=$+wielded/show:[setq(WIELDED,[wielded(%#)])][nsremit([loc(%#)], %N shows the room they are wielding [IF(%q<WIELDED>,%q<WIELDED>,nothing)].)]
+&CMD`WIELDED_SHOW %wh=$+wielded/show *:[setq(WIELDED,[wielded(%#)])][SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+wielded: No such player by that name;[pemit(%#, You show [name(%Q<PC>)] you are wielding [IF(%q<WIELDED>,%q<WIELDED>,nothing)].)][nspemit(%Q<PC>, %N shows you they are wielding [IF(%q<WIELDED>,%q<WIELDED>,nothing)].)]
+&CMD`WIELDED.STAFF %wh=$+wielded *:@assert [isstaff(%#)];@assert [pmatch(%0)]=@pemit %#=%0 didn't match a player.;[setq(WIELDED,[wielded(pmatch(%0))])][pemit(%#, [name(pmatch(%0))] is wielding [IF(%q<WIELDED>,%q<WIELDED>,nothing)].)]
+
+&FN`FEED %wh=@switch u(%wh/FN`IF`CHECK.FEED,%#,*%0,%1,%2)=1,{@trigger %wh/FN`FEED.RUN=%#,*%0,%1,%2}
+
+&FN`FEED_HERD %wh=[if(u(%wh/FN`IF`CHECK.FEED_HERD,%#,%0),[u(%wh/FN`FEED_HERD.RUN,%#,%0)])]
+@@ input player victim %0, feeder %1.
+@@ Lower victim's Vitae. If Victim does not have enough, deduct HP at 1 Vitae = 1 Lethal
+@@ Add vitae to feeding player, clear feed attribute, and emit message.
+&FN`FEED/ACCEPT %wh=[switch([strmatch([get(%0/PC_DATA`FEED)],[num(%1)])],1,[switch([get_template(%0)],VAMPIRE,[if([gte([get_vitae(%0,current)],[get(%0/PC_DATA`FEED.AMT)])],[set_vitae_new(%0,[sub([get_vitae(%0,current)],[get(%0/PC_DATA`FEED.AMT)])])][setq(LDAM,0)][setq(FORCE,0)],[setq(LDAM,[sub([get(%0/PC_DATA`FEED.AMT)],[get_vitae(%0,current)])])][set_vitae_new(%0,0)][setq(FORCE,1)])],[setq(LDAM,[get(%0/PC_DATA`FEED.AMT)])][setq(FORCE,1)])][if([get_merit(%0,Producer)],[setq(ACTUAL_FEED,[mul([get(%0/PC_DATA`FEED.AMT)],2)])],[setq(ACTUAL_FEED,[get(%0/PC_DATA`FEED.AMT)])])][setq(MAX_VITAE,[get_vitae(%1,max)])][setq(NEW_VITAE,[add([get_vitae(%1,current)],%Q<ACTUAL_FEED>)])][if([gt(%Q<NEW_VITAE>,%Q<MAX_VITAE>)],[setq(NEW_VITAE,%Q<MAX_VITAE>)])][set_vitae_new(%1,%Q<NEW_VITAE>)][remit([loc(%0)],[name(%1)] feeds on [name(%0)] for [get(%0/PC_DATA`FEED.AMT)] vitae.)][cemit(Debug,+feed: [name(%1)] feeds on [name(%0)] for [get(%0/PC_DATA`FEED.AMT)] vitae.)][attrib_set2(%0/PC_DATA`FEED,)][attrib_set2(%0/PC_DATA`FEED.AMT,)],[pemit(%0,+feed: [name(%1)] did not request to feed from you.)])];@switch %q<FORCE>=1,@force %0=+damage/lethal %q<LDAM>
+
+@@ input player %0, victim %1, vitae amount %2
+&FN`FEED.RUN %wh=[attrib_set2(%1/PC_DATA`FEED,%0)][attrib_set2(%1/PC_DATA`FEED.AMT,%2)];@nspemit/silent %0=+feed: You send your feed request to [name(%1)].;@nspemit/silent %1=+feed: [name(%0)] would like to feed on you for %2 vitae. If you accept, type +feed/accept [name(%0)]. This request expires in ~60 seconds.
+
+@@ input player %0, vitae amount #1
+&FN`FEED_HERD.RUN %wh=[set_vitae_new(%0,[add([get_vitae(%0,current)],%1)])][u(%wd/FN`INSERT,%Q<HERD>,%1,Herd feed.)][pemit(%0,You feed on your herd for %1 vitae.)][cemit(Debug,+feed: [name(%0)] feeds on their herd for %1 vitae.)]
+
+@@ Code to automatically fill bloodpools.
+@@ Takes MAX_VITAE of bloodpool and /4.
+@@ Adds result to CURRENT_VITAE of bloodpool up to max.
+&FN`FILL_BLOODPOOLS %wh=[setq(BPOOL,[lsearch(all,flags,B)])][iter(%q<BPOOL>,[switch(1,[lt([get(%i0/CURRENT_VITAE)],[get(%i0/MAX_VITAE)])],[setq(FILL,[div([get(%i0/MAX_VITAE)],4)])][if([gt([add([get(%i0/CURRENT_VITAE)],%q<FILL>)],[get(%i0/MAX_VITAE)])],[attrib_set2(%i0/CURRENT_VITAE,[get(%i0/MAX_VITAE)])],[attrib_set2(%i0/CURRENT_VITAE,[add([get(%i0/CURRENT_VITAE)],%q<FILL>)])])])])]
+
+@@ input player %0, victim %1, number of vitae %2.
+&FN`IF`CHECK.FEED %wh=[setq(i,1)][switch([get_template(%0)],HUMAN,[setq(i,0)][pemit(%0,+feed: Drink blood? What are you\, a Vampire?)])][if([t(%qi)],[if([not([nearby(%0,%1)])],[setq(i,0)][pemit(%0,+feed: They aren't here.)])])][if([t(%qi)],[if([cor([not([isint(%2)])],[lte(%2,0)])],[setq(i,0)][pemit(%0,+feed: You must pass in a positive integer.)])])][if([t(%qi)],[if([cand([strmatch([get_template(%0)],GHOUL)],[not([strmatch([get_template(%1)],VAMPIRE)])])],[setq(i,0)][pemit(%0,+feed: Ghouls may only feed from Vampires.)])])][if([t(%qi)],[if([hasattrval(%1/PC_DATA`FEED)],[setq(i,0)][pemit(%0,+feed: [name(%1)] already has a request to be fed from. Please wait a moment and try again.)])])][if([t(%qi)],[if([gte([get_vitae(%0,current)],[get_vitae(%0,max)])],[setq(i,0)][pemit(%0,+feed: You are stuffed to the gills!)])])][if([t(%qi)],[if([gt([add(%2,[get_vitae(%0,current)])],[get_vitae(%0,max)])],[setq(i,0)][pemit(%0,+feed: You can't drink that much blood! You may only drink [sub([get_vitae(%0,max)],[get_vitae(%0,current)])] more vitae.)])])][if([t(%qi)],[if([cand([strmatch([get_template(%0)],GHOUL)],[gt(%2,[get_vitae(%1,current)])])],[setq(i,0)][pemit(%0,+feed: Ghouls may not drink more Vitae then their patron holds.)])])]%qi
+
+@@ input player %0, vitae amount #2
+&FN`IF`CHECK.FEED_HERD %wh=[setq(i,1)][switch([get_template(%0)],HUMAN,[setq(i,0)][pemit(%0,+feed: Drink blood? What are you\, a Vampire?)],GHOUL,[setq(i,0)][pemit(%0,+feed: Talk to your regnant!)])][if([t(%qi)],[if([cor([not([isint(%1)])],[lte(%1,0)])],[setq(i,0)][pemit(%0,+feed: You must pass in a positive integer.)])])][if([t(%qi)],[if([gte([get_vitae(%0,current)],[get_vitae(%0,max)])],[setq(i,0)][pemit(%0,+feed: You are stuffed to the gills!)])])][if([t(%qi)],[if([gt([add(%1,[get_vitae(%0,current)])],[get_vitae(%0,max)])],[setq(i,0)][pemit(%0,+feed: You can't drink that much blood! You may only drink [sub([get_vitae(%0,max)],[get_vitae(%0,current)])] more vitae.)])])][if([t(%qi)],[setq(HERD,[locate(get(%wd/rr),Herd-[name(%#)],TF)])][if([not(%Q<HERD>)],[setq(i,0)][pemit(%0,+feed: You don't have a herd!)])])][if([t(%qi)],[setq(WK_REM,[u(%wd/FN`WEEKLY_DOWNTIME_REMAINING,%q<HERD>)])][if([lt(%q<WK_REM>,%1)],[setq(i,0)][pemit(%0,Herd only has %q<WK_REM> vitae left this week)])])]%qi
+
+&CMD`HERDSET %wh=$+herdset *:@assert [isstaff(%#)];@assert [eq([words(%0,=)],2)]=@pemit %#=Usage: +herdset person\=level;@assert [pmatch(before(%0,=))]=@pemit %#=[before(%0,=)] doesn't match a player.;@assert [cand(isnum(after(%0,=)),cand(lte(after(%0,=),5),gt(after(%0,=),0)))]=@pemit %#=Level must be between 1 and 5.;[setq(A,pmatch(before(%0,=)))][setq(b,after(%0,=))][u(#1773/FN`WIZSET.RUN,%#,[name(%qA)],/Merit,Herd,%qB)][u(#1773/FN`WIZSET.INSERT_AUDIT,%qA,%#,Herd from 0 to %qB)][u(#1773/FN`WIZSET.RUN,%#,[name(%qA)],/Misc,Beats,[sub([before(xget(%qA,PC_DATA`EXP),/)],mul(%qB,u(#7/FN`SSXP`TIER,sub(after(xget(%qA,PC_DATA`EXP),/),before(xget(%qA,PC_DATA`EXP),/)))))]/[after(xget(%qA,PC_DATA`EXP),/)])][u(#1773/FN`WIZSET.INSERT_AUDIT,%qA,%#,Set Beats to [xget(%qA,PC_DATA`EXP)] for Herd 0 to %qB)][tel(setr(idb,create(Herd-[name(%qA)])),xget(%wd,rr))][attrib_set(%q<idb>/PC_DATA`DOWNTIME,[mul(%qB,2)])][attrib_set(%q<idb>/PC_DATA`OWNER,%qA)][attrib_set(%q<idb>/PC_DATA`RETAINER_DOTS,%qB)];@pemit %#=Herd for [name(%qA)] at level %qB created.
+
+&CMD`HERDUPDATE %wh=$+herdupdate *:@assert [isstaff(%#)];@assert [eq([words(%0,=)],2)]=@pemit %#=Usage: +herdset person\=level;@assert [pmatch(before(%0,=))]=@pemit %#=[before(%0,=)] doesn't match a player.;@assert [cand(isnum(after(%0,=)),cand(lte(after(%0,=),5),gt(after(%0,=),0)))]=@pemit %#=Level must be between 1 and 5.;@assert [setr(idb,locate(xget(%wd,rr),Herd-[name(%qA)],Ti))]=@pemit %#=Couldn't find that player's herd. Did it get setup correctly?;[setq(A,pmatch(before(%0,=)))][setq(b,after(%0,=))][setq(c,get_merit(%qA,Herd))][u(#1773/FN`WIZSET.RUN,%#,[name(%qA)],/Merit,Herd,%qB)][u(#1773/FN`WIZSET.INSERT_AUDIT,%qA,%#,Herd from 0 to %qB)][u(#1773/FN`WIZSET.RUN,%#,[name(%qA)],/Misc,Beats,[sub([before(xget(%qA,PC_DATA`EXP),/)],mul(sub(%qB,%qC),u(#7/FN`SSXP`TIER,sub(after(xget(%qA,PC_DATA`EXP),/),before(xget(%qA,PC_DATA`EXP),/)))))]/[after(xget(%qA,PC_DATA`EXP),/)])][u(#1773/FN`WIZSET.INSERT_AUDIT,%qA,%#,Set Beats to [xget(%qA,PC_DATA`EXP)] for Herd %qC to %qB)][attrib_set(%q<idb>/PC_DATA`DOWNTIME,[mul(%qB,2)])][attrib_set(%q<idb>/PC_DATA`RETAINER_DOTS,%qB)];@pemit %#=Herd for [name(%qA)] updated to level %qB.
+
+@@ I need to have an algo that checks to see if player can take <amount> from victim. Eg: <victim> doesn't have that much blood!
+
+@@ Input player %0, type %1, number of vitae %2.
+@@ Returns 1 if player can hunt.
+&FN`IF`CHECK.HUNT %wh=[setq(i,1)][setq(CURR_VITAE,[get_vitae(%#,current)])][setq(MAX_VITAE,[get_vitae(%#,max)])][setq(VITAE_CALC,[add(%q<CURR_VITAE>,%2)])][switch(%1,casanova,[setq(i,1)],sandman,[setq(i,1)],mugger,[setq(i,1)],farmer,[setq(i,1)],[setq(i,0)][pemit(%0,You may only hunt Casanova\, sandman\, Mugger\, or Farmer.)])][if([t(%qi)],[if([cor([not([isint(%2)])],[lte(%2,0)])],[setq(i,0)][pemit(%0,+hunt: You must pass in a positive integer.)])])][if([t(%qi)],[if([gte(%q<CURR_VITAE>,%q<MAX_VITAE>)],[setq(i,0)][pemit(%0,+hunt: You are stuffed to the gills!)])])][if([t(%qi)],[if([gt(%2,7)],[setq(i,0)][pemit(%0,+hunt: Vitae fed cannot be greater than 7 at a time.)])])][if([t(%qi)],[if([cand([strmatch(%1,farmer)],[gte([get_merit(%0,Blood Potency)],3)])],[setq(i,0)][pemit(%0,+hunt: Your blood potency is too strong to hunt as a farmer.)])])][if(not(strmatch([get_template(%0)],VAMPIRE)),[setq(i,0)][pemit(%0,+hunt: You are not a Vampire!)])][if([t(%qi)],[if([gt(%q<VITAE_CALC>,%q<MAX_VITAE>)],[setq(i,0)][pemit(%0,+hunt: Vitae cannot be higher than your current max\, %q<MAX_VITAE>)])])][if([t(%qi)],[iter([lvthings(%L)],[if([andflags(%i0,B)],[setq(BP_DBREF,%i0)][setq(HAS_BP,1)][ibreak()],[setq(HAS_BP,0)])])][if([not(%q<HAS_BP>)],[pemit(%0,There are no bloodpools in the area.)][setq(i,0)])])][if([t(%qi)],[if([not([get(%q<BP_DBREF>/CURRENT_VITAE)])],[setq(i,0)][pemit(%0,+hunt: That bloodpool is bone dry.)])])]%qi
+
+@@ input arg %0 as /start, /join, /next, /drop, or /wipe.
+&FN`INIT %wh=[switch(%0,/start,[u(%wh/FN`INIT.START)],/join,[u(%wh/FN`INIT.JOIN,%#)],/next,[u(%wh/FN`INIT.NEXT)],/drop,[u(%wh/FN`INIT.DROP)],/show,[if([hasattr(%L/INIT)],[pemit(%#,[u(%wh/FN`INIT.VIEW)])],[pemit(%#,+init: No scene is underway.)])],/wipe,[if([hasattr(%L/INIT)],[wipe(%L/INIT)][remit([loc(%#)],\[+init\]: Initiative and Pose Order has been cleared!)],[pemit(%#,+init: No scene is underway.)])],[pemit(%#,+init: Valid options are: /start\, /join\, /drop\, /next\, /show\, /wipe\, /npc\, /removenpc)])]
+
+
+&FN`INIT_ADD_NPC %wh=@break [or( [not(isnum(%1))], [lte(%1,0)], [gt(%1,10)] )]=@nspemit/silent %#=Init Mod must be between 1 and 10;[setq(NPCS,[words([get(%L/INIT`NPCS)],|)])][remit([loc(%#)],Adding NPC %0-%Q<NPCS> with Init Mod %1)[setq(INIT_NPCS,[strcat([get(%L/INIT`NPCS)],|%0-%Q<NPCS>\,%1)])][attrib_set2(%L/INIT`NPCS,[trim(%q<INIT_NPCS>,|)])]
+&FN`INIT_REMOVE_NPC %wh=[setq(NPCS,[get(%L/INIT`NPCS)])];@assert [element(%Q<NPCS>,%0*,|)]=@nspemit/silent %#=No such NPC is in the combat round;[remit([loc(%#)],Removing NPC %0)[attrib_set2(%L/INIT`NPCS,[ldelete(%Q<NPCS>,[element(%Q<NPCS>,%0*,|)],|)])]
+&FN`INIT.CALC %wh=[add([rand(1,10)],[get_init_mod(%0)])]
+&FN`INIT.CALC_NPC %wh=[add([rand(1,10)],%0)]
+
+@@ Returns random value 1-10, rolling again on 10s.
+&FN`INIT.CALC.RNG %wh=[setq(rng,[rand(1,10)])][setq(r,[add(%qr,%q<RNG>)])][if([eq(%q<RNG>,10)],[u(%wh/FN`INIT.CALC.RNG.2)])]
+
+&FN`INIT.CALC.RNG.2 %wh=[setq(rng2,[rand(1,10)])][setq(r,[add(%qr,%q<RNG2>)])][if([eq(%q<RNG2>,10)],[u(%wh/FN`INIT.CALC.RNG)])]
+
+@@ Drops player %# from the pose order by removing their name from INIT`PCs.
+@@ This means player will drop when +init/next is triggered.
+&FN`INIT.DROP %wh=[unsetq(INIT_PCS)][if([hasattr(%L/INIT`PCS)],[if([strmatch([get(%L/INIT`PCS)],*[name(%#)]*)],[iter([get(%L/INIT`PCS)],[if([not([strmatch(%i0,[name(%#)])])],[setq(INIT_PCS,[strcat(%q<INIT_PCS>,|%i0)])])],|)][attrib_set(%L/INIT`PCS,[trim(%q<INIT_PCS>,|)])][remit(%L,+init: [name(%#)] has left the scene. They will be dropped from the pose order on the next round of +init/next.)],[pemit(%#,+init: You have not joined this scene.)])],[pemit(%#,+init: No scene is underway. Please +init/start a new one!)])]
+
+@@ input player to join to the pose order %0.
+&FN`INIT.JOIN %wh=[if([hasattr(%L/INIT)],[if([strmatch([get(%L/INIT`ORDER)],*[name(%0)]*)],[pemit(%#,+init: You have already joined this scene!)],[u(%wh/FN`INIT.SET,%0,[u(%wh/FN`INIT.CALC,%0)])][attrib_set(%L/INIT`PCS,[strcat([get(%L/INIT`PCS)],|[name(%0)])])][remit(%L,+init: [name(%0)] has joined the scene! [capstr([subj(%0)])] will pose in next round.)][pemit(%0,+init: Scene joined! Please wait until the next round starts to pose in!)])],[pemit(%0,+init: No scene is underway. Please +init/start a new one!)])]
+
+&FN`INIT.NEXT %wh=[if([hasattr(%L/INIT)],[setq(INIT_PCS,[get(%L/INIT`PCS)])][setq(INIT_ROUND,[get(%L/INIT`ROUND)])][setq(LAST_PC,[elements([last([get(%L/INIT)],|)],1,:)])][wipe(%L/INIT`ORDER)][wipe(%L/INIT`PCS)][if([not([hasattr(%L/INIT`PCS)])],[setq(NPCS,[get(%L/INIT`NPCS)])][if(%q<NPCS>,[iter(%Q<NPCS>,[SETQ(NPC_NAME,[extract(%i0,1,1,\,)])][SETQ(NPC_INIT_MOD,[extract(%i0,2,1,\,)])][u(%wh/FN`INIT.SET_NPC,%Q<NPC_NAME>,[u(%wh/FN`INIT.CALC_NPC,%Q<NPC_INIT_MOD>)])],|)])][iter(%q<INIT_PCS>,[u(%wh/FN`INIT.SET,*%i0,[u(%wh/FN`INIT.CALC,*%i0)])][attrib_set(%L/INIT`PCS,[trim([strcat([get(%L/INIT`PCS)],|[name(*%i0)])],|)])],|)][attrib_set(%L/INIT`ROUND,[inc(%q<INIT_ROUND>)])][set(%L/INIT,wizard)][u(%wh/FN`INIT.SORT)][if([strmatch([first([get(%L/INIT)],|)],%q<LAST_PC>*)],[attrib_set(%L/INIT,[replace([get(%L/INIT)],1,[elements([elements([get(%L/INIT)],1,|)],1,:)]:[dec([elements([elements([get(%L/INIT)],2,|)],2,:)])],|)])][u(%wh/FN`INIT.SORT)])][remit(%L,+init: Round [get(%L/INIT`ROUND)] Started!)][remit(%L,[u(%wh/FN`INIT.VIEW)])],[pemit(%#,+init: No scene is underway. Please +init/start a new one!)])]
+
+@@ Input player %0 and initiative val %1.
+&FN`INIT.SET %wh=[attrib_set(%L/INIT`ORDER,[trim([strcat([get(%L/INIT`ORDER)],|[name(%0)]:%1)],|)])]
+&FN`INIT.SET_NPC %wh=[attrib_set(%L/INIT`ORDER,[trim([strcat([get(%L/INIT`ORDER)],|%0:%1)],|)])]
+@@ Call this function to sort the pose order on init/start and init/next
+&FN`INIT.SORT %wh=[attrib_set(%L/INIT`ORDER,[sortby(%wh/FN`INIT.SORTBY,[get(%L/INIT`ORDER)],|)])]
+
+@@ Sortby logic to push higher initiatives to the top of the pose order.
+@@ Input item to sort %0 and %1.
+@@ Returns 0 if equal, -1 if %0 is less than %1, and 1 if %0 is greater than %1
+@@ Does this in reverse so the player with the highest init gets pushed to the front of the list.
+&FN`INIT.SORTBY %wh=[if([lt([elements(%0,2,:)],[elements(%1,2,:)])],[setr(r,1)])][if([eq([elements(%0,2,:)],[elements(%1,2,:)])],[setr(r,0)])][if([gt([elements(%0,2,:)],[elements(%1,2,:)])],[setr(r,-1)])]
+
+&FN`INIT.START %wh=[if([not([hasattr(%L/INIT`PCS)])],[setq(NPCS,[get(%L/INIT`NPCS)])][if(%q<NPCS>,[iter(%Q<NPCS>,[SETQ(NPC_NAME,[extract(%i0,1,1,\,)])][SETQ(NPC_INIT_MOD,[extract(%i0,2,1,\,)])][u(%wh/FN`INIT.SET_NPC,%Q<NPC_NAME>,[u(%wh/FN`INIT.CALC_NPC,%Q<NPC_INIT_MOD>)])],|)])][iter([lvplayers(%L)],[u(%wh/FN`INIT.SET,%i0,[u(%wh/FN`INIT.CALC,%i0)])][attrib_set(%L/INIT`PCS,[trim([strcat([get(%L/INIT`PCS)],|[name(%i0)])],|)])])][attrib_set(%L/INIT`ROUND,1)][set(%L/INIT,wizard)][u(%wh/FN`INIT.SORT)][remit(%L,[u(%wh/FN`INIT.VIEW)])],[pemit(%#,+init: Initiative has already been started. Please +init/join the current pose order or +init/wipe to start anew.)])]
+
+@@ Display function to view initiative.
+&FN`INIT.VIEW %wh=[setq(VIEW,\[[ansi(hy,Initiative)]\]: Pose order is set in this room! Current pose order is:%R)][iter([get(%L/INIT`ORDER)],[setq(ORDER,[strcat(%q<ORDER>,\, [elements(%i0,1,:)])])],|)][setq(VIEW,[strcat(%q<VIEW>,[trim(%q<ORDER>,\,)])])][trim(%q<VIEW>)]
+
+@@ Input type %0, number of vitae %1
+&FN`HUNT %wh=[attrib_set2(%wh/TEMP`AJOBTYPE)][if([cand([u(%wh/FN`IF`CHECK.HUNT,%#,%0,%1)],[u(%wd/FN`DT_CHECK_AND_INSERT,%#,[if([has_merit(%#,Status Daeva)],0,1)],Hunt in [name(room(%#))] for %1 Vitae method %0)])],[u(%wh/FN`HUNT.RUN2,%#,%0,%1)])]
+
+@@ input type %0, vitae %1, ajobtype %2
+@@ AJOBTYPE = DramaticFailure, TookMoreThanBpool, -or- TookMoreThan4
+&FN`HUNT.AUTOJOB %wh=@switch %2=DramaticFailure,+request +hunt: Dramatic Failure=%R[name(%#)] has rolled Dramatic Failure while hunting.%RHunt Type: %0\, Vitae: %1\, Location: [loc(%#)]%R**JOB CREATED BY AUTO-CODE**,TookMoreThanBpool,+request +hunt: Overfeeding=%R[name(%#)] took more Vitae then the bloodpool contained while hunting.%RHunt Type: %0\, Vitae: %1\, Location: [loc(%#)]%R**JOB CREATED BY AUTO-CODE**,TookMoreThan4,+request +hunt: More than 4=%R[name(%#)] Took more than 4 Vitae at a time from the bloodpool while hunting.%RHunt Type: %0\, Vitae: %1\, Location: [loc(%#)]%R**JOB CREATED BY AUTO-CODE**
+
+@@ input player %0, type %1, Vitae %2
+@@ Setup.
+@@ First we'll do the NUM_DICE Calculation based on Type.
+@@ Add the TMOD`type to NUM_DICE
+@@ Ready to roll dice... Success= 8+, no rerolls on 10.
+@@ Dramatic Failure = 0 or less dice to roll.
+@@ Define dramatic failure. -- a guess
+@@ Spit out message.
+@@ Write to db
+@@ Finally, feed.
+&FN`HUNT.RUN %wh=[setq(NUM_SUCC,0)][setq(HUNTSUCC,1)][setq(CURR_VITAE,[get_vitae(%#,current)])][setq(MAX_VITAE,[get_vitae(%#,max)])][setq(VITAE_CALC,[add(%q<CURR_VITAE>,%2)])][setq(AMOUNT,%2)][iter([lvthings(%L)],[if([andflags(%i0,B)],[setq(BP_DBREF,%i0)][setq(HAS_BP,1)][ibreak()],[setq(HAS_BP,0)])])][switch(%1,casanova,[setq(NUM_DICE,[add([get_attrib(%0,Presence)],[get_skill(%0,Persuasion)],[get_discipline(%0,Majesty)],[get_discipline(%0,Dominate)])])],sandman,[setq(NUM_DICE,[add([get_attrib(%0,Wits)],[get_skill(%0,Larceny)],[get_discipline(%0,Obfuscate)],[floordiv([get_discipline(%0,Protean)],2)])])],mugger,[setq(NUM_DICE,[add([get_attrib(%0,Strength)],[get_skill(%0,Stealth)],[get_discipline(%0,Obfuscate)],[floordiv([get_discipline(%0,Protean)],2)])])],farmer,[setq(NUM_DICE,[add([get_attrib(%0,Wits)],[get_skill(%0,Survival)],[get_discipline(%0,Animalism)],[floordiv([get_discipline(%0,Protean)],2)])])])][switch(%1,farmer,[setq(NUM_DICE,[add(%q<NUM_DICE>,3)])],[setq(NUM_DICE,[add(%q<NUM_DICE>,[get(%q<BP_DBREF>/TMOD`%1)])])])][iter([die(%q<NUM_DICE>,10,1)],[if([gte(%i0,8)],[setq(NUM_SUCC,[inc(%q<NUM_SUCC>)])])])][if([lte(%q<NUM_DICE>,0)],[pemit(%0,+hunt: You found a vessel\, but something has gone horribly\, horribly wrong.%RTime for a scene with your friendly neighborhood Storyteller!%R**Automatic Job Created.**)][setq(AUTOJOB,1)][attrib_set2(%wh/TEMP`AJOBTYPE,DramaticFailure)][setq(HUNTSUCC,0)])][if(%q<HUNTSUCC>,[switch(%q<NUM_SUCC>,0,[pemit(%0,+hunt: After an hour\, you haven't found a likely prospect.)][setq(HUNTSUCC,0)],1,[pemit(%0,+hunt: It's hard to find a likely prospect\, but you manage it.)],2,[pemit(%0,+hunt: Finding a likely target to feed from is easy.)],3,[pemit(%0,+hunt: Finding a likely target to feed from is easy.)],[pemit(%0,+hunt: The area is flush with blood!)])])][if(%q<HUNTSUCC>,[if([not([strmatch(%1,farmer)])],[if([gt(%2,[get(%q<BP_DBREF>/CURRENT_VITAE)])],[setq(VITAE_CALC,[add(%q<CURR_VITAE>,[get(%q<BP_DBREF>/CURRENT_VITAE)])])][setq(AMOUNT,[get(%q<BP_DBREF>/CURRENT_VITAE)])][pemit(%0,+hunt: There wasn't that much blood in the pool. You drank only %q<AMOUNT> Vitae.%R**Automatic Job Created**)][setq(AUTOJOB,1)][attrib_set2(%wh/TEMP`AJOBTYPE,TookMoreThanBpool)])][attrib_set2(%q<BP_DBREF>/CURRENT_VITAE,[sub([get(%q<BP_DBREF>/CURRENT_VITAE)],%q<AMOUNT>)])])][remit(loc(%0),%N feeds for %q<AMOUNT> Vitae)][cemit(Hunt,+hunt: %N feeds for %q<AMOUNT> Vitae at %L, NOISY)][set_vitae_new(%0,%q<VITAE_CALC>)][u(%wh/FN`INSERT,%q<BP_DBREF>,%0,%q<AMOUNT>)][if([cand([not([strmatch(%1,farmer)])],[gte(%q<AMOUNT>,5)])],[pemit(+hunt: You took 5 or more vitae at once. Automatic job created.)][setq(AUTOJOB,1)][attrib_set2(%wh/TEMP`AJOBTYPE,TookMoreThan4)])])]
+@@ Done
+
+&FN`HUNT.RUN2 %wh=[setq(NUM_SUCC,0)][setq(HUNTSUCC,1)][setq(CURR_VITAE,[get_vitae(%#,current)])][setq(MAX_VITAE,[get_vitae(%#,max)])][setq(VITAE_CALC,[add(%q<CURR_VITAE>,%2)])][setq(AMOUNT,%2)][iter([lvthings(%L)],[if([andflags(%i0,B)],[setq(BP_DBREF,%i0)][setq(HAS_BP,1)][ibreak()],[setq(HAS_BP,0)])])][switch(%1,casanova,[setq(NUM_DICE,[add([get_attrib(%0,Presence)],[get_skill(%0,Persuasion)],[get_discipline(%0,Majesty)],[get_discipline(%0,Dominate)])])],sandman,[setq(NUM_DICE,[add([get_attrib(%0,Wits)],[get_skill(%0,Larceny)],[get_discipline(%0,Obfuscate)],[floordiv([get_discipline(%0,Protean)],2)])])],mugger,[setq(NUM_DICE,[add([get_attrib(%0,Strength)],[get_skill(%0,Stealth)],[get_discipline(%0,Obfuscate)],[floordiv([get_discipline(%0,Protean)],2)])])],farmer,[setq(NUM_DICE,[add([get_attrib(%0,Wits)],[get_skill(%0,Survival)],[get_discipline(%0,Animalism)],[floordiv([get_discipline(%0,Protean)],2)])])])][switch(%1,farmer,[setq(NUM_DICE,[add(%q<NUM_DICE>,3)])],[setq(NUM_DICE,[add(%q<NUM_DICE>,[get(%q<BP_DBREF>/TMOD`%1)])])])][iter([die(%q<NUM_DICE>,10,1)],[if([gte(%i0,8)],[setq(NUM_SUCC,[inc(%q<NUM_SUCC>)])])])][if([lte(%q<NUM_DICE>,0)],[pemit(%0,+hunt: You found a vessel\, but something has gone horribly\, horribly wrong.%RTime for a scene with your friendly neighborhood Storyteller!%R**Automatic Job Created.**)][setq(AUTOJOB,1)][attrib_set2(%wh/TEMP`AJOBTYPE,DramaticFailure)][setq(HUNTSUCC,0)])][if(%q<HUNTSUCC>,[switch(%q<NUM_SUCC>,0,[pemit(%0,+hunt: This area seems to be tapped out. After an hour\, you haven't found a likely prospect.)][setq(HUNTSUCC,0)],1,[pemit(%0,+hunt: It's hard to find a likely prospect\, but you manage it.)],2,[pemit(%0,+hunt: Finding a likely target to feed from is easy.)],3,[pemit(%0,+hunt: Finding a likely target to feed from is easy.)],[pemit(%0,+hunt: The area is flush with blood!)])])][if(%q<HUNTSUCC>,[if([not([strmatch(%1,farmer)])],[if([gt(%2,[get(%q<BP_DBREF>/CURRENT_VITAE)])],[setq(VITAE_CALC,[add(%q<CURR_VITAE>,[get(%q<BP_DBREF>/CURRENT_VITAE)])])][setq(AMOUNT,[get(%q<BP_DBREF>/CURRENT_VITAE)])][pemit(%0,+hunt: There wasn't that much blood in the pool. You drank only %q<AMOUNT> Vitae.%R**Automatic Job Created**)][setq(AUTOJOB,1)][attrib_set2(%wh/TEMP`AJOBTYPE,TookMoreThanBpool)])][attrib_set2(%q<BP_DBREF>/CURRENT_VITAE,[sub([get(%q<BP_DBREF>/CURRENT_VITAE)],%q<AMOUNT>)])])][remit(loc(%0),%N feeds for %q<AMOUNT> Vitae)][cemit(Hunt,+hunt: %N feeds for %q<AMOUNT> Vitae at %L, NOISY)][set_vitae_new(%0,%q<VITAE_CALC>)][u(%wh/FN`INSERT,%q<BP_DBREF>,%0,%q<AMOUNT>)][if([cand([not([strmatch(%1,farmer)])],[gte(%q<AMOUNT>,5)])],[pemit(+hunt: You took 5 or more vitae at once. Automatic job created.)][setq(AUTOJOB,1)][attrib_set2(%wh/TEMP`AJOBTYPE,TookMoreThan4)])])]
+
+
+
+&FN`VITAE %wh=[set_vitae_new(%#,%0)]
+
+@@ DB Wrapper functions
+&FN`MONTHLY_BP_REPORT %wh=[pemit(%#,[header(Monthly Report for [name(%0)])])][[pemit(%#,[lalign(20 5 20,Character|Vitae|Date,|)])][pemit(%#,[u(%wh/FN`MONTHLY_BP_AUDIT,%0)])]
+&FN`MONTHLY_BP_REPORT_BY_TERRITORY %wh=[[pemit(%#,[lalign(20 5 20,Character|Vitae|Date,|)])][pemit(%#,[u(%wh/FN`MONTHLY_BP_AUDIT_BY_TERRITORY,%0,[if(%1,%1,0)])])]
+
+&FN`BP_AUDIT_ROW %wh=align(20 5 20,[name(#%1)],%2,%3)
+&FN`MONTHLY_BP_AUDIT %wh=[mapsql(FN`BP_AUDIT_ROW,[u(%wh/FN`MONTHLY_BP_AUDIT_SQL,[trim(num(%0),#)])],%r)]
+&FN`MONTHLY_BP_AUDIT_BY_TERRITORY %wh=[mapsql(FN`BP_AUDIT_ROW,[u(%wh/FN`MONTHLY_BP_AUDIT_BY_TERRITORY_SQL,"[sqlescape(%0)]",%1)],%r)]
+&FN`INSERT %wh=[sql( [u(%wh/FN`INSERT_SQL, [trim(num(%0),#)], [trim(num(%1),#)], %2)])]
+&FN`VALID_TERRITORY %wh=[setq(RET,[sql([ u(%wh/FN`VALID_TERRITORY_SQL, "[sqlescape(%0)]") ])])][if(%Q<RET>,1,0)]
+&FN`DELETE %wh=[ sql([ u(%wh/FN`DELETE_SQL, [sqlescape(%0)]) ])]
+
+@@ SQL Statements
+&FN`INSERT_SQL %wh=INSERT hunt (bp_dbref,player_dbref,vitae,dt_time) values(%0,%1,%2,now())
+&FN`INSERT_WITH_DATE_SQL %wh=INSERT hunt (bp_dbref,player_dbref,vitae,dt_time) values(%0,%1,%2,%3)
+&FN`MONTHLY_BP_AUDIT_SQL %wh=select player_dbref\,vitae\,dt_time FROM hunt WHERE bp_dbref=%0 AND ((month(now()) = month(dt_time) OR month(now())-1 = month(dt_time)-1)) ORDER BY dt_time DESC
+&FN`MONTHLY_BP_AUDIT_BY_TERRITORY_SQL %wh=select player_dbref\,vitae\,dt_time FROM hunt h INNER JOIN bloodpool bp ON bp.dbref=h.bp_dbref INNER JOIN territory t ON t.dbref=bp.territory_dbref WHERE t.name=%0 AND month(dt_time)=month(DATE_ADD(now(),INTERVAL %1 MONTH)) AND year(dt_time)=year(DATE_ADD(now(),INTERVAL %1 MONTH)) ORDER BY dt_time DESC
+&FN`VALID_TERRITORY_SQL %wh=select 1 FROM territory t WHERE t.name=%0
+&FN`DELETE_SQL %wh=DELETE FROM hunt WHERE id=%0
+
+@@ Hunt table creation - don't do this unless you need to start from scratch!!
+@sql DROP TABLE hunt
+@sql CREATE TABLE `hunt` (`id` INT(11) NOT NULL AUTO_INCREMENT,`bp_dbref` INT(11) NULL DEFAULT NULL,`player_dbref` INT(11) NULL DEFAULT NULL,`vitae` INT(11) NOT NULL DEFAULT '0',`dt_time` DATETIME NULL DEFAULT NULL,PRIMARY KEY  (`id`))
+
+
+
+@@ Set these on Mushcron
+&CRON_JOB_FILLBLOODPOOLS cron=@trigger %wh/FN`FILL_BLOODPOOLS
+&CRON_TIME_FILLBLOODPOOLS cron=|||03|00
+
+&WH Hunt Code=#2062
+&WD Hunt Code=#2930
+&VT Hunt Code=#1246
+&WT %wh=#2279

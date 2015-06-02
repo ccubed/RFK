@@ -1,0 +1,73 @@
+@@ All code concerning Beats and Beat Sheets
+
+@@ Beats Code (#2930)
+@create Beats Code
+@link Beats Code = #2
+@set  Beats Code = !NO_COMMAND
+@power Beats Code=SQL_OK
+@power Beats Code=tport_anywhere
+
+&CMD`BEATSHEET %wb=$+beatsheet:[u(%wb/FN`BEAT.SHEET,%#,%#)]
+&CMD`BEATSHEET_SUMMARY %wb=$+beatsheet/summary:[u(%wb/FN`BEAT.SHEET,%#,%#,0,1)]
+&CMD`BEATSHEET_LW %wb=$+beatsheet/lw:[u(%wb/FN`BEAT.SHEET,%#,%#,-1)]
+&CMD`BEATSHEET_HISTORY %wb=$+beatsheet/history:[u(%wb/FN`BEAT.AUDIT_HISTORY,%#,%#)]
+
+&CMD`BEAT %wb=$+beat *=*:[setq(TYPE,[u(%wb/FN`BEAT.NAME_TO_TYPE,%0)])][if([u(%wb/FN`BEAT.CHECK,%#,%Q<TYPE>,%1)],[u(%wb/FN`BEAT.RUN,%#,%#,%Q<TYPE>,%1)])
+&CMD`SQUEE %wb=$+squee *=*:[SETQ(PC, [secure( [pmatch(%0)] )] )][setq(TYPE,[u(%wb/FN`BEAT.NAME_TO_TYPE,Squee)])][if([u(%wb/FN`SQUEE.CHECK,%#,%Q<PC>,%1)],[u(%wb/FN`BEAT.RUN,%#,%Q<PC>,%Q<TYPE>,[name(%#)] gave: %1)])
+
+&CMD`SQUEES %wb=$+squees:[u(FN`SQUEES,%#)]
+&CMD`RECRUITED %wb=$+recruited:[u(FN`RECRUITED,%#)]
+&CMD`SQUEES_GIVEN %wb=$+squees/given:[u(FN`SQUEES_GIVEN,%#)]
+
+&FN`RECRUITED %wb=[space(1)][mapsql(FN`SQUEES_ROW,[u(FN`BEAT.RECRUITMENT_SQL,[trim(num(%0),#)])])]
+&FN`SQUEES %wb=[space(1)][mapsql(FN`SQUEES_ROW,[u(FN`BEAT.SQUEES_RECEIVED_SQL,[trim(num(%0),#)])])]
+&FN`SQUEES_GIVEN %wb=[space(1)][mapsql(FN`SQUEES_ROW,[u(FN`BEAT.SQUEES_GIVEN_SQL,[name(%0)])])]
+&FN`SQUEES_ROW %wb=[pemit(%#,[align(20 15,%3,[name(*#%1)])]%r[space(1)]%2%r)]
+
+&FN`BEAT.CHECK %wb=[setq(i,1)][if([not(%1)],[setq(i,0)][pemit(%0,+beat: Must pass in a valid Beat Type \(see +help beats\).)])][if(eq([strlen(%2)],0),[setq(i,0)][pemit(%0,+beat: Must pass in a valid description.)])][if([u(%wb/FN`BEAT.TYPE_NOT_BY_SELF,%1)],[setq(i,0)][pemit(%0,+beat: This Beat Type can only be given by others or staff \(see +help beats\).)])]%qi
+&FN`SQUEE.CHECK %wb=[setq(i,1)][if([not(%1)],[setq(i,0)][pemit(%0,+squee: No such player by that name.)])][if(eq([strlen(%2)],0),[setq(i,0)][pemit(%0,+squee: Must pass in a valid description.)])]%qi
+
+&FN`BEAT.RUN %wb=[sql([u(%wb/FN`BEAT.INSERT_SQL,[trim(num(%1),#)],%2,'[sqlescape(%3)]',1,[if(%4,%4,0)])])][pemit(%0,[name(%1)]: Beat added for [u(%wb/FN`BEAT.TYPE_TO_NAME,%2)]\, %3)][cemit(Debug,[name(%1)]: Beat added for [u(%wb/FN`BEAT.TYPE_TO_NAME,%2)]\, %3,NOISY)][if([comp(%0,%1)],[pemit(%1,[name(%0)] gave you a [u(%wb/FN`BEAT.TYPE_TO_NAME,%2)] beat - reason: %3)])]
+
+&FN`BEAT.DELETE %wb=[sql([u(%wb/FN`BEAT.DELETE_SQL,%1)])][pemit(%0,Beat %1 deleted.)]
+
+&FN`BEAT.TYPE_TO_NAME %wb=[switch(%0,1,[ansi(rh,Scene)],2,[ansi(yh,Theme)],3,[ansi(bh,Aspiration)],4,[ansi(mh,Squee)],5,Condition,6,Event,7,Bond,8,Rumor,9,Recruitment,10,Breaking Point,11,Frenzy,12,[ansi(gh,Staff)],0)]
+&FN`BEAT.NAME_TO_TYPE %wb=[switch(%0,Scene,1,Theme,2,Aspiration,3,Squee,4,Condition,5,Event,6,Bond,7,Rumor,8,Recruitment,9,Breaking Point,10,Frenzy,11,Staff,12,0)]
+&FN`BEAT.WEEKLY_CAP_BY_TYPE %wb=[switch(%0,1,7,2,3,3,3,4,7,5,3,6,1,7,3,8,3,9,20,10,7,11,3,12,20,0)]
+&FN`BEAT.WEEKLY_CAP_TOTAL %wb=15
+&FN`BEAT.WEEKLY_CAP_EXEMPT %wb=[member(4|12,%0,|)]
+&FN`BEAT.TYPE_NOT_BY_SELF %wb=[member(4|12,%0,|)]
+
+&FN`BEAT.SHEET %wb=[setq(SUMMARY_ONLY,[IF(%3,%3,0)])][pemit(%1,[header(Weekly Beat Sheet for [name(%0)])]%r%r[header(Summary)]%r[u(%wb/FN`BEAT.SHEET.SUMMARY,%0,%1,[if(%2,%2,0)])])][if([not(%q<SUMMARY_ONLY>)],[pemit(%1,%r%r[header(All Beats)]%r)][u(%wb/FN`BEAT.SHEET.AUDIT,%0,%1,[if(%2,%2,0)])])][pemit(%1,%r[header(Weekly Beat Sheet for [name(%0)])])]
+&FN`BEAT.SHEET.SUMMARY %wb=[lalign(16 >15,[ansi(h,Type)]|[ansi(h,Beats (Cap))],|)]%r[setq(WK_CAP,[u(%wb/FN`BEAT.WEEKLY_CAP_TOTAL)])][setq(BONUS_BEATS,0)][setq(WK_EST,0)][mapsql(FN`BEAT.WEEKLY_SUMMARY_ROW,[u(%wb/FN`BEAT.WEEKLY_COUNTS_BY_PLAYER,[trim(num(%0),#)],[if(%2,%2,0)])],%r)][if([gt(%q<WK_EST>,%q<WK_CAP>)],[setq(WK_EST,%q<WK_CAP>)])][setq(WK_EST,[add(%Q<WK_EST>,%q<BONUS_BEATS>)])]%r%rWeekly Estimate: %q<WK_EST>
+&FN`BEAT.WEEKLY_SUMMARY_ROW %wb=[setq(CAP_BY_TYPE,[u(%wb/FN`BEAT.WEEKLY_CAP_BY_TYPE,%1)])][align(16 >15,[u(FN`BEAT.TYPE_TO_NAME,%1)],%2 \(%q<CAP_BY_TYPE>\))][setq(VAL,[if([gt(%2,%q<CAP_BY_TYPE>)],%q<CAP_BY_TYPE>,%2)])][if([u(FN`BEAT.WEEKLY_CAP_EXEMPT,%1)],[setq(BONUS_BEATS,[add(%Q<BONUS_BEATS>,%q<VAL>)])],[setq(WK_EST,[add(%Q<WK_EST>,%q<VAL>)])])][setq(WK_SUMMARY,[cat(%q<WK_SUMMARY>,[u(FN`BEAT.TYPE_TO_NAME,%1)]: %q<VAL>)])]
+
+&FN`BEAT.SHEET.AUDIT %wb=%r[setq(EMITTER,%1)][mapsql(FN`BEAT.WEEKLY_AUDIT_ROW,[u(%wb/FN`BEAT.SHEET_SQL,[trim(num(%0),#)],[if(%2,%2,0)])],%r)]
+&FN`BEAT.WEEKLY_AUDIT_ROW %wb=[pemit(%Q<EMITTER>,[align(20 20 >30,[u(FN`BEAT.TYPE_TO_NAME,%1)], %3,\(%4\))]%r[wrap(%2,[width(%#)])]%r[repeat(-,[width(%#)])])]
+
+&FN`BEAT.AUDIT_HISTORY %wb=%r[pemit(%1,[header(Beat Sheet History for [name(%0)])]%r)[setq(EMITTER,%1)][mapsql(FN`BEAT.AUDIT_HISTORY_ROW,[u(%wb/FN`BEAT.SELECT_AUDIT_HISTORY_SQL,[trim(num(%0),#)])],%r)]
+&FN`BEAT.AUDIT_HISTORY_ROW %wb=[pemit(%Q<EMITTER>,[align(20 20,%1,ansi(h,%2 beats granted))]%r%3%r[repeat(-,[width(%#)])])]
+
+@@ Admin Functions
+&FN`BEAT.SHEETS.SUMMARY %wb=[lalign(15 10 3 3 3 3 3 3 3 3 3 3 3 3,[ansi(h,Name)]|[ansi(h,Estimate)]|[ansi(rh,Sc)]|[ansi(yh,Th)]|[ansi(bh,As)]|[ansi(mh,Sq)]|[ansi(h,Co)]|[ansi(h,Ev)]|[ansi(h,Bo)]|[ansi(h,Ru)]|[ansi(h,Re)]|[ansi(h,BP)]|[ansi(h,Fr)]|[ansi(h,St)],|)]%r[mapsql(FN`BEAT.SHEETS_SUMMARY_ROW,[u(%wb/FN`BEAT.SHEETS.SQL,[if(%0,%0,0)])],%r)]
+&FN`BEAT.SHEETS_SUMMARY_ROW %wb=[align(15 10 45,[name(*#[%1])],[lmath(add,%2,|)],[lalign(3 3 3 3 3 3 3 3 3 3 3 3,%2,|)])]
+&FN`BEAT.ADD_WEEKLY_AUDIT %wb=[sql([u(%wb/FN`BEAT.INSERT_AUDIT_SQL,[trim(num(%0),#)],%1,'%2',[if(%3,%3,0)])])])]
+&FN`BEAT.PULL_WEEKLY_AUDIT_RECORD %wb=[setq(BA_REC,[sql([u(%wb/FN`BEAT.SELECT_AUDIT_RECORD_SQL,[trim(num(%0),#)],[if(%1,%1,0)])],%r,|)])][setq(BEATS_GRANTED,[index(%q<BA_REC>,|,1,1)])][setq(DATE_GRANTED,[index(%q<BA_REC>,|,2,1)])]%q<BA_REC>
+
+&FN`BEAT.SELECT_AUDIT_RECORD_SQL %wb=SELECT beats_granted, dt_time FROM beats_audit WHERE player_dbref=%0 AND yearweek(dt_time,1)=yearweek(DATE_ADD(now(),INTERVAL %1 WEEK),1)
+&FN`BEAT.SELECT_AUDIT_HISTORY_SQL %wb=SELECT dt_time,beats_granted,summary FROM beats_audit WHERE player_dbref=%0 ORDER BY dt_time
+
+&FN`BEAT.INSERT_SQL %wb=INSERT beats (player_dbref,type,description,value,dt_time) values(%0,%1,%2,%3,DATE_ADD(now(),INTERVAL %4 WEEK))
+&FN`BEAT.DELETE_SQL %wb=DELETE FROM beats WHERE ID=%0
+&FN`BEAT.INSERT_AUDIT_SQL %wb=INSERT beats_audit (player_dbref,beats_granted,summary,dt_time) values(%0,%1,%2,DATE_ADD(now(),INTERVAL %3 WEEK))
+
+&FN`BEAT.SHEET_SQL %wb=select type\,description\,dt_time\,id FROM beats WHERE player_dbref=%0 AND yearweek(dt_time,1)=yearweek(DATE_ADD(now(),INTERVAL %1 WEEK),1)
+&FN`BEAT.SHEETS.SQL %wb=select player_dbref\,CONCAT_WS('|'\,(SELECT IFNULL(IF(SUM(value)>7\,7\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=1 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>3\,3\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=2 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>3\,3\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=3 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>7\,7\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=4 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>3\,3\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=5 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>1\,1\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=6 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>3\,3\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=7 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>3\,3\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=8 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(SUM(value)\,0) from beats WHERE player_dbref=b.player_dbref AND type=9 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>7\,7\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=10 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(IF(SUM(value)>3\,3\,SUM(value))\,0) from beats WHERE player_dbref=b.player_dbref AND type=11 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))\,(SELECT IFNULL(SUM(value)\,0) from beats WHERE player_dbref=b.player_dbref AND type=12 AND yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1))) FROM beats b WHERE yearweek(DATE_ADD(now()\,INTERVAL %0 WEEK)\,1) = yearweek(dt_time\,1) GROUP BY player_dbref
+
+&FN`BEAT.SHEETS_AUDIT_SQL %wb=select b.player_dbref\,ba.beats_granted FROM beats b  LEFT OUTER JOIN beats_audit ba ON b.player_dbref=ba.player_dbref AND yearweek(DATE_ADD(now(),INTERVAL -1 WEEK),1) = yearweek(ba.dt_time,1) WHERE yearweek(DATE_ADD(now(),INTERVAL -1 WEEK),1) = yearweek(b.dt_time,1) GROUP BY b.player_dbref HAVING ba.beats_granted IS NULL
+
+&FN`BEAT.WEEKLY_COUNTS_BY_PLAYER %wb=select type\, sum(value) AS beats FROM beats WHERE player_dbref=%0 AND yearweek(dt_time,1)=yearweek(DATE_ADD(now(),INTERVAL %1 WEEK),1) GROUP BY player_dbref,type
+
+&FN`BEAT.SQUEES_RECEIVED_SQL %wb=SELECT player_dbref\,description\,dt_time FROM beats WHERE type=4 AND player_dbref=%0
+&FN`BEAT.SQUEES_GIVEN_SQL %wb=SELECT player_dbref\,description\,dt_time FROM beats WHERE type=4 AND description LIKE '%0 gave\%'
+&FN`BEAT.RECRUITMENT_SQL %wb=SELECT player_dbref\,description\,dt_time FROM beats WHERE type=9 AND player_dbref=%0

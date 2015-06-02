@@ -1,0 +1,118 @@
+@@ CharGen Stat Selection (#1743)
+@dig/teleport CharGen Stat Selection
+@parent here=#44
+@set here=!no_command
+@set here = WIZARD
+
+@AENTER here=[attrib_set(%#/PC_DATA`ATTRIBS,)][attrib_set(%#/PC_DATA`SKILL,)]
+
+&CMD here=
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+
+&CMD`DECREASE here=$+decrease *:@include #1743/FN`DECREASE=%0
+
+@wipe here/cmd`fa
+&CMD`FA here=$^\+fa(/\w*)?(?> (\w*))??$:@include #1743/FN`FA=%1,%2
+@set here/CMD`FA=regexp
+
+
+&CMD`FIELD here=$+field *:@include #1743/FN`FIELD=%0
+&CMD`INCREASE here=$+increase *:@include #1743/FN`INCREASE=%0
+&CMD`SETUP here=$+setup:@include #1743/FN`SETUP
+&CMD`SHOW here=$+show:@include #1743/FN`SHOW
+
+@wipe here/cmd`specialty
+&CMD`SPECIALTY here=$^\+specialty((/\w*)?(?> (.*))?)?$:@include #1743/FN`SPECIALTY=%1,%2
+@set here/CMD`SPECIALTY=regexp
+
+@DESCRIBE here=Review and spend your attribute and skill points in this room.%R[header(ATTRIBUTES)]%R[table(Mental|Physical|Social,-25,78,|)]%R[table([iter([get(%wl/CG_LIST`ATTRIBUTE.FOR_TABLE)],[align(12 13,%i0,\[[ljust([repeat(o,[get_attrib(%#,%i0)])],5,-)]\])],|,|)],25,78,|)]%R[header(SKILLS)]%R[table(Mental|Physical|Social,-25,78,|)]%R[table([iter([get(%wl/CG_LIST`SKILLS.FOR_TABLE)],[align(15 8,%i0,\[[ljust([repeat(o,[get_skill(%#,%i0)])],5,-)]\])],|,|)],25,78,|)]%R[header(SPECIALTIES)]%R[table([iter([get(%#/PC_DATA`SKILL.SPECIALTIES)],[inum([ilev()])]. %i0 \([elements([get(%#/PC_DATA`SKILL.SPECIALTIES.TEXT)],[inum([ilev()])],|)]\),|,|)],25,78,|)]%R%R%RCommands:%R+increase <item>: Increases attribute or skill by 1 point.%R+decrease <item>: Decreases attribute or skill by 1 point. Attributes may not go below 1.%R+setup: Clears all of your choices and resets points.%R+show: Shows how many points you have left available to spend.%R+specialty/clear: Clears your specialty choices.%R+specialty <skill>: Sets a skill as one of your three specialties.%R+field <text>: Sets free text to your specialties in the order you place them. First entry = first specialty,etc.[if([strmatch([get_template(%#)],VAMPIRE)],%R+fa/clear :Clears your Favored Attribute selection.%R+fa <attribute> Sets your Favored Attribute. The dot will be added upon character approval.)]%R%R[ansi(h,NOTE:)] You must use the +setup command in this room before any other command.%rNote: 4 dots in a skill is internationally-renowned, and unlikely to be approved without a specialty. 5 dots in a skill is olympic gold-medalist standard, unlikely to be approved without both a specialty and Fame in that field.
+
+&FN here=
+@@ Determine attribute or skill.
+&FN`A_OR_S here=[setq(A_OR_S,0)][iter([get(%wl/CG_LIST`ATTRIBUTE.FOR_TABLE)],[if([strmatch(%0,%i0)],[setq(A_OR_S,ATTRIB)][setq(CHOICE,%i0)][setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[iter([get(%wl/CG_LIST`SKILLS.FOR_TABLE)],[if([strmatch(%0,%i0)],[setq(A_OR_S,SKILL)][setq(CHOICE,%i0)][setq(i,1)][ibreak()],[setq(i,0)])],|,)])]%q<A_OR_S>
+
+
+&FN`DECREASE here=[if([u(#1743/FN`IF`CHECK.DECREASE,%#,%0)],[u(#1743/FN`DECREASE.RUN,%#,%0)])]
+
+@@ increase or add skill.
+@@ First check if we are 'do an downgrade'
+@@ if not, Second, remove a skill completely (skill lv 0).
+FN`DECREASE.RUN here=[setq(A_OR_S,[u(#1743/FN`A_OR_S,%1)])][setq(MPS,[u(#1743/FN`MPS,%1)])][switch(%q<A_OR_S>,ATTRIB,[attrib_set(%0/CHARGEN`POINTS.%q<MPS>,[inc([get(%0/CHARGEN`POINTS.%q<MPS>)])])][attrib_set(%0/PC_DATA`ATTRIBS`[map_attrib(%1)],[dec([get_attrib(%0,%1)])])],SKILL,[attrib_set(%0/CHARGEN`SK_POINTS.%q<MPS>,[inc([get(%0/CHARGEN`SK_POINTS.%q<MPS>)])])][if([gt([get_skill(%0,%1)],1)],[setq(D_SKILL,[iter([get(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)])],[if([strmatch(%i0,%1:*)],[replace(%i0,2,[dec([get_skill(%0,%1)])],:)],%i0)],|,|)])][attrib_set(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)],[trim(%q<D_SKILL>,|)])],[unsetq(D_SKILL)][iter([get(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)])],[if([not([strmatch(%i0,%1:*)])],[setq(D_SKILL,[strcat(%q<D_SKILL>,%i0)]|)])],|,|)][attrib_set(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)],[trim(%q<D_SKILL>,|)])])])][pemit(%0,+decrease: [capstr(%1)] [switch(%q<A_OR_S>,ATTRIB,attribute,skill)] decreased to [switch(%q<A_OR_S>,ATTRIB,[get_attrib(%0,%1)],[get_skill(%0,%1)])].)]
+
+&FN`FA here=[switch(%0,/clear,[wipe(%#/CHARGEN`FAVORED_ATTRIB)][pemit(%#,Favored Attribute cleared!)],[if([u(#1743/FN`IF`CHECK.FA,%#,%1)],[u(#1743/FN`FA.RUN,%#,%1)])])]
+
+&FN`FA.RUN here=[attrib_set(%0/CHARGEN`FAVORED_ATTRIB,[ucstr(%1)])][pemit(%0,+fa: Favored Attributed set to %1!)]
+
+&FN`FIELD here=[if([u(#1743/FN`IF`CHECK.FIELD,%#)],[u(#1743/FN`FIELD.RUN,%#,%0)])]
+
+&FN`FIELD.RUN here=[attrib_set(%0/PC_DATA`SKILL.SPECIALTIES.TEXT,[trim([strcat([get(%0/PC_DATA`SKILL.SPECIALTIES.TEXT)],|[secure([capstr(%1)])])],|)])][pemit(%0,Field set. Type LOOK to view all your fields.)]
+
+&FN`IF here=
+&FN`IF`CHECK here=
+
+@@ Player hasn't used +setup yet.
+@@ Determine Attribute or Skill.
+@@ Determine Mental, Physical, or Social.
+@@ Determine if the player made a valid choice.
+@@ Determine if they are trying to reduce an attrib below 1.
+@@ Determine if they have the skill to reduce ( same as below
+@@	-- Determine if they are trying to reduce a skill below 0. )
+@@ Determine if they have a specialty in the skill and it is being reduced to 0.
+&FN`IF`CHECK.DECREASE here=[setq(i,1)][if([not([get(%0/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%0,You haven't +setup your points yet! Please do so now.)])][if([t(%qi)],[setq(A_OR_S,[u(#1743/FN`A_OR_S,%1)])][if([strmatch(%q<A_OR_S>,0)],[setq(i,0)][pemit(%0,%1 is not a valid choice! Please choose from one of the above items to decrease.)])])][if([t(%qi)],[setq(MPS,[u(#1743/FN`MPS,%1)])][if([strmatch(%q<MPS>,0)],[setq(i,0)][mailsend(kougyoku,bug/Bug in determining MPS during CG Stat Selection: %q<CHOICE> not found in CG_LIST`ATTRIBUTE|SKILLS.MPS lists.)][pemit(%0,There seems to be a problem. +staff have been notified and will work to fix it as soon as they can.)])])][if([t(%qi)],[switch(%q<A_OR_S>,ATTRIB,[if([lt([get_attrib(%0,%1)],2)],[setq(i,0)][pemit(%0,+decrease: You cannot lower an attribute below 1 point.)])],SKILL,[if([not([has_skill(%0,%1)])],[setq(i,0)][pemit(%0,+decrease: You have no points vested in the [lcstr(%1)] skill.)])])])][if([t(%qi)],[if([cand([has_specialty(%0,%1)],[lt([dec([get_skill(%0,%1)])],1)])],[setq(i,0)][pemit(%0,You cannot reduce the %1 skill lower then 1 point as you have chosen it as a specialty. To clear your specialties\, type +specialty/clear.)])])][if([t(%qi)],[if([u(#1743/FN`IF`PREREQ,%0,%1)],[setq(i,0)][pemit(%0,You cannot further reduce the %1 skill as you have selected a merit that depends on it.)],[setq(i,1)])])]%qi
+
+@@ input player %0, favored attribute %1
+&FN`IF`CHECK.FA here=[setq(i,1)][if([not([get(%0/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%0,You haven't +setup your points yet! Please do so now.)])][if([t(%qi)],[switch([get_template(%0)],VAMPIRE,[setq(i,1)],[setq(i,0)][pemit(%0,+fa: Only vampires may set their Favored Attribute.)])])][if([t(%qi)],[iter(CHARGEN`POINTS.M|CHARGEN`POINTS.P|CHARGEN`POINTS.S,[if([gt([get(%#/%i0)],0)],[setq(i,0)][pemit(%#,You haven't finished spending all your attribute points yet!%RType +show to display the points you have remaining.)][ibreak()])],|,)])][if([t(%qi)],[if([eq([strlen(%1)],0)],[setq(i,0)][pemit(%0,+fa: Set what attribute as your favored attribute?)])])][if([t(%qi)],[iter([get(%wl/CG_LIST`ATTRIBUTE.FREEDOT.[get(%0/PC_DATA`CLAN)])],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+fa: That's not a valid attribute to select for your clan.)])])][if([t(%qi)],[if([gt([inc([get_attrib(%0,%1)])],5)],[setq(i,0)][pemit(%0,+ft: That would push the %1 attribute over 5 dots!)])])]%qi
+
+@@ input player %0
+&FN`IF`CHECK.FIELD here=[setq(i,1)][if([not([get(%0/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%0,You haven't +setup your points yet! Please do so now.)])][if([t(%qi)],[if([gt([inc([words([get(%0/PC_DATA`SKILL.SPECIALTIES.TEXT)],|)])],3)],[setq(i,0)][pemit(%0,+field: You already have three fields! If you would like to change them\, please clear your specialties.)])])][if([t(%qi)],[if([gt([inc([words([get(%0/PC_DATA`SKILL.SPECIALTIES.TEXT)],|)])],[words([get(%0/PC_DATA`SKILL.SPECIALTIES)],|)])],[setq(i,0)][pemit(%0,+field: You don't have that many specialties yet!)])])]%qi
+
+@@ Player hasn't used +setup yet.
+@@ Determine Attribute or Skill.
+@@ Determine Mental, Physical, or Social.
+@@ Determine if the player made a valid choice.
+@@ Determine if they have enough points left to purchase.
+@@ Determine if they are trying to increase above 5.
+&FN`IF`CHECK.INCREASE here=[setq(i,1)][if([not([get(%0/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%0,You haven't +setup your points yet! Please do so now.)])][if([t(%qi)],[setq(A_OR_S,[u(#1743/FN`A_OR_S,%1)])][if([strmatch(%q<A_OR_S>,0)],[setq(i,0)][pemit(%0,%1 is not a valid choice! Please choose from one of the above items to increase.)])])][if([t(%qi)],[setq(MPS,[u(#1743/FN`MPS,%1)])][if([strmatch(%q<MPS>,0)],[setq(i,0)][mailsend(kougyoku,bug/Bug in determining MPS during CG Stat Selection: %q<CHOICE> not found in CG_LIST`ATTRIBUTE|SKILLS.MPS lists.)][pemit(%0,There seems to be a problem. +staff have been notified and will work to fix it as soon as they can.)])])][if([t(%qi)],[if([lt([get(%0/CHARGEN`[switch(%q<A_OR_S>,ATTRIB,POINTS,SK_POINTS)].%q<MPS>)],1)],[setq(i,0)][pemit(%0,You do not have enough points left to increase %q<CHOICE>.)])])][if([t(%qi)],[if([gte([switch(%q<A_OR_S>,ATTRIB,[get_attrib(%0,%q<CHOICE>)],[get_skill(%0,%q<CHOICE>)])],5)],[setq(i,0)][pemit(%0, The %1 [switch(%q<A_OR_S>,ATTRIB,attribute,skill)] is already at the maximum value!)])])][if([t(%qi)],[if([cand([strmatch([get_template(%#)],VAMPIRE)],[strmatch(%1,[get(%0/CHARGEN`FAVORED_ATTRIB)])],[gt([inc([get_attrib(%0,%1)])],4)])],[setq(i,0)][pemit(%0,You have already set %1 as your favored attribute and may not further increase it.)])])]%qi
+
+&FN`IF`CHECK.SPECIALTY here=[setq(i,1)][if([not([get(%0/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%0,You haven't +setup your points yet! Please do so now.)])][if([t(%qi)],[if([eq([strlen(%1)],0)],[setq(i,0)][pemit(%0,+specialty: Set what skill as one of your specialties?)])])][if([t(%qi)],[setq(A_OR_S,[u(#1743/FN`A_OR_S,%1)])][if([not([strmatch(%q<A_OR_S>,SKILL)])],[setq(i,0)][pemit(%0,%1 is not a valid skill! Please choose from one of the above skills to set as one of your specialties.)])])][if([t(%qi)],[if([not([has_skill(%0,%1)])],[setq(i,0)][pemit(%0,+specialty: You don't have the %1 skill!)])])][if([t(%qi)],[if([eq([words([get(%0/PC_DATA`SKILL.SPECIALTIES)],|)],3)],[setq(i,0)][pemit(%0,+specialty: You already have three specialties! If you would like to change them\, please use +specialty/clear.)])])]%qi
+
+@@ input player %0, attrib or skill %1.
+@@ Check to see if we have a merit that depends on %1 and we removed it first.
+@@ returns 1 if player cannot decrease attrib or skill %1 (a merit depends on it)
+
+&FN`IF`PREREQ here=[setq(i,0)][if([hasattrval(%0/PC_DATA`MERITS)],[iter([get(%0/PC_DATA`MERITS)],[setq(MERIT_US_NM,[edit([before(%i0,:)],[space(1)],_)])][iter([lattr(%wl/CG_LIST`MERITS`DEPEND.**,|)],[if([strmatch(%i0,*.%q<MERIT_US_NM>)],[setq(HAS_DEPENDS,1)][ibreak()],[setq(HAS_DEPENDS,0)])],|,)][if(%q<HAS_DEPENDS>,[iter([get(%wl/CG_LIST`MERITS`DEPEND.%q<MERIT_US_NM>)],[if([strmatch(%i0,*%1:*)],[if([cand([not([strmatch([pos(-,%i0)],#-1)])],[gt([pos(-,%i0)],0)])],[setq(REQ1,[elements(%i0,1,-)])][setq(REQ2,[elements(%i0,2,-)])],[setq(REQ1,%i0)][setq(REQ2,1:1)])][setq(TYPE,[get_type([before(%q<REQ1>,:)])])][setq(i,0)][switch(%q<TYPE>,ATTRIB,[if([strmatch([before(%q<REQ1>,:)],%1)],[if([lt([dec([get_attrib(%0,[elements(%q<REQ1>,1,:)])])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],[if([lt([get_attrib(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])])],SKILL,[if([strmatch([before(%q<REQ1>,:)],%1)],[if([lt([dec([get_skill(%0,[elements(%q<REQ1>,1,:)])])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],[if([lt([get_skill(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])])],[setq(i,0)])][if([cand([t(%qi)],[not([strmatch([elements(%q<REQ2>,1,:)],1)])])],[setq(TYPE,[get_type([before(%q<REQ2>,:)])])][setq(i,0)][switch(%q<TYPE>,ATTRIB,[if([strmatch([before(%q<REQ2>,:)],%1)],[if([lt([dec([get_attrib(%0,[elements(%q<REQ2>,1,:)])])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])],[if([lt([get_attrib(%0,[elements(%q<REQ2>,1,:)])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])])],SKILL,[if([strmatch([before(%q<REQ2>,:)],%1)],[if([lt([dec([get_skill(%0,[elements(%q<REQ2>,1,:)])])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])],[if([lt([get_skill(%0,[elements(%q<REQ2>,1,:)])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])])],[setq(i,0)])])][if([t(%qi)],[ibreak()])],[setq(i,0)])],|,)])][if([t(%qi)],[ibreak()])],|,)],[setq(i,0)])]%qi
+
+
+&FN`INCREASE here=[if([u(#1743/FN`IF`CHECK.INCREASE,%#,%0)],[u(#1743/FN`INCREASE.RUN,%#,%0)])]
+
+@@ increase or add skill.
+@@ First check if we are 'do an upgrade'
+@@ if not, Second, add a new skill.
+&FN`INCREASE.RUN here=[setq(A_OR_S,[u(#1743/FN`A_OR_S,%1)])][setq(MPS,[u(#1743/FN`MPS,%1)])][switch(%q<A_OR_S>,ATTRIB,[attrib_set(%0/CHARGEN`POINTS.%q<MPS>,[dec([get(%0/CHARGEN`POINTS.%q<MPS>)])])][attrib_set(%0/PC_DATA`ATTRIBS`[map_attrib(%1)],[inc([get_attrib(%0,%1)])])],SKILL,[attrib_set(%0/CHARGEN`SK_POINTS.%q<MPS>,[dec([get(%0/CHARGEN`SK_POINTS.%q<MPS>)])])][if([has_skill(%0,%1)],[setq(UP_SKILL,[iter([get(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)])],[if([strmatch(%i0,%1:*)],[replace(%i0,2,[inc([get_skill(%0,%1)])],:)],%i0)],|,|)])][attrib_set(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)],[trim(%q<UP_SKILL>,|)])],[attrib_set(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)],[if([hasattrval(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)])],[strcat([get(%0/PC_DATA`SKILL.[map_mps(%q<MPS>)])],|[capstr(%1)]:1)],[capstr(%1)]:1)])])])][pemit(%0,+increase: [capstr(%1)] [switch(%q<A_OR_S>,ATTRIB,attribute,skill)] increased to [switch(%q<A_OR_S>,ATTRIB,[get_attrib(%0,%1)],[get_skill(%0,%1)])].)]
+
+@@ Determine Mental, Physical, or Social.
+@@ Returns M, P, or S.
+&FN`MPS here=[setq(MPS,0)][iter([get(%wl/CG_LIST`[switch(%q<A_OR_S>,ATTRIB,ATTRIBUTE,SKILLS)].MENTAL)],[if([strmatch(%q<CHOICE>,%i0)],[setq(MPS,M)][ibreak()])],|,)][if([strmatch(%q<MPS>,0)],[iter([get(%wl/CG_LIST`[switch(%q<A_OR_S>,ATTRIB,ATTRIBUTE,SKILLS)].PHYSICAL)],[if([strmatch(%q<CHOICE>,%i0)],[setq(MPS,P)][ibreak()])],|,)])][if([strmatch(%q<MPS>,0)],[iter([get(%wl/CG_LIST`[switch(%q<A_OR_S>,ATTRIB,ATTRIBUTE,SKILLS)].SOCIAL)],[if([strmatch(%q<CHOICE>,%i0)],[setq(MPS,S)][ibreak()])],|,)])]%q<MPS>
+
+&FN`SETUP here=[iter(M|P|S,[attrib_set(%#/CHARGEN`POINTS.%i0,0)][attrib_set(%#/CHARGEN`SK_POINTS.%i0,0)],|)][attrib_set(%#/CHARGEN`POINTS.[left([get(%#/CHARGEN`ATTRIBUTES.1)],1)],5)][attrib_set(%#/CHARGEN`POINTS.[left([get(%#/CHARGEN`ATTRIBUTES.2)],1)],4)][attrib_set(%#/CHARGEN`SK_POINTS.[left([get(%#/CHARGEN`SKILLS.1)],1)],11)][attrib_set(%#/CHARGEN`SK_POINTS.[left([get(%#/CHARGEN`SKILLS.2)],1)],7)][iter(M|P|S,[if([eq([get(%#/CHARGEN`POINTS.%i0)],0)],[attrib_set(%#/CHARGEN`POINTS.%i0,3)])][if([eq([get(%#/CHARGEN`SK_POINTS.%i0)],0)],[attrib_set(%#/CHARGEN`SK_POINTS.%i0,4)])],|)][iter(PC_DATA`ATTRIBS`COMP|PC_DATA`ATTRIBS`DEX|PC_DATA`ATTRIBS`INT|PC_DATA`ATTRIBS`MANIP|PC_DATA`ATTRIBS`PRE|PC_DATA`ATTRIBS`RESOLVE|PC_DATA`ATTRIBS`STA|PC_DATA`ATTRIBS`STR|PC_DATA`ATTRIBS`WITS,[attrib_set(%#/%i0,1)],|)][iter(PC_DATA`SKILL|PC_DATA`SKILL.MENTAL|PC_DATA`SKILL.PHYSICAL|PC_DATA`SKILL.SOCIAL,[attrib_set(%#/%i0,)],|)][attrib_set(%#/PC_DATA`SKILL.SPECIALTIES,)][attrib_set(%#/PC_DATA`SKILL.SPECIALTIES.TEXT,)][attrib_set(%#/CHARGEN`POINTS.SETUP,1)][attrib_set(%#/CHARGEN`SETUP.MERITS,0)][pemit(%#,+setup: Selections cleared and points reset!)]
+
+&FN`SHOW here=[if([get(%#/CHARGEN`POINTS.SETUP)],[pemit(%#,You have the following points remaining to spend on your attributes:%R[iter(M|P|S,[align(8 3,[map_mps(%i0)],[get(%#/CHARGEN`POINTS.%i0)])],|)]%R)][pemit(%#,You have the following points remaining to spend on your skills:%R[iter(M|P|S,[align(8 3,[map_mps(%i0)],[get(%#/CHARGEN`SK_POINTS.%i0)])],|)])],[pemit(%#,You haven't +setup your points yet! Please do so now.)])]
+
+&FN`SPECIALTY here=[switch(%0,/clear,[wipe(%#/PC_DATA`SKILL.SPECIALTIES**)][pemit(%#,Specialties cleared!)],[setq(0,[trim(%0)])][if([u(#1743/FN`IF`CHECK.SPECIALTY,%#,%q0)],[u(#1743/FN`SPECIALTY.RUN,%#,%q0)])])]
+
+&FN`SPECIALTY.RUN here=[attrib_set(%0/PC_DATA`SKILL.SPECIALTIES,[trim([strcat([get(%0/PC_DATA`SKILL.SPECIALTIES)],|[capstr(%1)])],|)])][pemit(%0,+specialty: Specialty Added!)]
+
+&WL here=#1705
+
+**** REQS_MET on 'Next'
+@@ Next (#1750), in CharGen Stat Selection (#1743)
+@open Next
+@link Next = #1749
+@lock/Basic Next=FLAG\^WIZARD|FLAG\^ROYALTY|REQS_MET/1
+@lset Next/Basic=no_inherit
+@power Next = See_All
+&ALIAS Next=N
+@set Next/ALIAS=no_command visual prefixmatch
+&FAILURE Next=
+@set Next/FAILURE=no_command prefixmatch
+&REQS_MET Next=[setq(i,1)][if([not([get(%#/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%#,You haven't +setup your points yet! Please do so now.)])][if([t(%qi)],[iter(CHARGEN`POINTS.M|CHARGEN`POINTS.P|CHARGEN`POINTS.S|CHARGEN`SK_POINTS.M|CHARGEN`SK_POINTS.P|CHARGEN`SK_POINTS.S,[if([gt([get(%#/%i0)],0)],[setq(i,0)][pemit(%#,You haven't finished spending all your points yet!%RType +show to display the points you have remaining.)][ibreak()])],|,)])][if([t(%qi)],[if([lt([words([get(%#/PC_DATA`SKILL.SPECIALTIES)],|)],3)],[setq(i,0)][pemit(%#,You haven't selected your three skill specialties yet! Please do so now.)])])][if([t(%qi)],[if([lt([words([get(%#/PC_DATA`SKILL.SPECIALTIES.TEXT)],|)],3)],[setq(i,0)][pemit(%#,You haven't selected your fields for your three specialties yet! Please do so now.)])])][if([t(%qi)],[if([cand([strmatch([get_template(%#)],VAMPIRE)],[lt([words([get(%#/CHARGEN`FAVORED_ATTRIB)])],1)])],[setq(i,0)][pemit(%#,Please select your Favored Attribute before continuing.)])])]%qi

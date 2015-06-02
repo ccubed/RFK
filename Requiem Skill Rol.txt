@@ -1,0 +1,64 @@
+@@ Skill Roll Code (#1770)
+@create Skill Roll Code
+@link Skill Roll Code = #2
+@power Skill Roll Code = See_All
+@set %ws=wizard
+
+&CMD Skill Roll Code=
+
+@@ Added +sheet as an alias to csheet.
+@wipe %ws/CMD`SHEET
+&CMD`SHEET %ws=$^\+sheet( .*)?$:@include %ws/FN`CSHEET=[delete(*%1,1,1)],%#
+@set %ws/CMD`SHEET=regexp
+
+&CMD`SHEET_SELF %ws=$+sheet:@include %ws/FN`SHEET=%#,%#;@include %ws/FN`SHEET_STATUS=%#,%#
+&CMD`SHEET_ADMIN %ws=$+sheet *:[setq(0,[pmatch(%0)])];@assert %q0=@nspemit/silent %#=No such player by that name.;@include %ws/FN`SHEET=%0,%#;@include %ws/FN`SHEET_STATUS=%0,%#;
+&CMD`SHEET_SHOW %ws=$+sheet/show *:[setq(0,[pmatch(%0)])];@assert %q0=@nspemit/silent %#=No such player by that name.;[pemit(%#,Showing your sheet to %0)]@include %ws/FN`SHEET=%#,%0;@include %ws/FN`SHEET_STATUS=%#,%0
+
+&CMD`SHEET2_ADMIN %ws=$+sheet2 *:@include %ws/FN`SHEET2=%0,%#;@include %ws/FN`SHEET2_STATUS=%0,%#
+@wipe %ws/CMD`ROLL
+&CMD`ROLL %ws=$^\+roll(/\w*)?(?> (\d*))?(?>=(\d*))?$:@include %ws/FN`ROLL=%1,%2,%3;@break get(%ws/JOB`POST)=@break setr(j,u(%ws/FN`ROLL.MYJOB,%3))={@trigger %vj/TRIG_ADD=%qJ,[get(%ws/JOB`TEXT)],%#,ADD,1;@trigger %vj/TRIG_BROADCAST=%qJ,%#,ADD;@pemit %#=Added to [name(%qJ)]: [get(%ws/JOB`TEXT)]};
+@set %ws/CMD`ROLL=regexp
+
+@wipe %ws/CMD`ROLL2
+&CMD`ROLL2 %ws=$^\+roll2(/\w*)?(?> ([A-Za-z1-9\+\s]*))?(?>=(\d*))?$:@include %ws/FN`ROLL2=%1,%2,%3
+@set %ws/CMD`ROLL2=regexp
+
+&CMD`STATUS %ws=$+status:[setq(0,%#)][setq(STATUS,[table([center(Health,24)]|\[[ljust([repeat(o[space(1)],[get_hp(%q0,max)])],20,-[space(1)])]\]|\[[ljust([foreach(%ws/FN`CSHEET.PM,[get_hp(%q0,current)])],20,-[space(1)])]\],24,24,|)]%R%R[table([center(Willpower,24)]|\[[ljust([repeat(o[space(1)],[get_willpower(%q0,max)])],20,-[space(1)])]\]|\[[ljust([repeat(X[space(1)],[sub([get_willpower(%q0,max)],[get_willpower(%q0,current)])])],20,-[space(1)])]\],24,24,|)]%R%R[table(Vitae: [get_vitae(%q0,current)]/[get_vitae(%q0,max)]|Vitae Per Round: [get_vitae(%q0,per_round)],24,24,|)]%R%RWielding: [setq(WIELDED,[wielded(%#)])][IF(%q<WIELDED>,%q<WIELDED>,Nothing)].)])][pemit(%#,%q<STATUS>)]
+
+@@ Two-Column layout
+&FN`SHEET %ws=[setq(0,[pmatch(%0)])][setq(1,[pmatch(%1)])][if([not([orflags(%#,Wr)])],[setq(0,%#)])][if([or(not(%q0),not(%q1))],[pemit(%#,No such player by that name.)],[unsetq(PG1)][setq(PG1,[header(CSheet for [name(%q0)])]%R[table(Name: [name(%q0)] [get(%q0/PC_DATA`SURNAME)]|[if([strmatch([get_template(%q0)],VAMPIRE)],Mask: [get(%q0/PC_DATA`VAMP.MASK)],Virtue: [get(%q0/PC_DATA`VIRTUE)])]|Clan: [get(%q0/PC_DATA`CLAN)]|DOB: [get(%q0/PC_DATA`DOB)]|[if([strmatch([get_template(%q0)],VAMPIRE)],Dirge: [get(%q0/PC_DATA`VAMP.DIRGE)],Vice: [get(%q0/PC_DATA`VICE)])]|Bloodline: [get(%q0/PC_DATA`BLOODLINE)]|Template: [get_template(%q0)]|Concept: [get(%q0/PC_DATA`CONCEPT)]|Covenant: [get(%q0/PC_DATA`COVENANT)],25,78,|)]%R[table(Email: [get(%q0/PC_DATA`EMAIL)]|[if([not([strmatch([get_template(%q0)],HUMAN)])],Date of [switch([get_template(%q0)],GHOUL,Ghouling,Embrace)]: [get(%q0/PC_DATA`DATE_OF_EMBRACE)])],38,78,|)]%R[header(Attributes)]%R[table([iter([get(%wl/CG_LIST`ATTRIBUTE.FOR_TABLE)],[align(12 13,%i0,\[[ljust([repeat(o,[get_attrib(%q0,%i0)])],5,-)]\])],|,|)],25,78,|)]%R[header(,5)][header(Skills,6)][header(,31)][header(Other Traits,12)][header(,20)]%R[align(24 50,[table([center(Mental,24)]|[iter([get(%q0/PC_DATA`SKILL.MENTAL)],[align(15 8,[elements(%i0,1,:)],\[[ljust([repeat(o,[get_skill(%q0,[elements(%i0,1,:)])])],5,-)]\])],|,|)],24,24,|)]%R%R[table([center(Physical,24)]|[iter([get(%q0/PC_DATA`SKILL.PHYSICAL)],[align(15 8,[elements(%i0,1,:)],\[[ljust([repeat(o,[get_skill(%q0,[elements(%i0,1,:)])])],5,-)]\])],|,|)],24,24,|)]%R%R[table([center(Social,24)]|[iter([get(%q0/PC_DATA`SKILL.SOCIAL)],[align(15 8,[elements(%i0,1,:)],\[[ljust([repeat(o,[get_skill(%q0,[elements(%i0,1,:)])])],5,-)]\])],|,|)],24,24,|)]%R%R[table([center(Specialties,24)]|[iter([get(%q0/PC_DATA`SKILL.SPECIALTIES)],[align([strlen(%i0)] [sub(24,[strlen(%i0)])],%i0,\([elements([get(%q0/PC_DATA`SKILL.SPECIALTIES.TEXT)],[inum([ilev()])],|)]\))],|,|)],24,24,|)][if([hasattrval(%q0/PC_DATA`RITUALS)],%R%R[table([center(Rituals,24)]|[iter([get(%q0/PC_DATA`RITUALS)],[align(15 8,[elements(%i0,1,:)],\[[ljust([repeat(o,[elements(%i0,2,:)])],5,-)]\])],|,|)],24,24,|)]%R%R[table([center(Ritual Themes,24)]|[iter([get(%q0/PC_DATA`DISCIPLINES.THEMES)],[align(15 8,[elements(%i0,1,:)],\[[ljust([repeat(o,[elements(%i0,2,:)])],5,-)]\])],|,|)],24,24,|)])],[table([center(Disciplines,24)]|[iter([get(%q0/PC_DATA`DISCIPLINES)],[align(38 8,[elements(%i0,1,:)],\[[ljust([repeat(o,[get_discipline(%q0,[elements(%i0,1,:)])])],5,-)]\])],|,|)],50,50,|)]%R%R[table([center(Merits,24)]|[iter([get(%q0/PC_DATA`MERITS)],[align(38 10,[elements(%i0,1,:)],\[[ljust([repeat(o,[get_merit(%q0,[elements(%i0,1,:)])])],5,-)]\])],|,|)],50,50,|)][if([hasattrval(%q0/PC_DATA`MERITS.FT)],%R%R[table([center(Merit Free Text,24)]|[iter([get(%q0/PC_DATA`MERITS.FT)],[before(%i0,:)]\([after(%i0,:)]\),|,|)],50,50,|)])])])]
+
+&FN`SHEET_STATUS %ws=[setq(PG2,%R[header(chompy bits)]%R[align(24 24 24,[table([center(Health,24)]|\[[ljust([repeat(o[space(1)],[get_hp(%q0,max)])],20,-[space(1)])]\]|\[[trim([ljust([foreach(%ws/FN`CSHEET.PM,[get_hp(%q0,current)])],20,-[space(1)])])][space(1)]\],24,24,|)]%R%R[table([center(Willpower,24)]|\[[ljust([repeat(o[space(1)],[get_willpower(%q0,max)])],20,-[space(1)])]\]|\[[ljust([repeat(X[space(1)],[sub([get_willpower(%q0,max)],[get_willpower(%q0,current)])])],20,-[space(1)])]\],24,24,|)]%R%R[table([center(Blood Potency,24)]|\[[ljust([repeat(o,[get_merit(%q0,Blood Potency)])],10,-)]\],24,24,|)],[table(Vitae: [get_vitae(%q0,current)]/[get_vitae(%q0,max)]|Vitae Per Round: [get_vitae(%q0,per_round)],24,24,|)]%RHumanity: [get(%q0/PC_DATA`STATUS`HUMANITY)]%RSize: [get(%q0/PC_DATA`SIZE)]%RSpeed: [get_speed(%q0)]%RDefense: U:[get_defense_unarmed(%q0)] A:[get_defense_armed_base(%q0)]%RArmor: [get(%q0/PC_DATA`ARMOR)]%RInitiative Mod: [get_init_mod_base(%q0)] \([get_init_mod(%q0)]\)%RBeats: [get(%q0/PC_DATA`EXP)]%RDowntime: [get(%q0/PC_DATA`DOWNTIME)],[table([center(Conditions,24)]|[iter([get(%q0/PC_DATA`CONDITIONS)],[capstr(%i0)],|,|)],24,24,|)])]%R[footer()])][pemit(%q1,%q<PG1>)])][pemit(%q1,%q<PG2>)]
+
+[get(%q0/PC_DATA`STATUS`DEFENSE)]
+@@ Mask the numbers we stored in hp.
+&FN`CSHEET.PM %ws=[switch(%0,3,*,2,X,1,/)][space(1)]
+
+@@ Input Player %0, type of dice %1, arguments (wits + investigate + auspex +1) as %2
+&FN`IF`CHECK.ROLL %ws=1
+
+@@ Temporary.
+@@ Roll <type of dice> as %0, number of dice to roll as %1, job %2.
+&FN`ROLL %ws=[attrib_set(%ws/JOB`POST,0)][attrib_set(%ws/JOB`TEXT,)][setq(NUM_ROLLS,%1)][setq(SUCC_NUM,8)][setq(DICE_DESC,10-again Dice)][setq(FAIL_NUM,0)][switch(%0,/1,[setq(X_AGAIN,10)][setq(NUM_ROLLS,1)][setq(DICE_DESC,Chance Die)][setq(SUCC_NUM,10)][setq(FAIL_NUM,1)],/8,[setq(X_AGAIN,8)][setq(DICE_DESC,8-again Dice)],/9,[setq(X_AGAIN,9)][setq(DICE_DESC,9-again Dice)],/0,[setq(X_AGAIN,11)][setq(DICE_DESC,No reroll dice)],/none,[setq(X_AGAIN,11)][setq(DICE_DESC,No reroll dice)],[setq(X_AGAIN,10)])][setq(FULL_ROLL,0)][setq(NUM_SUCC,0)][setq(NUM_FAIL,0)][setq(EXTRA_DIE,0)][setq(EXTRA_ROLL,0)][setq(EXTRA_SUCC,0)][setq(TOTAL_ED,0)][if([cand([isint(%q<NUM_ROLLS>)],[gt(%q<NUM_ROLLS>,0)])],[setq(FULL_ROLL,[die(%q<NUM_ROLLS>,10,1)])][iter(%q<FULL_ROLL>,[if([lte(%i0,%q<FAIL_NUM>)],[setq(NUM_FAIL,[inc(%q<NUM_FAIL>)])])][if([gte(%i0,%q<SUCC_NUM>)],[setq(NUM_SUCC,[inc(%q<NUM_SUCC>)])][if([gte(%i0,%q<X_AGAIN>)],[setq(EXTRA_DIE,[inc(%q<EXTRA_DIE>)])])])],,)][setq(TOTAL_ED,%q<EXTRA_DIE>)][pemit(%#,You pick up the dicebag and roll %q<NUM_ROLLS> %q<DICE_DESC>\, resulting in: %q<FULL_ROLL>\, with %q<NUM_SUCC> successes)][if([gt(%q<EXTRA_DIE>,0)],[u(%ws/FN`ROLL.EXTRA,%q<EXTRA_DIE>)])][pemit(%#,[if([gt(%q<EXTRA_DIE>,0)],%q<TOTAL_ED> Extra Dice resulting in %q<EXTRA_SUCC> extra successes\, for a,A)] total of [ansi(hg,[add(%q<NUM_SUCC>,%q<EXTRA_SUCC>)])] successes [if([gt(%q<NUM_FAIL>,0)], and [ansi(hr,%q<NUM_FAIL>)] dramatic failures)].)][oemit(%#,%N picks up the %q<DICE_DESC> and rolls [ansi(hg,[add(%q<NUM_SUCC>,%q<EXTRA_SUCC>)])] successes [if([gt(%q<NUM_FAIL>,0)], and [ansi(hr,%q<NUM_FAIL>)] dramatic failures)].)][cemit(debug,%N rolls %q<NUM_ROLLS> %q<DICE_DESC> for a total of %q<NUM_SUCC> + %q<EXTRA_SUCC>: [ansi(hg,[add(%q<NUM_SUCC>,%q<EXTRA_SUCC>)])] successes,1)][if([u(%ws/FN`ROLL.MYJOB,%2)],[attrib_set(%ws/JOB`TEXT,[strcat([get(%ws/JOB`TEXT)],%R[name(%#)] picks up the dicebag and roll %q<NUM_ROLLS> %q<DICE_DESC>\, resulting in: %q<FULL_ROLL>\, with %q<NUM_SUCC> successes%R[if([gt(%q<EXTRA_DIE>,0)],%q<TOTAL_ED> Extra Dice resulting in %q<EXTRA_SUCC> extra successes\, for a,A total of [ansi(hg,[add(%q<NUM_SUCC>,%q<EXTRA_SUCC>)])] successes [if([gt(%q<NUM_FAIL>,0)], and [ansi(hr,%q<NUM_FAIL>)] dramatic failures)])].)])][attrib_set(%ws/JOB`POST,1)],[attrib_set(%ws/JOB`POST,0)])],[pemit(%#,+roll: Please roll a positive integer.)])]
+
+
+&FN`ROLL.EXTRA %ws=[setq(EXTRA_ROLL,[die(%0,10,1)])][if(not(%1),[pemit(%#,EXTRA: You rolled %0 %q<DICE_DESC>\, extra roll is: %q<EXTRA_ROLL>)])][attrib_set(%ws/JOB`TEXT,[strcat([get(%ws/JOB`TEXT)],%REXTRA: [name(%#)] rolled %0 %q<DICE_DESC>\, extra roll is: %q<EXTRA_ROLL>)])][setq(EXTRA_DIE,0)][iter(%q<EXTRA_ROLL>,[if([gte(%i0,8)],[setq(EXTRA_SUCC,[inc(%q<EXTRA_SUCC>)])][if([gte(%i0,%q<X_AGAIN>)],[setq(EXTRA_DIE,[inc(%q<EXTRA_DIE>)])])])],,)][setq(TOTAL_ED,[add(%q<TOTAL_ED>,%q<EXTRA_DIE>)])][if([gt(%q<EXTRA_DIE>,0)],[u(%ws/FN`ROLL.EXTRA2,%q<EXTRA_DIE>,%1)])]
+
+
+&FN`ROLL.EXTRA2 %ws=[setq(EXTRA_ROLL,[die(%0,10,1)])][if(not(%1),[pemit(%#,EXTRA: You rolled %0 %q<DICE_DESC>\, extra roll is: %q<EXTRA_ROLL>)])][attrib_set(%ws/JOB`TEXT,[strcat([get(%ws/JOB`TEXT)],%REXTRA: [name(%#)] rolled %0 %q<DICE_DESC>\, extra roll is: %q<EXTRA_ROLL>)])][setq(EXTRA_DIE,0)][iter(%q<EXTRA_ROLL>,[if([gte(%i0,8)],[setq(EXTRA_SUCC,[inc(%q<EXTRA_SUCC>)])][if([gte(%i0,%q<X_AGAIN>)],[setq(EXTRA_DIE,[inc(%q<EXTRA_DIE>)])])])],,)][setq(TOTAL_ED,[add(%q<TOTAL_ED>,%q<EXTRA_DIE>)])][if([gt(%q<EXTRA_DIE>,0)],[u(%ws/FN`ROLL.EXTRA,%q<EXTRA_DIE>,%1)])]
+
+@@ Player %#, type of dice %0, arguments (wits + investigate + auspex +1) as %1
+&FN`ROLL2 %ws=[if(u(%ws/FN`IF`CHECK.ROLL,%#,%0,%1),[u(%ws/FN`ROLL2.RUN,%#,%0,%1)])]
+
+&FN`ROLL_SILENT %ws=[setq(NUM_ROLLS,%1)][setq(SUCC_NUM,8)][setq(FAIL_NUM,0)][switch(%0,1,[setq(X_AGAIN,11)][setq(NUM_ROLLS,1)][setq(SUCC_NUM,10)][setq(FAIL_NUM,1)],8,[setq(X_AGAIN,8)],9,[setq(X_AGAIN,9)],/0,[setq(X_AGAIN,11)],none,[setq(X_AGAIN,11)],[setq(X_AGAIN,10)])][setq(FULL_ROLL,0)][setq(NUM_SUCC,0)][setq(NUM_FAIL,0)][setq(EXTRA_DIE,0)][setq(EXTRA_ROLL,0)][setq(EXTRA_SUCC,0)][setq(TOTAL_ED,0)][if([cand([isint(%q<NUM_ROLLS>)],[gt(%q<NUM_ROLLS>,0)])],[setq(FULL_ROLL,[die(%q<NUM_ROLLS>,10,1)])][iter(%q<FULL_ROLL>,[if([lte(%i0,%q<FAIL_NUM>)],[setq(NUM_FAIL,[inc(%q<NUM_FAIL>)])])][if([gte(%i0,%q<SUCC_NUM>)],[setq(NUM_SUCC,[inc(%q<NUM_SUCC>)])][if([gte(%i0,%q<X_AGAIN>)],[setq(EXTRA_DIE,[inc(%q<EXTRA_DIE>)])])])],,)][setq(TOTAL_ED,%q<EXTRA_DIE>)][if([gt(%q<EXTRA_DIE>,0)],[u(%ws/FN`ROLL.EXTRA,%q<EXTRA_DIE>,silent)])],[pemit(%#,+roll: Please roll a positive integer.)])][cemit(debug,FN_ROLL_SILENT: %q<NUM_ROLLS> %q<DICE_DESC> for a total of %q<NUM_SUCC> + %q<EXTRA_SUCC>: [ansi(hg,[add(%q<NUM_SUCC>,%q<EXTRA_SUCC>)])] successes,1)][add(%q<NUM_SUCC>,%q<EXTRA_SUCC>)]
+
+@@ Player %0, type of dice %1, arguments (wits + investigate + auspex +1) as %2
+&FN`ROLL2.RUN %ws=[pemit(%0,%1 1 %2 2)]
+
+&FN`ROLL.MYJOB %ws=[filter(%vj/FIL_MYJOBS,[locate(%vj,Job %0,iT)])]
+@@ Job Database dbref for myjob additions
+@vj %ws=#18
+
+&WL Skill Roll Code=#1705
+&WS Skill Roll Code=#1770

@@ -1,0 +1,20 @@
+@	#2885
+@	Coded by: Gizmo AKA Ourea, Alzie, Oukranos
+@	Email: ccubed.techno@gmail.com
+@----------------------------------------------------------------------------
+@	Purpose: +warn system. The ultimate +warn system.
+@	Database: Warns
+@	DB Columns: id, from_player, to_player, action, accept, timeE, timeA, commentE, commentA
+@----------------------------------------------------------------------------
+@	Commands:
+@		+warn - show your warns
+@		+warn <name>=<reason> - warn <name> that their <action> could be dangerous
+@		+warn <name>=<reason>/<comment> - As above but add <comment> as your personal comment text to the warn for staff
+@		+warn/comment <id>=<comment> - Allows you to add a comment after the warn is created
+@		+warn/accept <id> - accept the warn, acknowledging that someone has told you your actions could be dangerous
+@		+warn/accept <id>=<Comment> - as above but add <comment> as your personal comment text to the warn for staff
+@		+warn/deny <id> - deny the warn for some reason, denying that your actions could be dangerous (this will alert staff)
+@		+warn/deny <id>=<comment> - as above, but add <comment> as your own personal comment text to the denial for staff (this text is added to the staff alert)
+@		+warn/staff <id> - Kind of like judgecall. Maybe you feel like a warn is uncalled for. This alerts staff that you want mediation for this warn.
+@		+warn/staff <id>=<comment> - as above, but add <comment> as your own personal comment text to the alert.
+

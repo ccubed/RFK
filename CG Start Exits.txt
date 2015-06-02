@@ -1,0 +1,58 @@
+@@ Ghoul (#1739), in CharGen Start (#51)
+@open Ghoul
+@link Ghoul = #227
+@lock/Basic Ghoul=PC_DATA`RULES.ACCEPT:1&GHOUL_LOCK/1|FLAG\^WIZARD|FLAG\^ROYALTY
+@lset Ghoul/Basic=no_inherit
+@set Ghoul = WIZARD
+@power Ghoul = See_All
+&AFAILURE Ghoul=@switch [get(%#/PC_DATA`RULES.ACCEPT)]=1,{@force %#=[get_template(%#)];@pemit %#=You have already selected to play as a [ucstr([get_template(%#)])].%RA strange force pushes you to go through the [get_template(%#)] door.},{@pemit %#=You haven't read the RULES yet! Type 'rules' to read them, then acknowledge your compliance by ACCEPTing those rules.}
+@set Ghoul/AFAILURE=no_command prefixmatch
+&ALIAS Ghoul=G
+@set Ghoul/ALIAS=no_command visual prefixmatch
+&ASUCCESS Ghoul=[if([not([is_immortal(%#)])],[attrib_set(%#/PC_DATA`TEMPLATE,GHOUL)])]
+@set Ghoul/ASUCCESS=no_command prefixmatch
+&FAILURE Ghoul=
+@set Ghoul/FAILURE=no_command prefixmatch
+&GHOUL_LOCK Ghoul=cor([strmatch([get(%#/PC_DATA`TEMPLATE)],GHOUL)],[not([hasattrval(%#/PC_DATA`TEMPLATE)])])
+&SUCCESS Ghoul=You have entered the servitude of a powerful Vampire and become his Ghoul.
+@set Ghoul/SUCCESS=no_command prefixmatch
+
+
+@@ Human (#1738), in CharGen Start (#51)
+@open Human
+@link Human = #227
+@lock/Basic Human=PC_DATA`RULES.ACCEPT:1&HUMAN_LOCK/1|FLAG\^WIZARD|FLAG\^ROYALTY
+@lset Human/Basic=no_inherit
+@set Human = WIZARD
+@power Human = See_All
+&AFAILURE Human=@switch [get(%#/PC_DATA`RULES.ACCEPT)]=1,{@force %#=[get_template(%#)];@pemit %#=You have already selected to play as a [ucstr([get_template(%#)])].%RA strange force pushes you to go through the [get_template(%#)] door.},{@pemit %#=You haven't read the RULES yet! Type 'rules' to read them, then acknowledge your compliance by ACCEPTing those rules.}
+@set Human/AFAILURE=no_command prefixmatch
+&ALIAS Human=H
+@set Human/ALIAS=no_command visual prefixmatch
+&ASUCCESS Human=[if([not([is_immortal(%#)])],[attrib_set(%#/PC_DATA`TEMPLATE,HUMAN)])]
+@set Human/ASUCCESS=no_command prefixmatch
+&FAILURE Human=
+@set Human/FAILURE=no_command prefixmatch
+&HUMAN_LOCK Human=cor([strmatch([get(%#/PC_DATA`TEMPLATE)],HUMAN)],[not([hasattrval(%#/PC_DATA`TEMPLATE)])])
+&SUCCESS Human=Human Selected: Tremble in fear, mere Mortal, as the creatures of the Night stalk you.%RAlas, they are no match for the great Cthulhu, which threatens to consume us all.
+@set Human/SUCCESS=no_command prefixmatch
+
+
+@@ Vampire (#1321), in CharGen Start (#51)
+@open Vampire
+@link Vampire = #227
+@lock/Basic Vampire=PC_DATA`RULES.ACCEPT:1&VAMPIRE_LOCK/1|FLAG\^WIZARD|FLAG\^ROYALTY
+@lset Vampire/Basic=no_inherit
+@set Vampire = WIZARD
+@power Vampire = See_All
+&AFAILURE Vampire=@switch [get(%#/PC_DATA`RULES.ACCEPT)]=1,{@force %#=[get_template(%#)];@pemit %#=You have already selected to play as a [ucstr([get_template(%#)])].%RA strange force pushes you to go through the [get_template(%#)] door.},{@pemit %#=You haven't read the RULES yet! Type 'rules' to read them, then acknowledge your compliance by ACCEPTing those rules.}
+@set Vampire/AFAILURE=no_command prefixmatch
+&ALIAS Vampire=V
+@set Vampire/ALIAS=no_command visual prefixmatch
+&ASUCCESS Vampire=[if([not([is_immortal(%#)])],[attrib_set(%#/PC_DATA`TEMPLATE,VAMPIRE)])]
+@set Vampire/ASUCCESS=no_command prefixmatch
+&FAILURE Vampire=
+@set Vampire/FAILURE=no_command prefixmatch
+&SUCCESS Vampire=You have chosen to receive the Embrace and become a Vampire.
+@set Vampire/SUCCESS=no_command prefixmatch
+&VAMPIRE_LOCK Vampire=cor([strmatch([get(%#/PC_DATA`TEMPLATE)],VAMPIRE)],[not([hasattrval(%#/PC_DATA`TEMPLATE)])])

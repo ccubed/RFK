@@ -1,0 +1,163 @@
+@create Territories Shared Code
+@link Territories Shared Code = #2
+@set Territories Shared Code = !NO_COMMAND
+@power Territories Shared Code=SQL_OK
+
+@create Territory State Object
+@link Territory State Object = #2
+@power Territories State Object=SQL_OK
+@tel Territory State Object= #2
+
+@@ General Territory functions
+&FN`VALID_TERRITORY %vt=[setq(RET,[sql([ u(%vt/FN`VALID_TERRITORY_SQL, "[sqlescape(%0)]") ])])][if(%Q<RET>,%Q<RET>,0)]
+
+&FN`TERRITORIES.GET_SITE %vt=[sql([u(FN`TERRITORIES.SELECT_SITE_SQL,%0)])]
+&FN`TERRITORIES.GET_MODIFIER %vt=[if([member(attitude|access|safety|information|ignorance|prestige|stability|feeding_pool,%0,|)],[setq(0,[sql(u(FN`TERRITORIES.SELECT_MODIFIER_SQL,%0,%1))])],[setq(0,0)])][if(%q0,%q0,0)]
+&FN`TERRITORIES.GET_KINGPIN %vt=[setq(0,[sql(u(FN`TERRITORIES.SELECT_MODIFIER_SQL,kingpin_dbref,%0))])][if(%q0,%q0,0)]
+
+@@ Territory Investigation functions
+&FN`INVESTIGATION.DICE_POOL %vt=[add([u(FN`INVESTIGATION.BASE_POOL,%0)],[u(FN`INVESTIGATION.DISC_POOL,%0)],[u(FN`INVESTIGATION.MERIT_POOL,%0)],[u(FN`INVESTIGATION.TERRITORY_POOL,%1)])]
+&FN`INVESTIGATION.BASE_POOL %vt=[add([get_attrib(%0,wits)],[max([get_skill(%0,investigation)],[get_skill(%0,empathy)],[get_skill(%0,streetwise)],[get_skill(%0,politics)])])]
+&FN`INVESTIGATION.DISC_POOL %vt=[add([get_discipline(%0,auspex)],[div([get_discipline(%0,majesty)],2)],[div([get_discipline(%0,dominate)],2)],[div([get_discipline(%0,animalism)],2)],[div([get_discipline(%0,protean)],2)])]
+&FN`INVESTIGATION.MERIT_POOL %vt=[if(has_merit(%0,Acute Senses),[get_merit(%0,Blood Potency)],0)
+&FN`INVESTIGATION.TERRITORY_POOL %vt=[u(FN`TERRITORIES.GET_MODIFIER,information,%0)]
+
+&FN`PATROL.DICE_POOL %vt=[sub([add([get_attrib(%0,wits)],[get_skill(%0,streetwise)])],[u(FN`TERRITORIES.GET_MODIFIER,ignorance,%1)])]
+
+@@ Territory Actions
+&FN`TERRITORIES.ACTION.TYPE_TO_NAME %vt=[switch(%0,1,[ansi(rh,Patrol)],2,[ansi(yh,Investigate)],3,[ansi(yh,Solve crisis)],4,[ansi(gh,Finesse)],5,[ansi(bh,Site Usage)],0)]
+&FN`TERRITORIES.ACTION.NAME_TO_TYPE %vt=[switch(%0,Patrol,1,Investigate,2,Solve Crisis,3,Finesse,4,Site,5,0)]
+
+&FN`TERRITORIES.ACTION.START_JOB %vt=[u(%va/FN`START_JOB,%0,[u(FN`TERRITORIES.ACTION.TYPE_TO_NAME,%1)] %2)]
+
+&FN`TERRITORIES.ACTION.PATROL_ROLL %vt=[setq(TO,[get_merit(%0,Trained Observer)])][setq(NUM_DICE,[add([u(%vt/FN`PATROL.DICE_POOL,%0,%1)],%2)])][setq(SUCCS,[u(%ws/FN`ROLL_SILENT,[switch(%q<TO>,3,8,2,8,1,9,10)],%Q<NUM_DICE>)])]%q<SUCCS>
+
+&FN`TERRITORIES.ACTION.PATROL_RUN %vt=[SETQ(i,1)][setq(SUCCS,[u(FN`TERRITORIES.ACTION.PATROL_ROLL,%0,%2,[IF(%3,%3,0)])])][IF([u(%wd/FN`DT_CHECK_AND_INSERT,%0,[IF(%4,7,0)],Patrol %2)],[u(%vt/FN`TERRITORIES.ADD_ACTION,%1,[u(%vt/FN`TERRITORIES.ACTION.NAME_TO_TYPE,Patrol)],[trim(num(%0),#)],%q<SUCCS>,[sql_date_time()])],[SETQ(i,0)])]%qi
+&FN`TERRITORIES.ACTION.INVESTIGATE_RUN %vt=[SETQ(i,1)][setq(SUCCS,%3)][IF([u(%wd/FN`DT_CHECK_AND_INSERT,%0,%4,Investigate %2)],[u(%vt/FN`TERRITORIES.ADD_ACTION,%1,[u(%vt/FN`TERRITORIES.ACTION.NAME_TO_TYPE,Investigate)],[trim(num(%0),#)],%q<SUCCS>,[sql_date_time()])],[SETQ(i,0)])]%qi
+
+&FN`TERRITORIES.ACTION.FINESSE_RUN %vt=[setq(SUCCS,%3)][IF([u(%wd/FN`DT_CHECK_AND_INSERT,%0,%4,Finesse %2)],[u(%vt/FN`TERRITORIES.ADD_ACTION,%1,[u(%vt/FN`TERRITORIES.ACTION.NAME_TO_TYPE,Finesse)],[trim(num(%0),#)],%q<SUCCS>,[sql_date_time()])])]
+&FN`TERRITORIES.ACTION.SITE_RUN %vt=[u(%vt/FN`TERRITORIES.ADD_ACTION,%1,[u(%vt/FN`TERRITORIES.ACTION.NAME_TO_TYPE,Site)],[trim(num(%0),#)],0,[sql_date_time()])])]
+
+&FN`TERRITORIES.ADD_ACTION %vt=[sql([u(FN`TERRITORIES.INSERT_ACTION_SQL,%0,%1,%2,%3,%4)])]
+
+@@ Territory Crises
+
+&LIST`TERRITORIES_1_0 %vt=Kindred|Animal|Blood|Mysterious|Underworld|Gang|Government|Police|Neighborhood|Monster
+&LIST`TERRITORIES_1_1 %vt=Lunatic|Kindred|Street|Police|Gang|Homeless|Activist|Unstable|Reporter|Outsider
+&LIST`TERRITORIES_1_2 %vt=Kindred|Bureaucratic|Church|Financial|Street|Health|High Society|Industry|Legal|Occult
+&LIST`TERRITORIES_1_3 %vt=Kindred|Media|Occult|Police|Street|Political|Transportation|Underworld|Education|Monster
+&LIST`TERRITORIES_1_4 %vt=Ordo Dracul|Lancea Et Sanctum|Invictus|Carthian|Daeva|Mekhet|Gangrel|Ventrue|Nosferatu
+&LIST`TERRITORIES_2_0 %vt=Interest|Rampage|Infection|Tradition|Hideout|Buyout|Violence|Observation|Collapse|Seizure
+&LIST`TERRITORIES_2_1 %vt=Accident|Scandal|Murder|Suicide|Corruption|Theft|Exposure|Blackmail|Violence|Alliance
+&LIST`TERRITORIES_3_0 %vt=Arson|Weapons|Conflict|None|None|None|None|Magic|Children|Possession
+&LIST`TERRITORIES_3_1 %vt=None|None|None|None|None|Money|Covenant|God Machine|None|None
+
+&FN`TERRITORIES.VALID_CRISIS %vt=[if([sql([u(FN`VALID_CRISIS_SQL,%0)])],1,0)]
+&FN`TERRITORIES.ADD_CRISIS %vt=[sql([u(FN`TERRITORIES.INSERT_NEW_CRISIS_SQL,%0,"[u(FN`GENERATE_CRISIS)]")])]
+&FN`GENERATE_CRISIS %vt=[setq(0,[u(%vt/LIST`TERRITORIES_1_[rand(5)])])][setq(1,[u(%vt/LIST`TERRITORIES_2_[rand(2)])])][setq(2,[u(%vt/LIST`TERRITORIES_3_[rand(2)])])][extract(%q0,[add([rand([words(%q0,|)])],1)],1,|)]\,[space(1)][extract(%q1,[add([rand([words(%q1,|)])],1)],1,|)]\,[space(1)][extract(%q2,[add([rand([words(%q2,|)])],1)],1,|)]
+
+&FN`TERRITORIES.ACTIVE_CRISES %vt=[sql([u(FN`TERRITORIES.COUNT_ACTIVE_CRISES_SQL,"%0")])]
+
+&FN`TERRITORIES.CRISIS.TYPE_TO_NAME %vt=[switch(%0,1,SIMPLE,2,CONTESTED,3,RESISTED,4,EXTENDED,5,THRESHOLD,Unknown)]
+&FN`TERRITORIES.CRISIS.NAME_TO_TYPE %vt=[switch(%0,SIMPLE,1,CONTESTED,2,RESISTED,3,EXTENDED,4,THRESHOLD,5,Unknown,0)]
+
+@@ Territory Name,Actor,Face
+&FN`TERRITORIES.FACE_RECALC %vt=[setq(KP,[u(FN`TERRITORIES.GET_KINGPIN,%0)])][SETQ(ADD_DBREF,%1)][IF(%q<KP>,,)]
+
+&FN`TERRITORIES.GET_FACE %vt=[sql(
+
+@@ SQL
+&FN`TERRITORIES.SELECT_SQL %vt=SELECT CONCAT_WS('-',name,dbref),dbref,CONCAT_WS('|',attitude,access,safsety,information,ignorance,prestige,stability,feeding_pool),IFNULL(kingpin_dbref,0) FROM territory ORDER BY name
+&FN`TERRITORIES.SELECT_NEW_CRISES_SQL %vt=SELECT CONCAT_WS('-',name,dbref),dbref,stability FROM territory ORDER BY name
+&FN`TERRITORIES.SELECT_MODIFIER_SQL %vt=SELECT [sqlescape(%0)] FROM territory WHERE name='[sqlescape(%1)]'
+
+&FN`TERRITORIES.SELECT_SITE_SQL %vt=SELECT id,territory_dbref,skill,modifier FROM territory_site WHERE NAME='[sqlescape(%0)]' LIMIT 1
+&FN`TERRITORIES.INSERT_CRISIS_SQL %vt=INSERT territory_crisis (territory_dbref,name,description,rating,active_dt_time,ctype) values(%0,'[sqlescape(%1)]','[sqlescape(%2)]','%3','%4',[IF(%5,%5,0)])
+&FN`TERRITORIES.SELECT_PLAYER_INVESTIGATION_CRISES %vt=SELECT * FROM territory_crisis INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory.name='[sqlescape(%0)]' AND territory_crisis.name!='TBD' AND active_dt_time <= now() and resolved_dt_time IS NULL ORDER BY active_dt_time ASC
+&FN`TERRITORIES.UPDATE_CRISIS_SQL %vt=UPDATE territory_crisis SET name='[sqlescape(%1)]',description='[sqlescape(%2)]',rating='%3',ctype=[IF(%4,%4,0)] WHERE id=%0
+&FN`TERRITORIES.DELETE_CRISIS_SQL %vt=DELETE FROM territory_crisis WHERE id=%0
+&FN`TERRITORIES.SOLVE_CRISIS_SQL %vt=UPDATE territory_crisis SET resolved_dt_time=now(),resolved_by_dbref=%1 WHERE id=%0
+&FN`TERRITORIES.SELECT_PLAYER_INVESTIGATION_CRISES %vt=SELECT * FROM territory_crisis INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory.name='[sqlescape(%0)]' AND territory_crisis.name!='TBD' AND active_dt_time <= now() and resolved_dt_time IS NULL ORDER BY active_dt_time ASC
+
+&FN`TERRITORIES.SELECT_FEEDING_DATA_PLAYER_INVESTIGATION %vt=select player_dbref,vitae,dt_time FROM hunt h INNER JOIN bloodpool bp ON bp.dbref=h.bp_dbref INNER JOIN territory t ON t.dbref=bp.territory_dbref WHERE t.name='[sqlescape(%0)]' AND h.dt_time>=DATE_SUB(now(),INTERVAL [sqlescape(%1)] DAY)
+
+&FN`TERRITORIES.INSERT_NEW_CRISIS_SQL %vt=INSERT territory_crisis (territory_dbref,name,description,active_dt_time) values(%0,'TBD',%1,DATE_ADD(now(), INTERVAL (FLOOR((RAND() * (day(last_day(now()))-day(now()))))) DAY))
+
+&FN`TERRITORIES.SELECT_ACTIONS_SQL %vt=SELECT ID,type,by_dbref,succs,dt_time FROM territory_action INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory.name=%0 ORDER BY dt_time
+&FN`TERRITORIES.SELECT_ACTIONS_WEEK_SQL %vt=SELECT ID,type,by_dbref,succs,dt_time FROM territory_action INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory.name=%0 AND now() < DATE_ADD(territory_action.dt_time,INTERVAL 7 DAY) ORDER BY dt_time
+&FN`TERRITORIES.SELECT_ACTIONS_LAST_WEEK_SQL %vt=SELECT ID,type,by_dbref,succs,dt_time FROM territory_action INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory.name=%0 AND territory_action.dt_time > DATE_SUB(now(),INTERVAL 14 DAY) AND NOT now() < DATE_ADD(territory_action.dt_time,INTERVAL 7 DAY) ORDER BY dt_time
+
+&FN`TERRITORIES.SELECT_CRISES_SQL %vt=SELECT ID,territory_crisis.name,description,active_dt_time,IFNULL(rating,0) AS rating,(active_dt_time<now()) AS active,IFNULL(ctype,0) FROM territory_crisis INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory.name=%0 AND resolved_dt_time IS NULL ORDER BY active_dt_time
+
+&FN`TERRITORIES.COUNT_ACTIVE_CRISES_SQL %vt=SELECT COUNT(1) AS count FROM territory_crisis INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory.name=%0 AND resolved_dt_time IS NULL AND (active_dt_time<now())
+
+&FN`TERRITORIES.SELECT_TBD_CRISES_SQL %vt=SELECT ID,territory.name,description,active_dt_time FROM territory_crisis INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory_crisis.name='TBD' AND DAYOFYEAR(active_dt_time)=DAYOFYEAR(now()) AND territory_crisis.resolved_dt_time IS NULL
+&FN`TERRITORIES.SELECT_TBD_CRISES_ALL_SQL %vt=SELECT ID,territory.name,description,active_dt_time,(active_dt_time<now()) AS active FROM territory_crisis INNER JOIN territory ON territory_dbref=territory.dbref WHERE territory_crisis.name='TBD' AND territory_crisis.resolved_dt_time IS NULL ORDER BY active_dt_time
+
+&FN`VALID_TERRITORY_SQL %vt=select t.dbref FROM territory t WHERE t.name=%0
+
+&FN`VALID_CRISIS_SQL %vt=select 1 FROM territory_crisis WHERE id=%0
+&FN`CRISIS_TERRITORY_SQL %vt=select territory_dbref FROM territory_crisis WHERE id=%0
+&FN`CRISIS_RATING_SQL %vt=select rating FROM territory_crisis WHERE id=%0
+
+&FN`TERRITORIES.INSERT_ACTION_SQL %vt=INSERT territory_action (territory_dbref,type,by_dbref,succs,dt_time) VALUES(%0,%1,%2,%3,'%4')
+
+&FN`TERRITORIES.SET_KINGPIN_SQL %vt=UPDATE territory SET kingpin_dbref=%1 WHERE dbref=%0
+&FN`TERRITORIES.SET_STAT_SQL %vt=UPDATE territory SET %1=%2 WHERE dbref=%0
+
+&FN`TERRITORIES.GET_FACE_SQL %vt=SELECT face FROM territory_face WHERE territory_dbref=%0 AND player_dbref=%1
+&FN`TERRITORIES.INSERT_UPDATE_FACE_SQL %vt=INSERT territory_face (territory_dbref, player_dbref, face) VALUES (%0,%1,%2) ON DUPLICATE KEY UPDATE face=%2
+
+@@ Site SQL
+&FN`SITES.GET_SITE_RATING %vt=SELECT count(modifier) FROM territory_site WHERE name='[sqlescape(%0)]'
+&FN`SITES.GET_SITE_SKILLS %vt=SELECT skill, modifier FROM territory_site WHERE name='[sqlescape(%0)]'
+&FN`SITES.GET_SITE_INFLUENCE %vt=SELECT influence FROM territory_site WHERE id='[sqlescape(%0)]'
+&FN`SITES.GET_SITE_OPENED %vt=SELECT open FROM territory_site WHERE id='[sqlescape(%0)]'
+&FN`SITES.GET_UNIQUE_NAMES_BY_INFLUENCE %vt=SELECT DISTINCT name FROM territory_site WHERE influence='[sqlescape(%0)]'
+&FN`SITES.GET_UNIQUE_NAMES_BY_TERRITORY %vt=SELECT DISTINCT name FROM territory_site WHERE territory_dbref='[sqlescape(%0)]'
+&FN`SITES.GET_SITE_USAGE_TODAY %vt=SELECT * FROM territory_action WHERE type=5 and DATE(dt_time)=CURDATE() and territory_dbref='[sqlescape(%0)]'
+&FN`SITES.GET_SITE_USAGE_WITHIN_DAYS %vt=SELECT * FROM territory_action WHERE type=5 and dt_time>=DATE_SUB(now(),INTERVAL [sqlescape(%0)] DAY) and territory_dbref='[sqlescape(%1)]'
+
+@@ WARNING: huge fucking result - takes .8 seconds to run
+&FN`SITES.GET_SITES_NAME_MODIFIERS_ALL %vt=select distinct name, id, group_concat(skill SEPARATOR ':'), group_concat(modifier SEPARATOR ':') from (select * from territory_site) x group by name ASC
+@@ WARNING: huge fucking result
+
+&FN`SITES.GET_SITE_NAME_BY_ID %vt=select name from territory_site where id=[sqlescape(%0)]
+&FN`SITES.GET_SITE_NAME_MODIFIERS_INFL %vt=select name, id, group_concat(skill SEPARATOR ':'), group_concat(modifier SEPARATOR ':'), open from (select * from territory_site where influence='[sqlescape(%0)]') x group by name
+&FN`SITES.GET_SITE_NAME_MODIFIERS_TERRITORY %vt=select name, id, group_concat(skill SEPARATOR ':'), group_concat(modifier SEPARATOR ':'), open from (select * from territory_site where territory_dbref='[sqlescape(%0)]') x group by name
+&FN`SITES.GET_SITE_NAME_MODIFIERS_NAME %vt=select distinct name, id, group_concat(skill SEPARATOR ':'), group_concat(modifier SEPARATOR ':'), open from (select * from territory_site where name='[sqlescape(%0)]') x
+
+@@ Warning: Likely a huge fucking result
+&FN`SITES.GET_SITE_NAME_MODIFIERS_OPENED %vt=select distinct name, id, group_concat(skill SEPARATOR ':'), group_concat(modifier SEPARATOR ':') from (select * from territory_site where open=1) x
+@@ Warning: Likely a huge fucking result
+
+@@ Site Functions
+
+@@ Player Actions SQL
+&FN`PLAYER.ACTIONS.NAME_TO_TYPE %vt=[switch(%0,Cover Feeding,1,Ally Favor,2,Influence Invesitgation,3,Cover Movement,4,Cover Actions,5,Defend Asset,6,Defend Person,7,Cover Other,8,Unknown)]
+&FN`PLAYER.ACTIONS.TYPE_TO_NAME %vt=[switch(%0,1,[ansi(hw,Cover Feeding)],2,[ansi(hy,Ally Favor)],3,[ansi(nr,Influence Investigations)],4,[ansi(hg,Cover Movement)],5,[ansi(hnc,Cover Actions)],6,[ansi(hw,Defend Asset)],7,[ansi(hw,Defend Person)],8,[ansi(hw,Cover Other)],[ansi(hx,Unknown)])]
+&FN`PLAYER.ACTIONS.CHECK_COVER_UP %vt=SELECT * FROM player_actions WHERE type=[sqlescape(%0)] AND player_dbref=[sqlescape(%1)] AND DATE(dt_time_ends)>=CURDATE()
+&FN`PLAYER.ACTIONS.GET_PLAYERS_ACTIONS_DAYS %vt=SELECT * FROM player_actions WHERE player_dbref=[sqlescape(%0)] AND dt_time<=DATE_SUB(NOW(),INTERVAL [sqlescape(%1)] DAY)
+&FN`PLAYER.ACTIONS.GET_PLAYERS_ACTIONS_THIS_WEEK %vt=SELECT * FROM player_actions WHERE player_dbref=[sqlescape(%0)] AND YEARWEEK(dt_time,1)=YEARWEEK(now(),1)
+&FN`PLAYER.ACTIONS.GET_PLAYERS_ACTIONS_LAST_WEEK %vt=SELECT * FROM player_actions WHERE player_dbref=[sqlescape(%0)] AND YEARWEEK(dt_time,1)=YEARWEEK(DATE_SUB(now(),INTERVAL 1 WEEK),1)
+&FN`PLAYER.ACTIONS.GET_ALL_ACTIONS_PLAYER %vt=SELECT * FROM player_actions WHERE player_dbref=[sqlescape(%0)]
+&FN`PLAYER.ACTIONS.INSERT_ROW %vt=INSERT INTO player_actions (player_actions.type,player_actions.desc,dt_time,dt_time_ends,player_dbref,target_dbref,sux) VALUES ([sqlescape(%0)],'[sqlescape(%1)]','[sqlescape(%2)]','[sqlescape(%3)]',[sqlescape(%4)],[sqlescape(%5)],[sqlescape(%6)])
+
+@@ Retainer
+&FN`RETAINERS.SQL_PLAYER_GET_RETAINERS %vt=SELECT * FROM retainers WHERE player_dbref=[sqlescape(%0)]
+&FN`RETAINERS.SQL_COUNT_WEEKS_FAVORS %vt=SELECT COUNT(*) FROM (SELECT * FROM retainer_actions WHERE retainer_id=[sqlescape(%0)] AND yearweek(dt_time,1)=yearweek(now(),1)) x
+&FN`RETAINERS.SQL_INSERT_ACTION %vt=INSERT INTO retainer_actions (retainer_id,retainer_actions.type,target_dbref,retainer_actions.desc,dt_time,dt_ends,sux) VALUES ([sqlescape(%0)],[sqlescape(%1)],[sqlescape(%2)],'[sqlescape(%3)]','[sqlescape(%4)]','[sqlescape(%5)]',[sqlescape(%6)])
+&FN`RETAINERS.TYPE_TO_NAME %vt=[switch(%0,1,[ansi(hy,Cover Movement)],2,[ansi(hc,Cover Feeding)],3,[ansi(hr,Patrol Territory)],4,[ansi(hg,Defend Person)],5,[ansi(nm,Defend Asset)],6,[ansi(hb,Cover Other)],7,[ansi(hw,See Desc)])]
+&FN`RETAINERS.SQL_CHECK_FREE_ACTIONS %vt=[setq(B,sql(u(%vt/FN`RETAINERS.SQL_PLAYER_GET_RETAINERS,%0),|,~))][setq(C,words(%qB,|))][iter(%qB,[if(lte(sql(u(%vt/FN`RETAINERS.SQL_COUNT_WEEKS_FAVORS,extract(%i0,1,1,~))),sub(6,extract(%i0,4,1,~))),[setq(A,[setunion(%qA,extract(%i0,1,1,~))])])],|)][if(%qA,%qA,0)]
+
+@@ State Object
+&INC %va=0
+&FN`GET_NEXT_JOB %va = [attrib_set2(%va/INC,[add([get(%va/INC)],1)])][get(%va/INC)]
+&FN`START_JOB %va = [setq(JOB,[u(FN`GET_NEXT_JOB)])][attrib_set2(%va/%q<JOB>`DESC,%1)][attrib_set2(%va/%q<JOB>`OWNER,%0)][attrib_set2(%va/%q<JOB>`SUCCS,0)][attrib_set2(%va/%q<JOB>`STATUS,1)]
+&FN`GET_JOB %va = [get(%va/%0`DESC)]|[get(%va/%0`SUCCS)]|[get(%va/%0`OWNER)]|[get(%va/%0`STATUS)]
+&WD %vt=#2930
+&WT %vt=#2279
+&VT %vt=#1246
+&VA %vt=#3767
+&WS %vt=#1770
+&WH %vt=#2062

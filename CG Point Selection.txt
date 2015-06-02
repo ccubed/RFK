@@ -1,0 +1,54 @@
+@@ CharGen Point Selection (#1744)
+@dig/teleport CharGen Point Selection
+@parent here=#44
+@set here = WIZARD
+@power here = See_All
+&CMD here=
+
+@wipe here/CMD`ATTRIBUTE
+&CMD`ATTRIBUTE here=$^\+attribute(/\w*)?(?> ?=?(\w*))?$:@include #1744/FN`ATTRIBUTE=%1,%2,%3
+@set here/CMD`ATTRIBUTE=regexp
+
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+
+@wipe here/CMD`SKILLS
+&CMD`SKILLS here=$^\+skills(/\w*)?(?> ?=?(\w*))?$:@include #1744/FN`SKILLS=%1,%2,%3
+@set here/CMD`SKILLS=regexp
+
+@DESCRIBE here=In this room, you will choose your primary/secondary attributes and skills in MENTAL, PHYSICAL, or SOCIAL categories. This choice has a direct impact on how you will be able to assign points in the next room. 11/7/4 is the point allocation for skills, while 5/4/3 is the point allocation for attributes. The commands explaining how to choose are explained below. Once decided, proceed onto the next room.%R%R+attribute/1=MENTAL|PHYSICAL|SOCIAL%R+attribute/2=One of the three choices, NOT CHOSEN for your primary.%R+attribute/show : Shows your primary and secondary selections.%R+attribute/clear : Clears your selections.%R%R+skills/1=MENTAL|PHYSICAL|SOCIAL%R+skills/2=One of the three choices, NOT CHOSEN for your primary.%R+skills/show : Shows your primary and secondary selections.%R+skills/clear :  Clears your selections.
+
+&FN here=
+
+&FN`ATTRIBUTE here=[switch(%0,/1,[u(#1744/FN`ATTRIBUTE.RUN,%#,[after(%0,/)],%1)],/2,[u(#1744/FN`ATTRIBUTE.RUN,%#,[after(%0,/)],%1)],/show,[pemit(%#,You have selected the following for your primary attribute: [if([hasattrval(%#/CHARGEN`ATTRIBUTES.1)],[ucstr([get(%#/CHARGEN`ATTRIBUTES.1)])],None)])][pemit(%#,You have selected the following for your secondary attribute: [if([hasattrval(%#/CHARGEN`ATTRIBUTES.2)],[ucstr([get(%#/CHARGEN`ATTRIBUTES.2)])],None)])],/clear,[wipe(%#/CHARGEN`ATTRIBUTES**)][wipe(%#/CHARGEN`POINTS**)][pemit(%#,+attributes: Selections cleared.)][if([t([get(%#/CHARGEN`POINTS.SETUP)])],[wipe(%#/PC_DATA`ATTRIBS**)][attrib_set(%#/CHARGEN`POINTS.SETUP,0)][pemit(%#,+attributes: Point allocations cleared. You will have to reallocate your points in the next room.)])],[pemit(%#,+attribute: Valid switches are: /1=<choice>\, /2=<choice>\, /show\, /clear)])]
+
+&FN`ATTRIBUTE.RUN here=[setq(i,1)][if([t([get(%#/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%#,You have begun assigning your points. Please clear your selections and try again.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`POINT_CATS)],[if([strmatch(%2,%i0)],[setq(i,1)][setq(CHOICE,%i0)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,That's not a valid choice. Please select MENTAL\, PHYSICAL\, or SOCIAL.)])])][if([t(%qi)],[if([strmatch(%2,[get(%#/CHARGEN`ATTRIBUTES.1)])],[setq(i,0)][pemit(%#,You already selected %2 as your primary attribute! Choose another or clear if you want to switch it up.)])])][if([t(%qi)],[if([strmatch(%2,[get(%#/CHARGEN`ATTRIBUTES.2)])],[setq(i,0)][pemit(%#,You already selected %2 as your secondary attribute! Choose another or clear if you want to switch it up.)])])][if([t(%qi)],[attrib_set(%#/CHARGEN`POINTS.SETUP,0)][attrib_set(%0/CHARGEN`ATTRIBUTES.%1,%q<CHOICE>)][pemit(%0,You have selected %q<CHOICE> as your [switch(%1,1,Primary,Secondary)] attribute.)])]
+
+&FN`SKILLS here=[switch(%0,/1,[u(#1744/FN`SKILLS.RUN,%#,[after(%0,/)],%1)],/2,[u(#1744/FN`SKILLS.RUN,%#,[after(%0,/)],%1)],/show,[pemit(%#,You have selected the following for your primary skillset: [if([hasattrval(%#/CHARGEN`SKILLS.1)],[ucstr([get(%#/CHARGEN`SKILLS.1)])],None)])][pemit(%#,You have selected the following for your secondary skillset: [if([hasattrval(%#/CHARGEN`SKILLS.2)],[ucstr([get(%#/CHARGEN`SKILLS.2)])],None)])],/clear,[wipe(%#/CHARGEN`SKILLS**)][wipe(%#/CHARGEN`SK_POINTS**)][pemit(%#,+skills: Selections cleared.)][if([t([get(%#/CHARGEN`POINTS.SETUP)])],[wipe(%#/PC_DATA`SKILL**)][attrib_set(%#/CHARGEN`POINTS.SETUP,0)][pemit(%#,+skills: Point allocations cleared. You will have to reallocate your points in the next room.)])],[pemit(%#,+skills: Valid switches are: /1=<choice>\, /2=<choice>\, /show\, /clear)])]
+
+&FN`SKILLS.RUN here=[setq(i,1)][if([t([get(%#/CHARGEN`POINTS.SETUP)])],[setq(i,0)][pemit(%#,You have begun assigning your points. Please clear your selections and try again.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`POINT_CATS)],[if([strmatch(%2,%i0)],[setq(i,1)][setq(CHOICE,%i0)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,That's not a valid choice. Please select MENTAL\, PHYSICAL\, or SOCIAL.)])])][if([t(%qi)],[if([strmatch(%2,[get(%#/CHARGEN`SKILLS.1)])],[setq(i,0)][pemit(%#,You already selected %2 as your primary skillset! Choose another or clear if you want to switch it up.)])])][if([t(%qi)],[if([strmatch(%2,[get(%#/CHARGEN`SKILLS.2)])],[setq(i,0)][pemit(%#,You already selected %2 as your secondary skillset! Choose another or clear if you want to switch it up.)])])][if([t(%qi)],[attrib_set(%0/CHARGEN`SKILLS.%1,%q<CHOICE>)][pemit(%0,You have selected %q<CHOICE> for your [switch(%1,1,primary,secondary)] skillset.)])]
+
+&WL here=#1705
+
+**** REQS_MET on 'Next'
+@@ Next (#1747), in CharGen Point Selection (#1744)
+@open Next
+@link Next = #1743
+@lock/Basic Next=FLAG\^WIZARD|FLAG\^ROYALTY|REQS_MET/1
+@lset Next/Basic=no_inherit
+@power Next = See_All
+&ALIAS Next=N
+@set Next/ALIAS=no_command visual prefixmatch
+&FAILURE Next=
+@set Next/FAILURE=no_command prefixmatch
+&REQS_MET Next=[setq(i,1)][if([nand([hasattrval(%#/CHARGEN`ATTRIBUTES.1)],[hasattrval(%#/CHARGEN`ATTRIBUTES.2)])],[setq(i,0)][pemit(%#,You have not selected your attribute categories.)])][if([t(%qi)],[if([nand([hasattrval(%#/CHARGEN`SKILLS.1)],[hasattrval(%#/CHARGEN`SKILLS.2)])],[setq(i,0)][pemit(%#,You have not selected your skillset categories.)])])]%qi
+
+
+**** "Back: exit code for new seperate template rooms ***
+@@ Back (#1746), in CharGen Point Selection (#1744)
+@open Back
+@link Back = VARIABLE
+@power Back = Link_Anywhere
+&ALIAS Back=B
+@set Back/ALIAS=no_command visual prefixmatch
+&DESTINATION Back=[switch([get_template(%#)],GHOUL,#1739,HUMAN,#1738,#227)]
+@set Back/DESTINATION=no_command

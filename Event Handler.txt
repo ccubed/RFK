@@ -1,0 +1,17 @@
+@@ Event Handler (#43)
+@create Event Handler
+@link Event Handler = #39
+@set Event Handler = WIZARD
+@set Event Handler = SAFE
+@set Event Handler = NO_COMMAND
+
+&OBJECT Event Handler=
+&OBJECT`CREATE Event Handler=@switch type(%0)=room,@parent %0=#44
+&PLAYER Event Handler=
+&PLAYER`CONNECT #43=@parent %0=#1703;@dol lattr(%wu/event`**)=@trigger %wu/%i0=%0;
+&PLAYER`DISCONNECT #43=@set %0=!UNFINDABLE;
+&PLAYER`CREATE Event Handler=@chan/on public=%0
+&SOCKET Event Handler=
+&SOCKET`LOGINFAIL Event Handler=@rwall/emit On descriptor '%0' from IP '%1' a failed connect attempt to '%4': '%3'
+
+@wu event=#2280

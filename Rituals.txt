@@ -1,0 +1,54 @@
+@	Requiem for Kingsmouth
+@	Rituals Tracking System v2
+@	Coded by: Gizmo AKA Ourea, Alzie
+@	Coded for: Requiem for Kingsmouth
+@	Email: ccubed.techno@gmail.com
+@	Date Last Touched: 2/13/2015
+@----------------------------------------------------------------------------
+@	Purpose: Code a way to track ritual usage and end dates for renewals. 
+@	Notes: Bucket #3843
+@----------------------------------------------------------------------------
+@	Organization
+@	F.* - Function - Player does not interact
+@	CMD.* - Command - Player does interact
+@	LIT.* - Literal - Player sees but does not interact
+@	F.PARSE.* - Parser - Player does not interact
+@	F.DISP.* - Display Formatter - Player sees but does not interact
+@	F.FORMAT.* - Data Formatter - Player does not interact
+@----------------------------------------------------------------------------
+@
+@	+rituals - Show all rituals
+@	+rituals/add <Name of Ritualist>|<Date Performed>|<Date Ends>|<Ritual Name>|<Target>|<Number of Successes on Roll>
+@	+rituals/view ID - View details and notes for ID
+@	+rituals/notes ID - add notes to ID
+@	+rituals/remove ID - remove ID from the system
+
+&CMD`RITUALS #2542=$+rituals:@switch [t([words(lcon(me))])][orflags(%#,Wr)]=0*,{@pemit %#=[ansi(hw,Rituals:)]%bNo rituals in the database.},10,{@pemit %#=[header(Rituals)]%R[u(F`DISP.HEADER)]%R%b[repeat(-,76)]%R[iter(lcon(me),[if(cor(strmatch(name(%#),xget(%i0,Ritualist)),strmatch(name(%#),xget(%i0,Target))),[u(F`DISP.RITUAL,%i0)])], ,)][footer()]},11,{@pemit %#=[header(Rituals)]%R[u(F`DISP.HEADER)]%R%b[repeat(-,76)]%R[iter(lcon(me),[u(F`DISP.RITUAL,%i0)], ,)][footer()]}
+
+&CMD`RITUALS.ADD #2542=$+rituals/add *:@assert [orflags(%#,Wr)];@assert [eq(words(%0,|),6)]={@pemit %#=[ansi(hr,Error:)]%bAdding a ritual requires six arguments. See +ahelp rituals.};[setq(0,[u(F`CONV.TIME,extract(%0,3,1,|))])][setq(1,[u(F`CONV.TIME,extract(%0,2,1,|))])];@assert [cand(%q0,%q1)]={@pemit %#=[ansi(hr,ERROR:)]%bDate not in the correct format. MM/DD/YYYY.};[setq(2,[xget(me,CID)])];@set me=CID:[inc(xget(me,cid))];@create Ritual %q2;@set Ritual %q2=Ritualist:[extract(%0,1,1,|)];@set Ritual %q2=Performed:%q1;@set Ritual %q2=Ends:%q0;@set Ritual %q2=Ritual:[extract(%0,4,1,|)];@set Ritual %q2=Target:[extract(%0,5,1,|)];@set Ritual %q2=Sux:[extract(%0,6,1,|)];@set Ritual %q2=No_Warn;@pemit %#=[ansi(hw,RITUALS:)]%bAdded [extract(%0,1,1,|)]'s ritual to the database.
+
+&CMD`RITUALS.VIEW #2542=$+rituals/view *:@assert [orflags(%#,Wr)];@assert [setr(0,[num(Ritual %0)])]={@pemit %#=[ansi(hr,Rituals:)]%bNot a valid ritual ID.};@pemit %#=[header(Ritual %0)]%R[u(F`DISP.RITUAL.DETAILS,%q0)]%R[footer()]
+
+&CMD`RITUALS.NOTES #2542=$+rituals/notes *=*:@assert [orflags(%#,Wr)];@assert [setr(0,[num(Ritual %0)])]={@pemit %#=[ansi(hr,Rituals:)]%bNot a valid ritual ID.};@set %q0=Notes:%1;@pemit %#=[ansi(hw,Rituals:)]%bSet notes for Ritual %0.
+
+&CMD`RITUALS.REMOVE #2542=$+rituals/remove *:@assert [orflags(%#,Wr)];@assert [setr(0,[num(Ritual %0)])]={@pemit %#=[ansi(hr,Rituals:)]%bNot a valid ritual ID.};@nuke %q0;@nuke %q0;@pemit %#=[ansi(hw,Rituals:)]
+
+&CRON`DAILY #2542=@assert [words([setr(0,lcon(#2542))])];@dolist [filter(#2542/FILS`EXPIRED,%q0)]={@trigger #18/TRIG_CREATE=#2542,#3843,2,Ritual Expired,This is a notice that a ritual you had previously cast has expired. Please find attached the details.%R%RRitual: [xget(##,Ritual)]%RTarget: [xget(##,Target)]%R%RWould you like to renew this ritual? Please let us know.,[pmatch([xget(##,Ritualist)])];@nuke ##;@nuke ##}
+
+&FILS`EXPIRED #2542=[lte(sub(xget(%0,ends),secs()),0)]
+
+&va #2542=#3042
+
+&F`DISP.HEADER #2542=[ljust(ID,5)][ljust(Name,20)][ljust(Target,20)][ljust(Ritual,33)]
+
+&F`DISP.RITUAL #2542=[ansi([u(F`COLOR,[sub(xget(%0,Ends),secs())])],[ljust(last(name(%0)),5)][ljust(xget(%0,Ritualist),20)][ljust(xget(%0,Target),20)][ljust(xget(%0,Ritual),33)])]%R
+
+&F`COLOR #2542=[switch(%0,<=0,hr,<432000,hy,hg)]
+
+&F`CONV.TIME #2542=[setq(month,[u(F`MONTH,first(%0,/))])][if(%q<month>,[convtime(%q<month> [extract(%0,2,1,/)] [extract(%0,3,1,/)])],0)]
+
+&F`MONTH #2542=[switch(%0,*1,Jan,*2,Feb,*3,Mar,*4,Apr,*5,May,*6,Jun,*7,Jul,*8,Aug,*9,Sep,10,Oct,11,Nov,12,Dec,0)]
+
+&CID #2542=1
+
+&F`DISP.RITUAL.DETAILS #2542=[ljust(Name: [xget(%0,Ritualist)],39)][rjust(Target: [xget(%0,Target)],39)]%R[ljust(Cast: [timefmt($m/$d/$Y,[xget(%0,Performed)])],39)][rjust(Ends: [timefmt($m/$d/$Y,[xget(%0,Ends)])],39)]%RRitual: [xget(%0,Ritual)]%RSuccesses: [xget(%0,Sux)][if(hasattr(%0,Notes),%R[footer(Notes)]%R[xget(%0,Notes)]%R)]

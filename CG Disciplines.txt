@@ -1,0 +1,148 @@
+@@ CharGen Disciplines (#1753)
+@dig/teleport CharGen Disciplines
+@parent here=#44
+@set here = WIZARD
+@power here = See_All
+&CMD here=
+&CMD`ADD here=$+add *:@include #1753/FN`ADD=%0
+
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+	
+&CMD`REMOVE here=$+remove *:@include #1753/FN`REMOVE=%0
+
+@wipe here/CMD`RITUAL
+&CMD`RITUAL here=$^\+ritual(/\w*)?(?> (.*))?$:@include #1753/FN`RITUAL=%1,%2
+@set here/CMD`RITUAL=regexp
+
+&CMD`SETUP here=$+setup:@include #1753/FN`SETUP
+
+&CMD`SHOW here=$+show:@include #1753/FN`SHOW
+
+@@ needs to be changed. +theme/set meges sorcery=destruction, 'not valid theme'
+@wipe here/CMD`THEME
+&CMD`THEME here=$^\+theme(/\w*)?(?> ([A-Za-z\s]*)=?(\w*))?$:@include #1753/FN`THEME=%1,%2,%3
+@set here/CMD`THEME=regexp
+
+@desc here=Vampires (and their ghouls) possess blood-based mystical powers known as Disciplines. In this room, you'll choose yours. %r%r[ansi(h,Vampires)] begin with three dots of Disciplines, two of which must be assigned to an in-clan Discipline. The third dot may be assigned to an out-of-clan or bloodline Discipline. [ansi(h,Ghouls)] begin with only one Discipline dot: the physical Discipline of their first regnant. %r%rSee +HELP DISCIPLINES for a list of Disciplines available to purchase and with which clans they are associated. See +HELP DISCIPLINE_<DISCIPLINE NAME> for details on what each Discipline allows you to do.%r%rCommands in this room are:%r+add <discipline> - Adds a discipline to your character or increases the discipline's level.%r+remove <discipline> - Removes a discipline from your character or decreases the level.%r+setup: Clears your choices and resets points.%r+show: Shows the disciplines currently chosen and points remaining.%R+theme: Sets theme for your ritual discipline.%R+ritual: Chooses your actual ritual if you have selected a ritual discipline.
+
+&DISC_PTS here=[switch([get_template(%0)],VAMPIRE,3,1)]
+
+&FN`ADD here=[if([u(#1753/FN`IF`CHECK.ADD,%#,%0)],[u(#1753/FN`ADD.RUN,%#,%0)])]
+
+&FN`ADD.RUN here=[attrib_set(%0/CHARGEN`DISC`POINTS,[dec([get(%0/CHARGEN`DISC`POINTS)])])][if([has_discipline(%0,%1)],[setq(UP_DISC,[iter([get(%0/PC_DATA`DISCIPLINES)],[if([strmatch(%i0,%1:*)],[replace(%i0,2,[inc([get_discipline(%0,%1)])],:)],%i0)],|,|)])][attrib_set(%0/PC_DATA`DISCIPLINES,[trim(%q<UP_DISC>,|)])][pemit(%0,+add: [capstr(%1)] discipline increased by 1 point.)],[attrib_set(%0/PC_DATA`DISCIPLINES,[if([hasattrval(%0/PC_DATA`DISCIPLINES)],[strcat([get(%0/PC_DATA`DISCIPLINES)],|[capstr(%1)]:1)],[capstr(%1)]:1)])][pemit(%0,+add: [capstr(%1)] discipline added.)])]
+
+&FN`IF`CHECK.ADD here=[setq(i,1)][if([not([get(%0/CHARGEN`SETUP.DISCIPLINES)])],[setq(i,0)][pemit(%0,You haven't +setup your disciplines yet! Please do so now.)])][if([t(%qi)],[iter([strcat([get(%wl/CG_LIST`DISCIPLINES.DOSTUFF)]|,[get(%wl/CG_LIST`DISCIPLINES.PHYSICAL)]|,[get(%wl/CG_LIST`DISCIPLINES.RITUALS)])],[if([strmatch(%i0,%1)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+add: That is not a valid discipline!)])])][if([t(%qi)],[if([lt([get(%0/CHARGEN`DISC`POINTS)],1)],[setq(i,0)][pemit(%0,You don't have enough points left to add %1.)])])][if([t(%qi)],[if([gt([inc([get_discipline(%0,%1)])],5)],[setq(i,0)][pemit(%0,+add: You cannot raise a discipline above 5 points.)])])]%qi
+
+@@ Cannot further downgrade discipline as we have selected a merit that depends on it.
+@@ INPUT PLAYER %0, discipline name %1.
+@@ returns '1' if player is restricted from further lowering the %1 discipline
+&FN`IF`CHECK.MERIT/PREREQ here=0
+[setq(i,0)]
+[iter([get(%0/PC_DATA`MERITS)],
+	[setq(MERIT_US_NM,[edit([before(%i0,:)],[space(1)],_)])]
+	[iter([lattr(%wl/CG_LIST`MERITS`DEPEND.**,|)],[if([strmatch(%i0,*.%q<MERIT_US_NM>)],[setq(HAS_DEPENDS,1)][ibreak()],[setq(HAS_DEPENDS,0)])],|,)]
+	[
+		if(%q<HAS_DEPENDS>,
+			[iter([get(%wl/CG_LIST`MERITS`DEPEND.%q<MERIT_US_NM>)],
+				[if([strmatch(%i0,*%1:*)],
+					[if([cand([not([strmatch([pos(-,%i0)],#-1)])],[gt([pos(-,%i0)],0)])],[setq(REQ1,[elements(%i0,1,-)])][setq(REQ2,[elements(%i0,2,-)])],[setq(REQ1,%i0)][setq(REQ2,1:1)])]
+					[setq(TYPE,[get_type([before(%q<REQ1>,:)])])][setq(i,0)]
+					
+					[switch(%q<TYPE>,DISCIPLINE,[if([strmatch([before(%q<REQ1>,:)],%1)],[if([lt([dec([get_discipline(%0,[elements(%q<REQ1>,1,:)])])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],[if([lt([get_discipline(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])])],[setq(i,0)])]
+					
+					[if([cand([t(%qi)],[not([strmatch([elements(%q<REQ2>,1,:)],1)])])],
+						[setq(TYPE,[get_type([before(%q<REQ2>,:)])])][setq(i,0)]
+						
+						[switch(%q<TYPE>,DISCIPLINE,[if([strmatch([before(%q<REQ2>,:)],%1)],[if([lt([dec([get_discipline(%0,[elements(%q<REQ2>,1,:)])])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])],[if([lt([get_discipline(%0,[elements(%q<REQ2>,1,:)])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])])],[setq(i,0)])]
+						
+					)]
+					[if([t(%qi)],[ibreak()])]
+				,[setq(i,0)])]
+			,|,)]
+		)
+	]
+	[if([t(%qi)],[ibreak()])]
+,|,)]%qi
+
+
+&FN`IF`CHECK.REMOVE here=[setq(i,1)][if([not([get(%0/CHARGEN`SETUP.DISCIPLINES)])],[setq(i,0)][pemit(%0,You haven't +setup your disciplines yet! Please do so now.)])][if([t(%qi)],[iter([strcat([get(%wl/CG_LIST`DISCIPLINES.DOSTUFF)]|,[get(%wl/CG_LIST`DISCIPLINES.PHYSICAL)]|,[get(%wl/CG_LIST`DISCIPLINES.RITUALS)])],[if([strmatch(%i0,%1)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+add: That is not a valid discipline!)])])][if([t(%qi)],[if([not([has_discipline(%0,%1)])],[setq(i,0)][pemit(%0,+remove: You don't have that discipline.)])])][if([t(%qi)],[iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS)],[if([cand([strmatch(%i0,%1)],[has_discipline(%0,%1)],[lt([dec([get_discipline(%0,%1)])],1)],[hasattrval(%0/PC_DATA`DISCIPLINES.THEMES)])],[setq(i,0)][ibreak()])],|,)][if([not(%qi)],[pemit(%0,+remove: You cannot remove that discipline as you have spent theme points.)])])][if([t(%qi)],[if([u(#1753/FN`IF`CHECK.RITUAL/PREREQ,%0,%1,RITUALDISC)],[setq(i,0)][pemit(%0,You cannot remove that discipline as you have selected a dependent ritual.)],[setq(i,1)])])][if([t(%qi)],[if([u(#1753/FN`IF`CHECK.MERIT/PREREQ,%0,%1)],[setq(i,0)][pemit(%0,You cannot further reduce that discipline as you have selected a dependent merit.)],[setq(i,1)])])]%qi
+
+&FN`IF`CHECK.RITUAL here=[setq(i,1)][if([not([get(%0/CHARGEN`SETUP.DISCIPLINES)])],[setq(i,0)][pemit(%0,+theme: You haven't +setup your disciplines yet! Please do so now.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS)],[if([has_discipline(%0,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+ritual: You don't have any disciplines that you can select a ritual for.)])])]%qi
+
+@@ input player %0, ritual %1.
+@@ check if it is on the list of merits that has dependencies.
+@@ returns 1 if player has all the required dependencies to add the merit, 0 otherwise.
+@@ Q-Regs:
+@@ qi = Standard ifcheck.
+@@ q<TYPE> Type of requirement while parsing %q<REGS>
+&FN`IF`CHECK.RITUAL/DEPENDS here=[setq(i,1)][setq(RIT_US_NM,[edit(%1,[space(1)],_)])][iter([get(%wl/CG_LIST`RITUALS`DEPEND.%q<RIT_US_NM>)],[setq(TYPE,[u(#1753/FN`RIT_TYPE,[before(%i0,:)])])][switch(%q<TYPE>,RITUALDISC,[if([lt([get_discipline(%0,[before(%i0,:)])],[after(%i0,:)])],[setq(i,0)][ibreak()])],THEME,[if([lt([get_discipline_theme(%0,[before(%i0,:)])],[after(%i0,:)])],[setq(i,0)][ibreak()])],[setq(i,0)][ibreak()][pemit(%0,Something went wrong while checking for dependencies. Staff has been notified!)][mailsend(kougyoku,bug/Bug in Merit Room: IF`CHECK.RITUAL/DEPENDS called FN`RIT_TYPE with arg %1\, req %i0 and returned %q<TYPE> as error.)])],|,)]%qi
+
+@@ input player %0, discipline name %1, RITUALDISC or THEME %2
+@@ Check to see if we have a ritual that depends on theme %1
+@@ if the ritual depends on 'number of points in theme' then return 1
+@@ returns 1 if player cannot remove or downgrade theme because of ritual.
+&FN`IF`CHECK.RITUAL/PREREQ here=[setq(i,0)][if([hasattrval(%0/PC_DATA`RITUALS)],[iter([get(%0/PC_DATA`RITUALS)],[setq(RIT_US_NM,[edit(%i0,[space(1)],_)])][iter([get(%wl/CG_LIST`RITUALS`DEPEND.%q<RIT_US_NM>)],[setq(TYPE,[u(#1753/FN`RIT_TYPE,%i0)])][switch(%2,RITUALDISC,[if([lt([dec([get_discipline(%0,[before(%i0,:)])])],[after(%i0,:)])],[setq(i,1)][ibreak()])],THEME,[if([strmatch(%q<TYPE>,THEME)],[if([lt([dec([get_discipline_theme(%0,[before(%i0,:)])])],[after(%i0,:)])],[setq(i,1)][ibreak()])])])],|,)],|,)])]%qi
+
+&FN`IF`CHECK.RITUAL/REMOVE here=[setq(i,1)][setq(RIT_US_NM,[edit(%1,[space(1)],_)])][if([t(%qi)],[iter([lattr(%wl/CG_LIST`RITUALS`DEPEND.**,|)],[if([strmatch(%i0,*.%q<RIT_US_NM>)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+ritual: That's not a valid ritual you may select during CharGen.)])])][if([t(%qi)],[if([not([has_ritual(%0,%1)])],[setq(i,0)][pemit(%0,+ritual: You don't have that ritual.)])])]%qi
+
+@@ I forgot what this was for...
+[if([t(%qi)],
+	[
+		if([not()],
+		)
+	]
+)]
+
+%qi
+
+&FN`IF`CHECK.RITUAL/SET here=[setq(i,1)][setq(RIT_US_NM,[edit(%1,[space(1)],_)])][if([t(%qi)],[iter([lattr(%wl/CG_LIST`RITUALS`DEPEND.**,|)],[if([strmatch(%i0,*.%q<RIT_US_NM>)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+ritual: That's not a valid ritual you may select during CharGen.)])])][if([t(%qi)],[if([not([u(#1753/FN`IF`CHECK.RITUAL/DEPENDS,%0,%q<RIT_US_NM>)])],[setq(i,0)][pemit(%0,You don't have the required prerequisites. Check +help files or the wiki for more information.)])])][if([t(%qi)],[if([gte([words([get(%0/PC_DATA`RITUALS)],|)],1)],[setq(i,0)][pemit(%0,You may only select one ritual during CharGen!)])])]%qi
+
+&FN`IF`CHECK.THEME here=[setq(i,1)][if([not([get(%0/CHARGEN`SETUP.DISCIPLINES)])],[setq(i,0)][pemit(%0,+theme: You haven't +setup your disciplines yet! Please do so now.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS)],[if([strmatch([get(%0/PC_DATA`DISCIPLINES)],*%i0*)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,You don't have any ritual disciplines that require theme points.)])])][if([t(%qi)],[switch(%1,/remove,[iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS)],[if([strmatch(%i0,[secure(%2)])],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,[secure(%2)] is not a valid ritual discipline that requires a theme.)])],/set,[iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS)],[if([strmatch(%i0,[secure(%2)])],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,[secure(%2)] is not a valid ritual discipline that requires a theme.)])],[setq(i,1)])])][if([t(%qi)],[switch(%1,/remove,[if([not([has_discipline(%0,%2)])],[setq(i,0)][pemit(%0,You don't have that discipline!)])],/set,[if([not([has_discipline(%0,%2)])],[setq(i,0)][pemit(%0,You don't have that discipline!)])],[setq(i,1)])])]%qi
+
+@@ Check to see if player input valid theme.
+@@ Check to see if player has theme to remove.
+@@ Check to see if it will break a ritual prereq.
+@@ input player %0, theme %1 ritual discipline %2.
+&FN`IF`CHECK.THEME/REMOVE here=[setq(i,1)][if([not([strmatch([get(%wl/CG_LIST`DISCIPLINES.RITUALS.THEMES)],*%1*)])],[setq(i,0)][pemit(%0,%1 is not a valid theme!)])][if([t(%qi)],[if([not([hasattrval(%0/PC_DATA`DISCIPLINES.THEMES)])],[setq(i,0)][pemit(%0,You don't have that theme.)])])][if([t(%qi)],[iter([get(%0/PC_DATA`DISCIPLINES.THEMES)],[if([strmatch(%i0,%1:*)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,You don't have that theme.)])])][if([t(%qi)],[if([u(#1753/FN`IF`CHECK.RITUAL/PREREQ,%0,%2,THEME)],[setq(i,0)][pemit(%0,You cannot further reduce the %1 theme as it is a prerequisite for one of your rituals.)],[setq(i,1)])])]%qi
+
+@@ Check to see if player input valid theme.
+@@ Check to see if theme is at max (5)
+@@ input player %0, theme %1
+&FN`IF`CHECK.THEME/SET here=[setq(i,1)][iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS.THEMES)],[if([strmatch(%i0,%1)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,%1 is not a valid theme!.)])][if([t(%qi)],[if([lt([get(%0/CHARGEN`DISC`POINTS.THEME)],1)],[setq(i,0)][pemit(%0,You don't have enough theme points left.)])])][if([t(%qi)],[if([gt([inc([get_discipline_theme(%0,%1)])],5)],[setq(i,0)][pemit(%0,You can't raise %1 above 5 dots.)])])]%qi
+
+&FN`REMOVE here=[if([u(#1753/FN`IF`CHECK.REMOVE,%#,%0)],[u(#1753/FN`REMOVE.RUN,%#,%0)])]
+
+&FN`REMOVE.RUN here=[attrib_set(%0/CHARGEN`DISC`POINTS,[inc([get(%0/CHARGEN`DISC`POINTS)])])][if([gt([get_discipline(%0,%1)],1)],[setq(D_DISC,[iter([get(%0/PC_DATA`DISCIPLINES)],[if([strmatch(%i0,%1:*)],[replace(%i0,2,[dec([get_discipline(%0,%1)])],:)],%i0)],|,|)])][attrib_set(%0/PC_DATA`DISCIPLINES,[trim(%q<D_DISC>,|)])],[unsetq(D_DISC)][iter([get(%0/PC_DATA`DISCIPLINES)],[if([not([strmatch(%i0,%1:*)])],[setq(D_DISC,[strcat(%q<D_DISC>,%i0)]|)])],|,)][attrib_set(%0/PC_DATA`DISCIPLINES,[trim(%q<D_DISC>,|)])])][pemit(%0,+remove: [capstr(%1)] discipline decreased to [get_discipline(%0,%1)].)]
+
+&FN`RIT_TYPE here=[setq(r,0)][setq(TYPE,0)][iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS)],[if([strmatch(%0,%i0*)],[setq(TYPE,RITUALDISC)][setq(r,1)][ibreak()],[setq(r,0)])],|,)][if([not(%qr)],[iter([get(%wl/CG_LIST`DISCIPLINES.RITUALS.THEMES)],[if([strmatch(%0,%i0*)],[setq(TYPE,THEME)][setq(r,1)][ibreak()],[setq(r,0)])],|,)])][if([not(%qr)],[setq(TYPE,ERROR)])]%q<TYPE>
+
+&FN`RITUAL here=[if([u(#1753/FN`IF`CHECK.RITUAL,%#,%0,%1)],[u(#1753/FN`RITUAL.RUN,%#,%0,%1)])]
+
+&FN`RITUAL.RUN here=[switch(%1,/clear,[attrib_set(%0/PC_DATA`RITUALS,)][pemit(%0,Ritual selection cleared.)],/remove,[if([u(#1753/FN`IF`CHECK.RITUAL/REMOVE,%0,%2)],[attrib_set(%0/PC_DATA`RITUALS,)][pemit(%0,Ritual removed.)])],/set,[if([u(#1753/FN`IF`CHECK.RITUAL/SET,%0,%2)],[attrib_set(%0/PC_DATA`RITUALS,[capstr(%2)])][pemit(%0,[capstr(%2)] Ritual added.)])],/show,[pemit(%0,You have selected the following ritual: [get(%0/PC_DATA`RITUALS)])],[pemit(%0,+ritual: Valid switches are /clear\, /remove ritual\, /set ritual\, /show)])]
+
+&FN`SETUP here=[attrib_set(%#/PC_DATA`DISCIPLINES,)][attrib_set(%#/PC_DATA`DISCIPLINES.THEMES,)][attrib_set(%#/PC_DATA`RITUALS,)][attrib_set(%#/CHARGEN`DISC`POINTS,[u(#1753/DISC_PTS,%#)])][attrib_set(%#/CHARGEN`DISC`POINTS.THEME,0)][attrib_set(%#/CHARGEN`SETUP.DISCIPLINES,1)][pemit(%#,+setup: Discipline choices cleared and points reset!)]
+
+&FN`SHOW here=[pemit(%#,You currently have the following disciplines chosen \([get(%#/CHARGEN`DISC`POINTS)] points remaining\):%R[if([hasattrval(%#/PC_DATA`DISCIPLINES)],[iter([get(%#/PC_DATA`DISCIPLINES)],[align(30 7,[elements(%i0,1,:)],\[[ljust([repeat(o,[elements(%i0,2,:)])],5,-)]\])],|,%R)],None.)])][pemit(%#,%RYou currently have the following ritual themes chosen \([get(%#/CHARGEN`DISC`POINTS.THEME)] points remaining\) :%R[if([hasattrval(%#/PC_DATA`DISCIPLINES.THEMES)],[iter([get(%#/PC_DATA`DISCIPLINES.THEMES)],[align(30 7,[elements(%i0,1,:)],\[[ljust([repeat(o,[elements(%i0,2,:)])],5,-)]\])],|,%R)],None.)])][pemit(%#,%RYou currently have the following rituals chosen:%R[if([hasattrval(%#/PC_DATA`RITUALS)],[get(%#/PC_DATA`RITUALS)],None.)])]
+
+&FN`THEME here=[if([u(#1753/FN`IF`CHECK.THEME,%#,%0,%1,%2)],[u(#1753/FN`THEME.RUN,%#,%0,%1,%2)])]
+
+
+&FN`THEME.RUN here=[switch(%1,/clear,[attrib_set(%0/CHARGEN`DISC`POINTS.THEME,3)][attrib_set(%0/PC_DATA`DISCIPLINES.THEMES,)][attrib_set(%0/PC_DATA`RITUALS,)][pemit(%0,Themes reset!)],/remove,[if([u(#1753/FN`IF`CHECK.THEME/REMOVE,%0,%3,%2)],[attrib_set(%0/CHARGEN`DISC`POINTS.THEME,[inc([get(%0/CHARGEN`DISC`POINTS.THEME)])])][if([gt([get_discipline_theme(%0,%3)],1)],[setq(D_DISCT,[iter([get(%0/PC_DATA`DISCIPLINES.THEMES)],[if([strmatch(%i0,%3:*)],[replace(%i0,2,[dec([get_discipline_theme(%0,%3)])],:)],%i0)],|,|)])][attrib_set(%0/PC_DATA`DISCIPLINES.THEMES,[trim(%q<D_DISCT>,|)])],[unsetq(D_DISCT)][iter([get(%0/PC_DATA`DISCIPLINES.THEMES)],[if([not([strmatch(%i0,%3:*)])],[setq(D_DISCT,[strcat(%q<D_DISCT>,%i0)]|)])],|,)][attrib_set(%0/PC_DATA`DISCIPLINES.THEMES,[trim(%q<D_DISCT>,|)])])][pemit(%0,+theme: [capstr(%3)] theme decreased to [get_discipline_theme(%0,%3)].)])],/set,[if([u(#1753/FN`IF`CHECK.THEME/SET,%0,%3)],[attrib_set(%0/CHARGEN`DISC`POINTS.THEME,[dec([get(%0/CHARGEN`DISC`POINTS.THEME)])])][if([strmatch([get(%0/PC_DATA`DISCIPLINES.THEMES)],*%3*)],[attrib_set(%0/PC_DATA`DISCIPLINES.THEMES,[replace([get(%0/PC_DATA`DISCIPLINES.THEMES)],[pos([capstr(%3)],[get(%0/PC_DATA`DISCIPLINES.THEMES)])],[capstr(%3)]:[inc([get_discipline_theme(%0,%3)])])])][pemit(%0,Theme %3 increased to [get_discipline_theme(%0,%3)])],[attrib_set(%0/PC_DATA`DISCIPLINES.THEMES,[trim([strcat([get(%0/PC_DATA`DISCIPLINES.THEMES)],|[capstr(%3)]:1)],|)])][pemit(%0,Theme %3 added to [get_discipline_theme(%0,%3)])])])],/show,[pemit(%0,Theme selection:%R[table([iter([get(%0/PC_DATA`DISCIPLINES.THEMES)],[align(15 8,[elements(%i0,1,:)],\[[ljust([repeat(o,[elements(%i0,2,:)])],5,-)]\])],|,|)],24,24,|)])],[pemit(%0,+theme: Valid switches are /clear\, /remove ritual=theme\, /set ritual=theme\, /show)])]
+
+@wl here=#1705
+
+@@ Next (#1765), in CharGen Disciplines (#1753)
+@open Next
+@link Next = #1762
+@lock/Basic Next=FLAG\^WIZARD|FLAG\^ROYALTY|REQS_MET/1
+@lset Next/Basic=no_inherit
+@power Next = See_All
+&ALIAS Next=N
+@set Next/ALIAS=no_command visual prefixmatch
+&FAILURE Next=
+@set Next/FAILURE=no_command prefixmatch
+&REQS_MET next=[setq(i,1)][if([not([get(%#/CHARGEN`SETUP.DISCIPLINES)])],[setq(i,0)][pemit(%#,You haven't +setup your disciplines yet! Please do so now.)])][if([t(%qi)],[if([gt([get(%#/CHARGEN`DISC`POINTS)],1)],[setq(i,0)][pemit(%#,You haven't spent all your discipline points yet. Please do so now.)])])][if([t(%qi)],[if([cand([gt([words([get(%#/PC_DATA`DISCIPLINES.THEMES)],|)],1)],[gt([get(%#/CHARGEN`DISC`POINTS.THEME)],1)])],[setq(i,0)][pemit(%#,You haven't spent all your theme points yet. Please do so now.)])])][if([t(%qi)],[iter([get(%#/PC_DATA`DISCIPLINES)],[if([cand([strmatch([get(%wl/CG_LIST`DISCIPLINES.RITUALS)],*[before(%i0,:)]*)],[lt([words([get(%#/PC_DATA`DISCIPLINES.THEMES)],|)],1)])],[setq(i,0)][pemit(%#,You have selected a ritual discipline but have not selected any themes.)])],|,)])]%qi
+
+
+%qi
+

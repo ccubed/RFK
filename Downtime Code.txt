@@ -1,0 +1,146 @@
+@@ All code concerning Downtime
+
+@@ Downtime Code (#2930)
+@create Downtime Code
+@link Downtime Code = #39
+@set Downtime Code = !NO_COMMAND
+@power Downtime Code=SQL_OK
+@power Downtime Code=tport_anywhere
+
+@@ Commands
+
+&CMD`WIZ_DT_LIST %wd=$+wizdt/list *:@assert [orflags(%#,Wr)]=@nspemit/silent %#=+wizdt: Bad!;[SETQ(0, [secure( [pmatch(%0)] )] )];@assert %Q0 = @nspemit/silent %#=+wizdt: No such player by that name;@include %wd/FN`DT_REPORT=%Q0,1
+&CMD`WIZ_DT_AUDIT %wd=$+wizdt/audit */*:@assert [orflags(%#,Wr)]=@nspemit/silent %#=+wizdt: Bad!;[u(%wd/FN`DOWNTIME.MONTHLY_AUDIT,%0,%1)]
+
+&CMD`WIZDT %wd=$+wizdt/add */*=*:[SETQ(PC, [secure( [pmatch(%0)] )] )][SETQ(HR, %1)][SETQ(DESC, %2 )];@assert [orflags(%#,Wr)]=@nspemit/silent %#=+wizdt: Bad!;@assert %Q<PC> = @nspemit/silent %#=+wizdt: No such player by that name;@assert [isnum(%Q<HR>)]=@nspemit/silent %#=+wizdt: Must pass in a valid number.;@assert [gt(%Q<HR>,0)]=@nspemit/silent %#=+wizdt: Hours spent must be greater than 0.;@assert [strlen(%Q<DESC>)]=@nspemit/silent %#=+wizdt: Must pass in a valid message.;[pemit(%#,+wizdt: %Q<PC>: Spending %Q<HR> downtime for %Q<DESC>)][u(%wd/FN`INSERT,%Q<PC>,%Q<HR>,%Q<DESC>)]
+
+&CMD`WIZDT_WITH_DATE %wd=$+wizdt/add *|*|*|*:[SETQ(PC, [secure( [pmatch(%0)] )] )][SETQ(HR, %1)][SETQ(DT_TIME, %2 )][SETQ(DESC, %3 )];@assert [orflags(%#,Wr)]=@nspemit/silent %#=+wizdt: Bad!;@assert %Q<PC> = @nspemit/silent %#=+wizdt: No such player by that name;@assert [isnum(%Q<HR>)]=@nspemit/silent %#=+wizdt: Must pass in a valid number.;@assert [gt(%Q<HR>,0)]=@nspemit/silent %#=+wizdt: Hours spent must be greater than 0.;@assert [strlen(%Q<DESC>)]=@nspemit/silent %#=+wizdt: Must pass in a valid message.;@assert [or([date_valid(%Q<DT_TIME>)],[date_time_valid(%Q<DT_TIME>)])]=@nspemit/silent %#=+wizdt: Must pass in a valid date.;[pemit(%#,+wizdt: %Q<PC>: Spending %Q<HR> downtime for %Q<DESC>)][u(%wd/FN`INSERT_WITH_DATE,%Q<PC>,%Q<HR>,%Q<DESC>,%Q<DT_TIME>)]
+
+&CMD`WIZDT_DELETE %wd=$+wizdt/delete *:[SETQ(ID, %0)];@assert [orflags(%#,Wr)]=@nspemit/silent %#=+wizdt: Bad!;@assert [isnum(%Q<ID>)]=@nspemit/silent %#=+wizdt: Must pass in a valid number.;[pemit(%#,+wizdt: %Q<PC>: Removing downtime id %Q<ID>.)][u(%wd/FN`DELETE,%Q<ID>)]
+
+&CMD`DT %wd=$+dt *=*:@assert [isnum(%0)]=@nspemit/silent %#=+dt: Must pass in a valid number.;@assert [gt(%0,0)]=@nspemit/silent %#=+dt: Hours spent must be greater than 0.;@assert [strlen(%1)]=@nspemit/silent %#=+dt: Must pass in a valid message.;@include %wd/FN`DT_CHECK_AND_INSERT=%#,%0,%1
+&CMD`DT_LIST %wd=$+dt: @include %wd/FN`DT_REPORT=%#,0;[pemit(%#,header(Type +dt/full to see your full downtime report.))]
+&CMD`DT_LIST_FULL %wd=$+dt/full: @include %wd/FN`DT_REPORT=%#,1
+&CMD`DT_LIST_SHOW %wd=$+dt/show *: [SETQ(0, [secure( [pmatch(%0)] )] )];@assert %Q0 = @nspemit/silent %#=+dt: No such player by that name;[pemit(%#,Showing Downtime Report to [name(%Q0)])];@include %wd/FN`DT_REPORT=%#,1,%Q0
+
+&CMD`DT_UPKEEP %wd=$\+dt/upkeep (\d+)$:[setq(UPKEEP_ID,%1)][setq(PAY,0)][if([u(%wd/FN`UPKEEP.ID_CHECK,%#,%Q<UPKEEP_ID>,0)],[u(%wd/FN`DT_UPKEEP.RUN,%#,%Q<UPKEEP_ID>,0)])]
+&CMD`MONEY_UPKEEP %wd=$+upkeep/money *:[setq(UPKEEP_ID,%0)][setq(PAY,0)][if([u(%wd/FN`UPKEEP.ID_CHECK,%#,%Q<UPKEEP_ID>,0)],[u(%wd/FN`MONEY_UPKEEP.RUN,%#,%Q<UPKEEP_ID>,0)])]
+&CMD`DT_UPKEEP_PARTIAL %wd=$+dt/upkeep *=*:[setq(UPKEEP_ID,%0)][setq(PAY,%1)][if([u(%wd/FN`UPKEEP.ID_CHECK,%#,%Q<UPKEEP_ID>,%Q<PAY>)],[u(%wd/FN`DT_UPKEEP.RUN,%#,%Q<UPKEEP_ID>,%Q<PAY>)])]
+
+&CMD`RETAINERDT_LIST %wd=$+retainerdt *:[setq(RET,[locate(get(%wd/rr),%0,TF)])]@assert %Q<RET> = @nspemit/silent %#=+retainerdt: No such retainer by that name;[setq(OWNER,[get(%q<RET>/PC_DATA`OWNER)])];@assert [or( orflags(%#,Wr), eq([comp(num(%#),%Q<OWNER>)],0))] = @nspemit/silent %#=+retainerdt: You don't own that retainer!;@include %wd/FN`DT_REPORT=%q<RET>
+
+&CMD`RETAINERDT %wd=$+retainerdt/add */*=*:[SETQ(RET, [secure( [locate(get(%wd/rr),%0,TF)] )] )][SETQ(RNAME,[name(%q<RET>)])][SETQ(HR, %1)][SETQ(DESC, %2 )];@assert %Q<RET> = @nspemit/silent %#=+retainerdt: No such retainer by that name;[setq(OWNER,[get(%q<RET>/PC_DATA`OWNER)])];@assert [or( orflags(%#,Wr), eq([comp(num(%#),%Q<OWNER>)],0))] = @nspemit/silent %#=+retainerdt: You don't own that retainer!;@assert [isnum(%Q<HR>)]=@nspemit/silent %#=+retainerdt: Must pass in a valid number.;@assert [gt(%Q<HR>,0)]=@nspemit/silent %#=+retainerdt: Hours spent must be greater than 0.;@assert [strlen(%Q<DESC>)]=@nspemit/silent %#=+retainerdt: Must pass in a valid message.;[setq(WK_REM,[u(%wd/FN`WEEKLY_DOWNTIME_REMAINING,%q<RET>)])];@assert [gte(%q<WK_REM>,%q<HR>)]=@nspemit/silent %#=+retainerdt: %q<RNAME> only has %q<WK_REM> downtime hours left this week.;[pemit(%#,+retainerdt: %Q<RNAME>: Spending %Q<HR> downtime for %Q<DESC>)][u(%wd/FN`INSERT,%Q<RET>,%Q<HR>,%Q<DESC>)]
+
+&CMD`HERD %wd=$+herd:[setq(HERD,[locate(get(%wd/rr),Herd-[name(%#)],TF)])]@assert %Q<HERD> = @nspemit/silent %#=+herd: You don't have a herd.;[pemit(%#,Herd status: [u(%wd/FN`WEEKLY_DOWNTIME_REMAINING,%q<HERD>)]/[u(%q<HERD>/PC_DATA`DOWNTIME)] Vitae left this week.)]
+
+&CMD`RETAINER %wd=$+retainer/add *=*-*:@assert [orflags(%#,Wr)]=@nspemit/silent %#=+retainer: Bad!;[SETQ(PC, [secure( [pmatch(%2)] )] )];@assert %Q<PC>=@nspemit/silent %#=+retainer: No such player by that name;[SETQ(DOT,%0)];@assert [and(gte(%Q<DOT>,1),lte(%Q<DOT>,5))]=@nspemit/silent %#=+retainer/add: Retainer must be between 1 and 5 dots.;[SETQ(RNAME,%1)][setq(PARENT,[locate(get(%wd/rr),Retainer-%Q<DOT>,TF)])];@assert %Q<RNAME>=@nspemit/silent %#=+retainer/add: Retainer must have a name.;[SETQ(RET,[clone(%Q<PARENT>,%Q<RNAME>)])][parent(%Q<RET>,%Q<PARENT>)][attrib_set2(%Q<RET>/PC_DATA`OWNER,%Q<PC>)][attrib_set2(%Q<RET>/PC_DATA`RETAINER_DOTS,%Q<DOT>)];@link %Q<RET>=get(%wd/rr);@teleport %Q<RET>=get(%wd/rr);[pemit(%#,+retainer: Created %Q<DOT>-dot retainer %Q<RNAME> owned by [name(%Q<PC>)])]
+
+&CMD`RETAINER_TAGSKILL %wd=$+retainer/tagskill *=*:@assert [orflags(%#,Wr)]=@nspemit/silent %#=+retainer: Bad!;[setq(RET,[locate(get(%wd/rr),%0,TF)])]@assert %Q<RET> = @nspemit/silent %#=+retainerdt: No such retainer by that name;[SETQ(NEWVAL,[mul([get(%Q<RET>/PC_DATA`RETAINER_DOTS)],2)])][if([match([get(%wl/CG_LIST`SKILLS.MENTAL)],%1,|)],[setq(MPS,MENTAL)])][if([match([get(%wl/CG_LIST`SKILLS.PHYSICAL)],%1,|)],[setq(MPS,PHYSICAL)])][if([match([get(%wl/CG_LIST`SKILLS.SOCIAL)],%1,|)],[setq(MPS,SOCIAL)])][if([has_skill(%Q<RET>,%1)],[setq(NEW,[replace([get(%Q<RET>/PC_DATA`SKILL.%q<MPS>)],[match([get(%Q<RET>/PC_DATA`SKILL.%q<MPS>)],%1*,|)],[capstr(%1)]:%Q<NEWVAL>,|)])][attrib_set2(%Q<RET>/PC_DATA`SKILL.%q<MPS>,%q<NEW>)],[attrib_set2(%q<RET>/PC_DATA`SKILL.%q<MPS>,[strcat([get(%q1/PC_DATA`SKILL.%q<MPS>)],|[capstr(%1)]:%Q<NEWVAL>)])][attrib_set2(%Q<RET>/PC_DATA`SKILL.%q<MPS>,[trim([get(%Q<RET>/PC_DATA`SKILL.%q<MPS>)],|)])])]
+
+
+&CMD`HERD_ADD %wd=$+herd/add *=*:@assert [orflags(%#,Wr)]=@nspemit/silent %#=+herd: Bad!;[SETQ(PC, [secure( [pmatch(%1)] )] )];@assert %Q<PC>=@nspemit/silent %#=+retainer: No such player by that name;[SETQ(DOT,%0)];@assert [and(gte(%Q<DOT>,1),lte(%Q<DOT>,5))]=@nspemit/silent %#=+herd/add: Herd must be between 1 and 5 dots.;[SETQ(HNAME,Herd-[name(%Q<PC>)])][SETQ(RET,[create(%Q<HNAME>)])][parent(%Q<RET>,get(%wd/RP))][attrib_set2(%Q<RET>/PC_DATA`OWNER,%Q<PC>)][attrib_set2(%Q<RET>/PC_DATA`RETAINER_DOTS,%Q<DOT>)][attrib_set2(%Q<RET>/PC_DATA`DOWNTIME,[switch(%Q<DOT>,1,2,2,4,3,6,4,8,5,10)])];@link %Q<RET>=get(%wd/rr);@teleport %Q<RET>=get(%wd/rr);[pemit(%#,+herd: Created %Q<DOT>-dot herd  %Q<HNAME> owned by [name(%Q<PC>)])]
+
+&CMD`RETAINER_LIST %wd=$+retainer/list:@assert [orflags(%#,Wr)]=@nspemit/silent %#=+retainer/list: Bad!;@pemit %#=[align(35 10 20,Name (Dots),Downtime,Owner)]%r[space(1)][iter(sortby(%wd/FN`RETAINER_SORT,lvthings([get(%wd/rr)])),[align(35 -10 20,%i0 [name(%i0)] ([get(%i0/PC_DATA`RETAINER_DOTS)]),[get(%i0/PC_DATA`DOWNTIME)],[name([get(%i0/PC_DATA`OWNER)])])]%r)]
+
+&CMD`MYRETAINERS %wd=$+myretainers:@pemit %#=[align(35 10,Name (Dots),Downtime)]%r[space(1)][iter(filter(%wd/FN`RETAINER_IS_OWNED,lvthings([get(%wd/rr)])),[align(35 -10,%i0 [name(%i0)] ([get(%i0/PC_DATA`RETAINER_DOTS)]),[get(%i0/PC_DATA`DOWNTIME)])]%r)]
+
+&CMD`UPKEEP %wd=$+upkeep:@include %wd/FN`UPKEEP.REPORT=%#,%#
+&CMD`UPKEEP_LM %wd=$+upkeep/lm:@include %wd/FN`UPKEEP.REPORT=%#,%#,-1
+
+@@ Functions
+&FN`DT_REPORT %wd=[setq(EMITTER,[IF(%2,%2,%#)])][setq(LW,%1)][pemit(%q<EMITTER>,[header(Downtime Report for [name(%0)])])][setq(1,[get(%0/PC_DATA`DOWNTIME)])][pemit(%q<EMITTER>,Weekly downtime available: %q1 hours)][pemit(%q<EMITTER>,[header(THIS WEEK)])][pemit(%q<EMITTER>,Downtime spent this week: [u(%wd/FN`WEEKLY_DOWNTIME_SPENT,%0)] hours%r)][pemit(%q<EMITTER>,Downtime remaining this week: [u(%wd/FN`WEEKLY_DOWNTIME_REMAINING,%0)] hours%r)][pemit(%q<EMITTER>,Tasks done this week%r[lalign(6 20 50,Hours Spent|Date|Downtime Task,|)])][pemit(%q<EMITTER>,[u(%wd/FN`WEEKLY_DOWNTIME,%0)])][if(%q<LW>,[pemit(%q<EMITTER>,[header(LAST WEEK)])][pemit(%q<EMITTER>,Downtime spent last week: [u(%wd/FN`WEEKLY_DOWNTIME_SPENT,%0,-1)] hours%r)][pemit(%q<EMITTER>,Tasks done last week%r[lalign(6 20 50,Hours Spent|Date|Downtime Task,|)])][pemit(%q<EMITTER>,[u(%wd/FN`WEEKLY_DOWNTIME,%0,-1)])])]
+
+&FN`DAILY_DOWNTIME_AVAIL %wd=[setq(TEMPLATE,[get_template(%0)])][mul([switch(%q<TEMPLATE>,HUMAN,12,GHOUL,15,10)],[u(%wd/FN`DAY_OF_WEEK)])]
+&FN`DAILY_DOWNTIME_SPENT %wd=[setq(DA,[sql([u(%wd/FN`DAILY_DOWNTIME_SPENT_SQL,[trim(num(%0),#)] )])])][if(%q<DA>,%q<DA>,0)]
+&FN`DAILY_DOWNTIME_REMAINING %wd=[sub([u(%wd/FN`DAILY_DOWNTIME_AVAIL,%0)],[u(%wd/FN`DAILY_DOWNTIME_SPENT,%0)])]
+
+&FN`DT_CHECK_AND_INSERT %wd=[setq(i,1)][IF(gt(%1,0),[setq(WK_REM,[u(%wd/FN`WEEKLY_DOWNTIME_REMAINING,%0)])][setq(DA_REM,[u(%wd/FN`DAILY_DOWNTIME_REMAINING,%0)])][if([lt(%q<WK_REM>,%1)],[setq(i,0)][pemit(%0,Downtime: You only have %q<WK_REM> downtime hours left this week.)])][if([lt(%q<DA_REM>,%1)],[setq(i,0)][pemit(%0,Downtime: You only have %q<DA_REM> downtime hours left today.)])])][if(%qi,[pemit(%0,Spending %1 downtime for %2)][u(%wd/FN`INSERT,%0,%1,%2)])]%qi
+
+&FN`INSERT %wd=[ sql([ u(%wd/FN`INSERT_SQL, [trim(num(%0),#)], %1, "%2") ])]
+&FN`INSERT_WITH_DATE %wd=[ sql([ u(%wd/FN`INSERT_WITH_DATE_SQL, [trim(num(%0),#)], %1, "%2","%3") ])]
+&FN`DELETE %wd=[ sql([ u(%wd/FN`DELETE_SQL, [sqlescape(%0)]) ])]
+&FN`WEEKLY_DOWNTIME %wd=[space(1)][iter([sql([u(%wd/FN`WEEKLY_DOWNTIME_SQL,[trim(num(%0),#)],[if(%1,%1,0)])],%r,|)],lalign(5 20 50,%i0,|)%r,%r)]
+&FN`WEEKLY_DOWNTIME_REMAINING %wd=[sub([get(%0/PC_DATA`DOWNTIME)],[u(%wd/FN`WEEKLY_DOWNTIME_SPENT,%0,[if(%1,%1,0)])])]
+&FN`WEEKLY_DOWNTIME_SPENT %wd=[setq(WK,[sql([u(%wd/FN`WEEKLY_DOWNTIME_SPENT_SQL,[trim(num(%0),#)],[if(%1,%1,0)] )])])][if(%q<WK>,%q<WK>,0)]
+
+&FN`DOWNTIME.MONTHLY_AUDIT %wd=[pemit(%#,header(Downtime Audit for %0/%1))][pemit(%#,[lalign(13 5 17 40,Player|Hours|Date|Downtime Task,|)])][mapsql(FN`DOWNTIME.MONTHLY_AUDIT_ROW,[u(%wd/FN`DOWNTIME.MONTHLY_AUDIT_SQL,%0,%1)],%r)]
+&FN`DOWNTIME.MONTHLY_AUDIT_ROW %wd=[align(13 5 17 40,[left(name(#%1),12)],%2,[left(%3,16)],[left(%4,38)])]
+
+&FN`RETAINER_FIND %wd=[setq(RET,[locate(get(%wd/rr),%0,TF)])]%q<RET>
+&FN`RETAINER_IS_OWNED %wd=eq([comp(num(%#),get(%0/PC_DATA`OWNER))],0)
+&FN`RETAINER_SORT %wd=[comp(get(%1/PC_DATA`RETAINER_DOTS),get(%0/PC_DATA`RETAINER_DOTS))]
+
+&FN`DT_UPKEEP.RUN %wd=[u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD,%0,%1)][if(eq(%q<PAY>,0),[SETQ(PAY,%q<COST>)])][pemit(%0,Type: %q<TYPE> Cost: %q<PAY> Desc: %q<DESC>)][switch(%q<TYPE>,Hours,[if([u(%wd/FN`DT_CHECK_AND_INSERT,%0,%q<PAY>,Upkeep: %q<DESC>)],[u(%wd/FN`UPKEEP.INSERT_LOG,%1,%Q<PAY>)])],[pemit(%0,That Upkeep is not paid for in Downtime hours.)])]
+
+&FN`MONEY_UPKEEP.RUN %wd=[u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD,%0,%1)][if(eq(%q<PAY>,0),[SETQ(PAY,%q<COST>)])][pemit(%0,Type: %q<TYPE> Cost: %q<PAY> Desc: %q<DESC>)][switch(%q<TYPE>,Money,[if([u(%wd/FN`MONEY_UPKEEP.CHECK_AND_DEDUCT,%0,%q<PAY>)],[u(%wd/FN`UPKEEP.INSERT_LOG,%1,%Q<PAY>)])],[pemit(%0,That Upkeep is not paid for in Money.)])]
+&FN`MONEY_UPKEEP.CHECK_AND_DEDUCT %wd=[setq(RET,1)][setq(CURR_MONEY,[after([get(%0/MONEY)],|)])][setq(NEW_MONEY,[sub(%q<CURR_MONEY>,%1)])][if(lt(%q<NEW_MONEY>,0),[setq(RET,0)][pemit(%0,You don't have enough money to pay that.)],[attrib_set(%0/MONEY,[before(get(%0/MONEY),|)]|%q<NEW_MONEY>)])]%q<RET>
+
+&FN`DT_UPKEEP.PULL_UPKEEP_RECORD %wd=[setq(UK_REC,[u(%wd/FN`UPKEEP.FIND_UPKEEP_RECORD,%1,%0)])][setq(TYPE,[u(%wd/FN`UPKEEP.TYPE_TO_NAME,[index(%q<UK_REC>,|,1,1)])])][setq(COST,[index(%q<UK_REC>,|,2,1)])][setq(DESC,[index(%q<UK_REC>,|,3,1)])]
+&FN`DT_UPKEEP.PULL_UPKEEP_RECORD_BY_ID %wd=[setq(UK_REC,[u(%wd/FN`UPKEEP.FIND_UPKEEP_RECORD_BY_ID,%0)])][setq(TYPE,[u(%wd/FN`UPKEEP.TYPE_TO_NAME,[index(%q<UK_REC>,|,1,1)])])][setq(COST,[index(%q<UK_REC>,|,2,1)])][setq(DESC,[index(%q<UK_REC>,|,3,1)])]%Q<UK_REC>
+
+&FN`UPKEEP.TYPE_TO_NAME %wd=[switch(%0,1,Hours,2,Vitae,3,Money,4,Roll,0)]
+&FN`UPKEEP.NAME_TO_TYPE %wd=[switch(%0,Hours,1,Vitae,2,Money,3,Roll,4,)]
+
+&FN`UPKEEP.ID_CHECK %wd=[setq(i,1)][if([not(isint(%1))],[setq(i,0)][pemit(%0,Upkeep: Upkeep ID must be a valid number)])][if([not([u(%wd/FN`UPKEEP.OWNED_BY_PLAYER,%1,%0)])],[setq(i,0)][pemit(%0,Upkeep: That Upkeep isn't one of yours!)])][if([not(isint(%Q<PAY>))],[setq(i,0)][pemit(%0,Upkeep: Payment value must be a valid number)])][setq(REMAINING,[u(%wd/FN`UPKEEP.FIND_MONTHLY_UPKEEP_LOG_RECORD,%1)])][if(eq(%q<REMAINING>,0),[setq(i,0)][pemit(%0,Upkeep: You have already paid this upkeep for this month!)])][if(gt(%q<PAY>,%q<REMAINING>),[setq(i,0)][pemit(%0,Upkeep: You only have %q<REMAINING> left for this month!)])]%qi
+&FN`UPKEEP.OWNED_BY_PLAYER %wd=[if([u(%wd/FN`UPKEEP.FIND_UPKEEP_RECORD,%0,%1)],1,0)]
+&FN`UPKEEP.FIND_UPKEEP_RECORD %wd=[sql([u(%wd/FN`UPKEEP.SELECT_BY_ID_AND_PLAYER_SQL,%0,[trim(num(%1),#)])],%r,|)]
+&FN`UPKEEP.FIND_UPKEEP_RECORD_BY_ID %wd=[sql([u(%wd/FN`UPKEEP.SELECT_BY_ID_SQL,%0)],%r,|)]
+&FN`UPKEEP.FIND_MONTHLY_UPKEEP_LOG_RECORD %wd=[sql([u(%wd/FN`UPKEEP.SELECT_LOG_THIS_MONTH_SQL,%0)],%r,|)]
+&FN`UPKEEP.FIND_MONTHLY_UPKEEP_LOG_RECORD_BY_MONTH %wd=[sql([u(%wd/FN`UPKEEP.SELECT_LOG_ANY_MONTH_SQL,%0,'%1')],%r,|)]
+
+&FN`UPKEEP.REPORT %wd=[pemit(%0,[header(Upkeep for [name(%1)])]%r[lalign(5 13 40 20,ID|Cost|Description|Paid this month,|)]%r[u(%wd/FN`UPKEEP.FIND_BY_PLAYER,%1,[if(%2,%2,0)])])
+&FN`UPKEEP.FIND_BY_PLAYER %wd=[ mapsql(FN`UPKEEP.ROW,[u(%wd/FN`UPKEEP.SELECT_SQL,[trim(num(%0),#)],%1)],%r)]
+&FN`UPKEEP.ROW %wd=align(5 13 40 20,%1,%3 [u(%wd/FN`UPKEEP.TYPE_TO_NAME,%2)],%4,[if(%5,%5,No)])
+
+&FN`UPKEEP.WEEKLY_REMAINING_DT_AUDIT_ALL %wd=[setq(ALL_ACTIVE,[active_pc_list()])][map(FN`UPKEEP.WEEKLY_REMAINING_DT_AUDIT,%Q<ALL_ACTIVE>)]
+&FN`UPKEEP.WEEKLY_REMAINING_DT_AUDIT %wd=[setq(LAST_WEEK_DT,[u(%wd/FN`DOWNTIME.GET_LAST_WEEK_DT)])][setq(PC,%0)][setq(EVAL_SQL,[u(%wd/FN`UPKEEP.MONTHLY_AUDIT_SQL,[trim(num(%Q<PC>),#)])])][pemit(%#,Upkeep Audit for: [name(%Q<PC>)])][setq(ROWS,[sql(%Q<EVAL_SQL>,|,^)])][map(FN`UPKEEP.WEEKLY_REMAINING_DT_ROW,%Q<ROWS>,|)]
+&FN`UPKEEP.WEEKLY_REMAINING_DT_ROW %wd=[setq(TYPE,[elements(%0,3,^)])][setq(UK_DESC,[elements(%0,2,^)])][setq(UK_ID,[elements(%0,1,^)])][setq(UK_REM,[elements(%0,4,^)])][setq(DT_REM,[u(%wd/FN`WEEKLY_DOWNTIME_REMAINING,%Q<PC>,-1) ])][if([and([eq(%q<TYPE>,1)],[gte(%q<DT_REM>,%q<UK_REM>)])],[pemit(%#,Paying down Upkeep %Q<UK_ID> with %q<UK_REM> Downtime from Weekly Downtime %q<DT_REM>)][u(%wd/FN`INSERT_WITH_DATE,%Q<PC>,%Q<UK_REM>,Upkeep: Spend left-over downtime on %Q<UK_DESC>,%q<LAST_WEEK_DT>)][u(%wd/FN`UPKEEP.INSERT_LOG,%Q<UK_ID>,%Q<UK_REM>)])]
+
+&FN`DOWNTIME.GET_LAST_WEEK_DT %wd=[sql([u(%wd/FN`DOWNTIME.GET_WEEK_DT_SQL,-1)])]
+
+&FN`UPKEEP.INSERT %wd=[ sql([ u(%wd/FN`UPKEEP.INSERT_SQL, [trim(num(%0),#)], %1, %2, "%3") ])]
+&FN`UPKEEP.UPDATE_COST %wd=[ sql([ u(%wd/FN`UPKEEP.UPDATE_COST_SQL, %0, %1) ])]
+&FN`UPKEEP.UPDATE_DESC %wd=[ sql([ u(%wd/FN`UPKEEP.UPDATE_DESC_SQL, %0, "%1") ])]
+&FN`UPKEEP.DELETE %wd=[ sql([ u(%wd/FN`UPKEEP.DELETE_SQL, %0) ])]
+
+&FN`UPKEEP.INSERT_LOG %wd=[ sql([ u(%wd/FN`UPKEEP.INSERT_LOG_SQL, %0,%1) ])]
+&FN`UPKEEP.INSERT_LOG_WITH_DATE %wd=[ sql([ u(%wd/FN`UPKEEP.INSERT_LOG_WITH_DATE_SQL, %0,%1,'%2') ])]
+&FN`UPKEEP.DELETE_LOG_WITH_DATE %wd=[ sql([ u(%wd/FN`UPKEEP.DELETE_LOG_WITH_DATE_SQL, %0,'%1') ])]
+
+@@ SQL Statements
+&FN`DAILY_DOWNTIME_SPENT_SQL %wd=SELECT SUM(hours_spent) FROM downtime WHERE player_dbref=%0 AND date_format(dt_time,'%%d/%%m/%%Y')=date_format(now(),'%%d/%%m/%%Y')
+&FN`INSERT_SQL %wd=INSERT downtime (player_dbref,hours_spent,description,dt_time) values(%0,%1,%2,now())
+&FN`INSERT_WITH_DATE_SQL %wd=INSERT downtime (player_dbref,hours_spent,description,dt_time) values(%0,%1,%2,%3)
+&FN`WEEKLY_DOWNTIME_SPENT_SQL %wd=select sum(hours_spent) FROM downtime WHERE player_dbref=%0 AND yearweek(dt_time,1)=yearweek(DATE_ADD(now(),INTERVAL %1 week),1)
+&FN`WEEKLY_DOWNTIME_SQL %wd=select hours_spent\,dt_time\,CONCAT_WS('-',dt_id,description) FROM downtime WHERE player_dbref=%0 AND yearweek(dt_time,1)=yearweek(DATE_ADD(now(),INTERVAL %1 week),1)
+&FN`DOWNTIME.MONTHLY_AUDIT_SQL %wd=select player_dbref\,hours_spent\,dt_time\,CONCAT_WS('-',dt_id,description) FROM downtime WHERE month(dt_time)=%0 AND year(dt_time)=%1
+
+&FN`DOWNTIME.GET_WEEK_DT_SQL %wd=select DATE_ADD(now(),INTERVAL %0 WEEK) FROM dual
+&FN`DAY_OF_WEEK %wd=[switch([timefmt($A)],Sunday,7,Monday,1,Tuesday,2,Wednesday,3,Thursday,4,Friday,5,Saturday,6)]
+
+&FN`DELETE_SQL %wd=DELETE FROM downtime WHERE dt_id=%0
+
+&FN`UPKEEP.SELECT_SQL %wd= SELECT u.ID\,TYPE,COST\,DESCRIPTION\,if(if(!isnull(SUM(ul.value)),SUM(ul.value),0)>=cost,max(ul.dt_time),CONCAT(cost-SUM(ul.value),' outstanding')) AS paid FROM upkeep u LEFT OUTER JOIN upkeep_log ul ON u.id=ul.upkeep_id AND month(dt_time)=month(DATE_ADD(now(),INTERVAL %1 MONTH)) AND year(dt_time)=year(DATE_ADD(now(),INTERVAL %1 MONTH)) WHERE u.player_dbref=%0 GROUP BY u.id
+&FN`UPKEEP.SELECT_BY_ID_SQL %wd=SELECT type\,cost\,description FROM upkeep WHERE ID=%0
+&FN`UPKEEP.SELECT_BY_ID_AND_PLAYER_SQL %wd=SELECT type\,cost\,description FROM upkeep WHERE ID=%0 AND player_dbref=%1
+&FN`UPKEEP.SELECT_LOG_THIS_MONTH_SQL %wd=SELECT cost-if(!isnull(SUM(ul.value)),SUM(ul.value),0) AS remaining FROM upkeep_log ul INNER JOIN upkeep u ON ul.upkeep_id=u.id WHERE ul.upkeep_id=%0 AND month(ul.dt_time)=month(now()) AND year(dt_time)=year(now()) 
+&FN`UPKEEP.SELECT_LOG_ANY_MONTH_SQL %wd=SELECT cost-if(!isnull(SUM(ul.value)),SUM(ul.value),0) AS remaining FROM upkeep_log ul INNER JOIN upkeep u ON ul.upkeep_id=u.id WHERE ul.upkeep_id=%0 AND month(ul.dt_time)=month(%1) AND year(dt_time)=year(%1) 
+
+&FN`UPKEEP.INSERT_SQL %wd=INSERT upkeep (player_dbref,type,cost,description) values(%0,%1,%2,%3)
+&FN`UPKEEP.UPDATE_COST_SQL %wd=UPDATE upkeep SET cost=%1 WHERE id=%0
+&FN`UPKEEP.UPDATE_DESC_SQL %wd=UPDATE upkeep SET description=%1 WHERE id=%0
+&FN`UPKEEP.DELETE_SQL %wd=DELETE FROM upkeep WHERE id=%0
+&FN`UPKEEP.MONTHLY_AUDIT_SQL %wd=SELECT u.id\,u.description\,u.type\,u.cost-(SELECT if(!isnull(SUM(ul.value)),SUM(ul.value),0) FROM upkeep_log ul WHERE ul.upkeep_id=u.id  AND month(dt_time)=month(DATE_ADD(now(),INTERVAL 0 MONTH)) AND year(dt_time)=year(DATE_ADD(now(),INTERVAL 0 MONTH))) AS remaining FROM upkeep u WHERE u.player_dbref=%0 GROUP BY u.id HAVING remaining>0
+&FN`UPKEEP.MONTHLY_AUDIT_LIST_SQL %wd=SELECT u.player_dbref\,u.id\,u.description\,u.type\,u.cost-(SELECT if(!isnull(SUM(ul.value)),SUM(ul.value),0) FROM upkeep_log ul WHERE ul.upkeep_id=u.id  AND month(dt_time)=month(DATE_ADD(now(),INTERVAL %1 MONTH)) AND year(dt_time)=year(DATE_ADD(now(),INTERVAL %1 MONTH))) AS remaining FROM upkeep u WHERE u.player_dbref IN(%0) GROUP BY u.id HAVING remaining>0
+&FN`UPKEEP.INSERT_LOG_SQL %wd=INSERT upkeep_log (upkeep_id,value,dt_time) values(%0,%1,now())
+&FN`UPKEEP.INSERT_LOG_WITH_DATE_SQL %wd=INSERT upkeep_log (upkeep_id,value,dt_time) values(%0,%1,%2)
+&FN`UPKEEP.DELETE_LOG_WITH_DATE_SQL %wd=DELETE FROM upkeep_log WHERE upkeep_id=%0 AND month(dt_time)=month(%1) AND year(dt_time)=year(%1) 
+
+@sql CREATE TABLE `upkeep` (`id` INT(11) NOT NULL AUTO_INCREMENT,`player_dbref` INT(11) NOT NULL DEFAULT '0',`type` INT(11) NOT NULL DEFAULT '0',`cost` INT(11) NOT NULL DEFAULT '0',`description` VARCHAR(255) NOT NULL DEFAULT '0',PRIMARY KEY (`id`),INDEX `IX_PLAYER_DBREF` (`player_dbref`));
+@sql CREATE TABLE `upkeep_log` (`id` INT(11) NOT NULL AUTO_INCREMENT,`upkeep_id` INT(11) NULL DEFAULT '0',`value` INT(11) NULL DEFAULT '0',`dt_time` DATETIME NULL DEFAULT NULL,INDEX `PK_ID` (`id`),INDEX `IX_UPKEEP_ID` (`upkeep_id`));
+
+&WD Downtime Code=#2930
+&WH Downtime Code=#2062
+&RR Downtime Code=#2936
+&RP Downtime Code=#2924
+&WL %wd=#1705

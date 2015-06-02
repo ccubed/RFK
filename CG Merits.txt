@@ -1,0 +1,139 @@
+@@ CharGen Merits (#1749)
+@dig/teleport CharGen Merits
+@parent here=#44
+@set here = !NO_COMMAND
+@set here = wizard
+
+&CMD here=
+
+&CMD`ADD here=$+add *:@include #1749/FN`ADD=%0
+
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+
+@wipe here/CMD`FT
+&CMD`FT here=$^\+ft(/\w*)?(?> ([A-Za-z\s]*)=?(.*))?$:@include #1749/FN`FT=%1,%2,%3
+@set here/CMD`FT=regexp
+
+&CMD`REMOVE here=$+remove *:@include #1749/FN`REMOVE=%0
+
+&CMD`SETUP here=$+setup:@include #1749/FN`SETUP
+
+&CMD`SHOW here=$+show:@include #1749/FN`SHOW
+
+@DESCRIBE here= Merits are special capabilities or knacks that add individuality to your character. They may also represent other people in your character's life they can call on for help, or influence the way others react to your character. Merits are also the primary way that plot is seeded into the game.%R%RIf you are a ghoul or a human, you have seven points to spend on Merits. If you are a vampire, you have ten. Many have prerequisites that must be met before they can be purchased, and we recommend you check these before starting this section. You may experience some confusion, because what will show up with +show is how many times you have taken a given Merit, and not how many points it cost. (Danger Sense, for example, costs two points, but can only be taken once.)%r%rAdditional Merits cost between 5 and 25 beats, and can be bought in play. (Beats are what we call experience points here - you'll get used to it!)%r%r[ansi(+yellow,You also have 2 additional points\, which are our gift to you. These points must be spent on Status or Cult membership.) See +HELP MERIT STATUS and +HELP CULTS for the options, and explore Cults you might be interested in on the website at [ansi(+blue,http://kingsmouth.info/wiki/index.php/Cults)] %r%rSEE +HELP MERITS for a list of merits available to purchase with your other seven points.%r%rSee +HELP MERIT_<MERIT NAME> regarding what each merit can do for you as well as its prerequisites.%R%RCommands in this room are:%R[ansi(+yellow,+setup: Do this first! Clears your choices and resets your points.)%r+add <merit> - Adds a merit to your character or increases the merit's level.%R+remove <merit> - Removes a merit from your character or decreases the level.%R+show: Shows the merits currently chosen and points remaining.%R+ft/set merit=<set details for your merit>.%r%tFor example, +ft/set Striking Looks=Ancient%r+ft/show: Show your merit details.%r+ft/clear: Clears your merit details.%r
+
+
+
+&FN`ADD here=[if([u(#1749/FN`IF`CHECK.ADD,%#,%0)],[u(#1749/FN`ADD.RUN,%#,%0)])]
+
+@@ first, deduct cost.
+@@ second, 'do an upgrade'.
+@@ else, add a new merit.
+&FN`ADD.RUN here=[attrib_set(%0/CHARGEN`MERIT_POINTS,[sub([get(%0/CHARGEN`MERIT_POINTS)],[u(#1749/FN`GET`MERIT_INFO,%1,cost)])])][if([has_merit(%0,%1)],[setq(UP_MERIT,[iter([get(%0/PC_DATA`MERITS)],[if([strmatch(%i0,%1:*)],[replace(%i0,2,[inc([get_merit(%0,%1)])],:)],%i0)],|,|)])][attrib_set(%0/PC_DATA`MERITS,[trim(%q<UP_MERIT>,|)])][pemit(%0,+add: [capstr(%1)] merit increased by 1 point.)],[attrib_set(%0/PC_DATA`MERITS,[if([hasattrval(%0/PC_DATA`MERITS)],[strcat([get(%0/PC_DATA`MERITS)],|[capstr(%1)]:1)],[capstr(%1)]:1)])][pemit(%0,+add: [capstr(%1)] merit added.)])]
+
+&FN`FT here=[if([get(%#/CHARGEN`SETUP.MERITS)],[switch(%0,/clear,[attrib_set(%#/PC_DATA`MERITS.FT,)][pemit(%#,+ft: Merit free text cleared.)],/set,[if([u(#1749/FN`IF`CHECK.FT,%#,%1)],[if([strmatch([get(%#/PC_DATA`MERITS.FT)],*%1*)],[attrib_set(%#/PC_DATA`MERITS.FT,[replace([get(%#/PC_DATA`MERITS.FT)],[pos(%1,[get(%#/PC_DATA`MERITS.FT)])],%1:[secure(%2)],|,|)])],[attrib_set(%#/PC_DATA`MERITS.FT,[trim([strcat([get(%#/PC_DATA`MERITS.FT)],|%1:[secure(%2)])],|)])])][pemit(%#,+ft: Free text for %1 merit set to [secure(%2)].)])],/show,[pemit(%#,%RYou currently have the following Free Text merits chosen:%R[if([hasattrval(%#/PC_DATA`MERITS.FT)],[iter([get(%#/PC_DATA`MERITS.FT)],[align(30 20,[elements(%i0,1,:)],\([elements(%i0,2,:)]\))],|,%R)],None.)])],[pemit(%#,+ft: Valid switches are /clear\, /set merit=text\, /show)])],[pemit(%#,+ft: You haven't +setup your merit points yet! Please do so now.)])]
+
+&FN`GET here=
+
+@@ Gets info regarding a merit.
+@@ input merit name %0, cost or max_val %1.
+&FN`GET`MERIT_INFO here=[unsetq(M_INFO)][iter([get(%wl/CG_LIST`MERITS`COST)],[if([strmatch(%i0,[edit(%0,[space(1)],_)]:*)],[switch(%1,cost,[setq(M_INFO,[elements(%i0,2,:)])][ibreak()],max_val,[setq(M_INFO,[elements(%i0,3,:)])][ibreak()])])],|,)]%q<M_INFO>
+
+FN`IF here=
+
+@@ input player 0, merit to add 1.
+@@ Check if player used +setup to set points/clear old merits.
+@@ check if valid merit.
+@@ Check to see if we have a dependency
+@@ Check to see if there is a restriction.
+@@ Check to see if we have enough points to purchase it.
+@@ Check to see if merit is at maximum value.
+
+&FN`IF`CHECK.ADD here=[setq(i,1)][if([not([get(%0/CHARGEN`SETUP.MERITS)])],[setq(i,0)][pemit(%0,You haven't +setup your merit points yet! Please do so now.)])][setq(INPUT,[edit(%1,[space(1)],_)])][if([t(%qi)],[iter([get(%wl/CG_LIST`MERITS`COST)],[if([strmatch(%i0,%q<INPUT>:*)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+add: %1 is not a valid merit!)])])][if([t(%qi)],[if([not([u(#1749/FN`IF`DEPENDS,%0,%q<INPUT>)])],[setq(i,0)][pemit(%0,+add: You do not have the required dependencies to add %1. Check +HELP MERIT_[ucstr(%q<INPUT>)] to view them.)])])][if([t(%qi)],[if([u(#1749/FN`IF`RESTRICT,%0,%q<INPUT>)],[setq(i,0)][pemit(%0,+add: You can not add %1 as there are special restrictions. Check +HELP MERIT_[ucstr(%q<INPUT>)] to view them.)])])][if([t(%qi)],[if([lt([get(%0/CHARGEN`MERIT_POINTS)],[u(#1749/FN`GET`MERIT_INFO,%1,cost)])],[setq(i,0)][pemit(%0,You don't have enough points left to add %1.)])])][if([t(%qi)],[if([gt([inc([get_merit(%0,%1)])],[u(#1749/FN`GET`MERIT_INFO,%1,max_val)])],[setq(i,0)][pemit(%0,+add: The %1 merit is at maximum value.)])])]%qi
+
+@@ input player 0, merit name 1
+&FN`IF`CHECK.FT here=[setq(i,1)][setq(FT,[edit(%1,[space(1)],_)])][if([t(%qi)],[iter([get(%wl/CG_LIST`MERITS`FT)],[if([strmatch(%i0,%q<FT>)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+ft: You don't need to set Free Text for that merit.)])])][if([t(%qi)],[if([not([has_merit(%0,%1)])],[setq(i,0)][pemit(%0,+ft: You haven't added that merit.)])])]%qi
+
+@@ Check if setup
+@@ check if valid merit.
+@@ Check to see if we have the merit.
+@@ Check to see if we have a merit that depends on us and we removed it first.
+
+&FN`IF`CHECK.REMOVE here=[setq(i,1)][if([not([get(%0/CHARGEN`SETUP.MERITS)])],[setq(i,0)][pemit(%0,You haven't +setup your merit points yet! Please do so now.)])][setq(INPUT,[edit(%1,[space(1)],_)])][if([t(%qi)],[iter([get(%wl/CG_LIST`MERITS`COST)],[if([strmatch(%i0,%q<INPUT>:*)],[setq(i,1)][ibreak()],[setq(i,0)])],|,)][if([not(%qi)],[pemit(%0,+remove: %1 is not a valid merit!)])])][if([t(%qi)],[if([not([has_merit(%0,%1)])],[setq(i,0)][pemit(%0,+remove: You don't have that merit.)])])][if([t(%qi)],[if([u(#1749/FN`IF`PREREQ,%0,%1)],[setq(i,0)][pemit(%0,+remove: Sorry\, that merit is a prerequisite for one of your other merits.)],[setq(i,1)])])][if([t(%qi)],[if([cand([lt([dec([get_merit(%0,%1)])],1)],[strmatch([get(%0/PC_DATA`MERITS.FT)],*%1*)])],[setq(i,0)][pemit(%0,+remove: You've already set Free Text for that merit. Please +ft/clear your selection or use +setup to start merit selection over.)])])][if([t(%qi)],[if([cand([strmatch([get_template(%0)],VAMPIRE)],[strmatch(%1,Blood Potency)],[lt([dec([get_merit(%0,Blood Potency)])],1)])],[setq(i,0)][pemit(%0,+remove: Vampires may not reduce Blood Potency less then 1.)])])]%qi
+
+
+@@ need to modify this clan/discipline
+@@ input player %0, merit %1.
+@@ check if it is on the list of merits that has dependencies.
+@@ returns 1 if player has all the required dependencies to add the merit, 0 otherwise.
+@@ Q-Regs:
+@@ qi = Standard ifcheck.
+@@ q<HAS_DEPENDS> 1/0 if the merit has any dependencies.
+@@ q<REQS> Full list of merit requirements gleaned from %wl.
+@@ q<TYPE> Type of requirement while parsing %q<REGS>
+@@ qREQ1, %qREQ2 .. allows me to seperate or-reqs.
+
+	@@ Get the list of requirements.
+	@@ Parse it.
+	@@ Seperate the OR reqs. Can only have two for now.
+	@@ Run the correct code.
+	@@ Split checking req1/req2 into two parts.
+&FN`IF`DEPENDS here=[setq(i,1)][iter([lattr(%wl/CG_LIST`MERITS`DEPEND.**,|)],[if([strmatch([after(%i0,.)],%1)],[setq(HAS_DEPENDS,1)][ibreak()],[setq(HAS_DEPENDS,0)])],|,)][if([t(%q<HAS_DEPENDS>)],[setq(REQS,[get(%wl/CG_LIST`MERITS`DEPEND.%1)])][iter(%q<REQS>,[if([cand([not([strmatch([pos(-,%i0)],#-1)])],[gt([pos(-,%i0)],0)])],[setq(REQ1,[elements(%i0,1,-)])][setq(REQ2,[elements(%i0,2,-)])],[setq(REQ1,%i0)][setq(REQ2,1:1)])][setq(TYPE,[get_type([elements(%q<REQ1>,1,:)])])][switch(%q<TYPE>,ATTRIB,[if([gte([get_attrib(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],SKILL,[if([gte([get_skill(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],MERIT,[if([gte([get_merit(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],SPECIALTY,[if([has_specialty(%0,[after([elements(%q<REQ1>,1,:)],Spec_)])],[setq(i,1)],[setq(i,0)])],TEMPLATE,[if([strmatch([get_template(%0)],%q<REQ1>)],[setq(i,1)],[setq(i,0)])],COVENANT,[if([strmatch([get(%0/PC_DATA`COVENANT)],%q<REQ1>)],[setq(i,1)],[setq(i,0)])],CLAN,[if([strmatch([get(%0/PC_DATA`CLAN)],%q<REQ1>)],[setq(i,1)],[setq(i,0)])],DISCIPLINE,[if([gte([get_discipline(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],[setq(i,0)][pemit(%0,Something went wrong while checking for dependencies. Staff has been notified!)][mailsend(kougyoku,bug/Bug in Merit Room: IF`DEPENDS called GET_TYPE with arg %1\, req %q<REQ1> and returned %q<TYPE> as error.)])][if([cand([not(%qi)],[not([strmatch([elements(%q<REQ2>,1,:)],1)])])],[setq(TYPE,[get_type([elements(%q<REQ2>,1,:)])])][switch(%q<TYPE>,ATTRIB,[if([gte([get_attrib(%0,[elements(%q<REQ2>,1,:)])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])],SKILL,[if([gte([get_skill(%0,[elements(%q<REQ2>,1,:)])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])],MERIT,[if([gte([get_merit(%0,[elements(%q<REQ2>,1,:)])],[elements(%q<REQ2>,2,:)])],[setq(i,1)],[setq(i,0)])],SPECIALTY,[if([has_specialty(%0,[after([elements(%q<REQ2>,1,:)],Spec_)])],[setq(i,1)],[setq(i,0)])],TEMPLATE,[if([strmatch([get_template(%0)],%q<REQ2>)],[setq(i,1)],[setq(i,0)])],COVENANT,[if([strmatch([get(%0/PC_DATA`COVENANT)],%q<REQ2>)],[setq(i,1)],[setq(i,0)])],CLAN,[if([strmatch([get(%0/PC_DATA`CLAN)],%q<REQ2>)],[setq(i,1)],[setq(i,0)])],DISCIPLINE,[if([gte([get_discipline(%0,[elements(%q<REQ1>,1,:)])],[elements(%q<REQ1>,2,:)])],[setq(i,1)],[setq(i,0)])],[setq(i,0)][pemit(%0,Something went wrong while checking for dependencies. Staff has been notified!)][mailsend(kougyoku,bug/Bug in Merit Room: IF`DEPENDS called GET_TYPE with arg %1\, req %q<REQ2> and returned %q<TYPE> as error.)])])][if([not(%qi)],[ibreak()])],|,)],[setq(i,1)])]%qi
+
+
+@@ input player %0, merit name %1.
+@@ Check to see if we have a merit that depends on %1 and we removed it first.
+@@ returns 1 if player cannot remove merit %1 (another merit depends on it)
+&FN`IF`PREREQ here=[setq(i,0)][iter([get(%0/PC_DATA`MERITS)],[if([not([strmatch(%i0,%1*)])],[iter([lattr(%wl/CG_LIST`MERITS`DEPEND.**,|)],[if([strmatch(%i1,[edit([after(%i0,.)],_,[space(1)])]*)],[setq(HAS_DEPENDS,1)][ibreak()],[setq(HAS_DEPENDS,0)])],|,)][if(%q<HAS_DEPENDS>,[iter([get(%wl/CG_LIST`MERITS`DEPEND.[edit([elements(%i0,1,:)],[space(1)],_)])],[if([cand([not([strmatch([pos(-,%i0)],#-1)])],[gt([pos(-,%i0)],0)])],[setq(REQ1,[elements(%i0,1,-)])][setq(REQ2,[elements(%i0,2,-)])],[setq(REQ1,%i0)][setq(REQ2,1:1)])][if([cand([strmatch(%q<REQ1>,%1*)],[has_merit(%0,[elements(%q<REQ1>,1,:)])])],[setq(i,1)])][if([cand([not(%qi)],[not([strmatch([elements(%q<REQ2>,1*,:)],1)])])],[if([cand([strmatch(%q<REQ2>,%1*)],[has_merit(%0,[elements(%q<REQ2>,1,:)])])],[setq(i,1)])])],|,)])])],|,)]%qi
+
+
+@@ input player %0, merit name %1.
+@@ returns 1 if player is restricted from adding the merit as they selected another merit previously.
+&FN`IF`RESTRICT here=[setq(r,1)][iter([get(%wl/CG_LIST`MERITS`RESTRICT)],[if([strmatch(%i0,%1)],[setq(HAS_RESTRICT,1)][ibreak()])],|,)][if(%q<HAS_RESTRICT>,[iter([get(%wl/CG_LIST`MERITS`RESTRICT.%1)],[if([has_merit(%0,%i0)],[setq(i,1)][ibreak()],[setq(r,0)])],|,)],[setq(r,0)])]%qr
+
+&FN`REMOVE here=[if([u(#1749/FN`IF`CHECK.REMOVE,%#,%0)],[u(#1749/FN`REMOVE.RUN,%#,%0)])]
+
+&FN`REMOVE.RUN here=[attrib_set(%0/CHARGEN`MERIT_POINTS,[add([get(%0/CHARGEN`MERIT_POINTS)],[u(#1749/FN`GET`MERIT_INFO,%1,cost)])])][if([gt([dec([get_merit(%0,%1)])],1)],[setq(D_MERIT,[iter([get(%0/PC_DATA`MERITS)],[if([strmatch(%i0,%1:*)],[replace(%i0,2,[dec([get_merit(%0,%1)])],:)],%i0)],|,|)])][attrib_set(%0/PC_DATA`MERITS,[trim(%q<D_MERIT>,|)])],[unsetq(D_MERIT)][iter([get(%0/PC_DATA`MERITS)],[if([not([strmatch(%i0,[edit(%1,_,[space(1)])]:*)])],[setq(D_MERIT,[strcat(%q<D_MERIT>,%i0)]|)])],|,)][attrib_set(%0/PC_DATA`MERITS,[trim(%q<D_MERIT>,|)])])][pemit(%0,+remove: [capstr(%1)] merit decreased to [get_merit(%0,%1)].)]
+
+&FN`SETUP here=[switch([get_template(%#)],VAMPIRE,[attrib_set(%#/PC_DATA`MERITS,Blood Potency:1)],[attrib_set(%#/PC_DATA`MERITS,)])][attrib_set(%#/PC_DATA`MERITS.FT,)][attrib_set(%#/CHARGEN`MERIT_POINTS,[u(#1749/MERIT_PTS,%#)])][attrib_set(%#/CHARGEN`SETUP.MERITS,1)][attrib_set(%#/CHARGEN`SETUP.DISCIPLINES,0)][pemit(%#,+setup: Merit choices cleared and points reset!)]
+
+&FN`SHOW here=[pemit(%#,You currently have the following merits chosen \([get(%#/CHARGEN`MERIT_POINTS)] points remaining\):%R[if([hasattrval(%#/PC_DATA`MERITS)],[iter([get(%#/PC_DATA`MERITS)],[align(70 7,[elements(%i0,1,:)],\[[ljust([repeat(o,[elements(%i0,2,:)])],5,-)]\])],|,%R)],None.)])][pemit(%#,%RYou currently have the following Free Text merits chosen:)][unsetq(MFT)][if([hasattrval(%#/PC_DATA`MERITS.FT)],[iter([get(%#/PC_DATA`MERITS.FT)],[setq(MFT,[strcat(%q<MFT>,[align(30 20,[elements(%i0,1,:)],\([elements(%i0,2,:)]\))]%R)])],|,)])][iter([get(%wl/CG_LIST`MERITS`FT)],[if([cand([not([strmatch([get(%#/PC_DATA`MERITS.FT)],*%i0*)])],[has_merit(%#,%i0)])],[setq(MFT,[strcat(%q<MFT>,[align(30 20,%i0,\(not set\))]%R)])])],|,)][if([not([strmatch(%q<MFT>,)])],[pemit(%#,%q<MFT>)],None)]
+
+
+&MERIT_PTS here=[switch([get_template(%0)],VAMPIRE,12,9)]
+
+@wl here=#1705
+
+**** REQS_MET on 'Next'
+@@ Next (#1754), in CharGen Merits (#1749)
+@open Next
+@link Next = #1753
+@lock/Basic Next=FLAG\^WIZARD|FLAG\^ROYALTY|REQS_MET/1&IS_HUMAN/0
+@lset Next/Basic=no_inherit
+@set Next = WIZARD
+@power Next = See_All
+&AFAILURE Next=@switch [get_template(%#)]=Human,{@force %#=human;@pemit %#=Humans don't need to select disciplines. A strange force pushes you through the HUMAN exit.;}
+@set Next/AFAILURE=no_command prefixmatch
+&ALIAS Next=N
+@set Next/ALIAS=no_command visual prefixmatch
+&FAILURE Next=
+@set Next/FAILURE=no_command prefixmatch
+&IS_HUMAN Next=[switch([get_template(%#)],HUMAN,1,0)]
+&REQS_MET Next=[setq(i,1)][if([not([get(%#/CHARGEN`SETUP.MERITS)])],[setq(i,0)][pemit(%#,You haven't +setup your merits yet! Please do so now.)])][if([t(%qi)],[if([gt([get(%#/CHARGEN`MERIT_POINTS)],1)],[setq(i,0)][pemit(%#,You haven't spent all your merit points yet. Please do so now.)])])][if([t(%qi)],[setq(FT,)][iter([get(%wl/CG_LIST`MERITS`FT)],[setq(FT,[edit(%i0,_,[space(1)])])][if([cand([has_merit(%#,%q<FT>)],[not([strmatch([get(%#/PC_DATA`MERITS.FT)],*%q<FT>*)])])],[setq(i,0)][pemit(%#,You haven't set all your Free Text merits yet. Please do so now.)][ibreak()])],|,)])]%qi
+@wl next=#1705
+
+@@ Human (#1763), in CharGen Merits (#1749)
+@open Human
+@link Human = #1762
+@lock/Basic Human=FLAG\^WIZARD|FLAG\^ROYALTY|REQS_MET/1&IS_HUMAN/1
+@lset Human/Basic=no_inherit
+@set Human = WIZARD
+&AFAILURE Human=@switch [get_template(%#)]=Ghoul,{@force %#=next;@pemit %#=Sorry, only HUMANS are allowed to skip discipline selection. A strange force pushes you through NEXT.;},Vampire,{@force %#=next;@pemit %#=Sorry, only HUMANS are allowed to skip discipline selection. A strange force pushes you through NEXT.;}
+@set Human/AFAILURE=no_command prefixmatch
+&ALIAS Human=H
+@set Human/ALIAS=no_command visual prefixmatch
+&FAILURE Human=
+@set Human/FAILURE=no_command prefixmatch
+&IS_HUMAN Human=[switch([get_template(%#)],HUMAN,1,0)]
+&REQS_MET Human=[setq(i,1)][if([not([get(%#/CHARGEN`SETUP.MERITS)])],[setq(i,0)][pemit(%#,You haven't +setup your merits yet! Please do so now.)])][if([t(%qi)],[if([gt([get(%#/CHARGEN`MERIT_POINTS)],1)],[setq(i,0)][pemit(%#,You haven't spent all your merit points yet. Please do so now.)])])][if([t(%qi)],[setq(FT,)][iter([get(%wl/CG_LIST`MERITS`FT)],[setq(FT,[edit(%i0,_,[space(1)])])][if([cand([has_merit(%#,%q<FT>)],[not([strmatch([get(%#/PC_DATA`MERITS.FT)],*%q<FT>*)])])],[setq(i,0)][pemit(%#,You haven't set all your Free Text merits yet. Please do so now.)][ibreak()])],|,)])]%qi
+@wl human=#1705

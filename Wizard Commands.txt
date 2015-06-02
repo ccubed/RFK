@@ -1,0 +1,232 @@
+@@ Wizard Commands (#1773)
+@create Wizard Commands
+@link Wizard Commands = #2
+@lock/Basic Wizard Commands=FLAG\^WIZARD|FLAG\^ROYALTY|DBREFLIST\^ALLOW
+@lset Wizard Commands/Basic=no_inherit
+@lock/Control Wizard Commands=#1706
+@lset Wizard Commands/Control=no_inherit
+@set Wizard Commands = WIZARD
+@power Wizard Commands = See_All
+&ALLOW %ww=#1706 #1770 #1774 #2062 #2280
+&CMD Wizard Commands=
+
+&CMD`CGWIPE %ww=$+cgwipe *:[wipe(*%0/CHARGEN)][wipe(*%0/PC_DATA)][pemit(%#,Player data has been WIPED!! They must go through CG again.)][tel(*%0,#0)]
+
+&CMD`CENSUS %ww=$+wizcensus:[setq(ALL,[sort([active_pc_list()],name)])][pemit(%#,[u(%wm/FN`CENSUS.SELECT)])][pemit(%#,header(All Active Players))][pemit(%#,[iter(%Q<ALL>,[name(%i0)])])]
+
+&CMD`ALT %ww=$+alt *=*:[SETQ(PC, [secure( [pmatch(%0)] )] )][SETQ(ALT, [secure( [pmatch(%1)] )] )];@assert %Q<PC> = @nspemit/silent %#=+alt: No such player by that name;@assert %Q<ALT> = @nspemit/silent %#=+alt: No such player by that name;[attrib_set2(%Q<ALT>/PC_DATA`ALT_OF,%Q<PC>)][attrib_set2(%Q<PC>/PC_DATA`ALT_IS,%Q<ALT>)][pemit(%#,Setting alt of [name(%Q<PC>)] to [name(%Q<ALT>)])
+
+&CMD`DANCECARDS %ww=$+dancecards:[SETQ(DC,[active_pc_list()])][pemit(%#,[header(Dance Card Leaderboard)]%r%r[iter([sort([iter(%Q<DC>,[words(get(%i0/DANCECARD),|)] [name(%i0)]|)],-n,|)],#@. %i0%r,|)])]
+&CMD`DANCECARD_LIST %ww=$+dancecard/list *:[SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+dancecard: No such player by that name;[SETQ(DC,[get(%Q<PC>/DANCECARD)])][SETQ(REM,[sort([remove([active_pc_list()],[tr(%Q<DC>,|,space(1))] %#)],name)])][pemit(%#,[header(Your Dance Card!)]%r%rTotal Points: [words(%Q<DC>,|)]%r%rOn your Dance Card are:)][pemit(%#,[iter(%Q<DC>,[name(%i0)],|)])][pemit(%#,%r[words(%Q<REM>)] still remaining to mark off:%r[iter(%Q<REM>,[name(%i0)])])]
+
+&FN`CENSUS_MAP_FN %ww=[setq([get(%0/PC_DATA`TEMPLATE)],[cat([r([get(%0/PC_DATA`TEMPLATE)])],%0)])][setq([get(%0/PC_DATA`PLAYSTYLE)],[cat([r([get(%0/PC_DATA`PLAYSTYLE)])],%0)])][iter([get(%wl/CG_LIST`CLAN_STATUS)],[if([has_merit(%0,%i0)],[setq(%i0,[cat([r(%i0)],%0)])])],|)]
+
+&FN`CENSUS_TEMPLATE %ww=[setq(ALL,[active_pc_list()])][setq(ATTRS,[sort(iter(%q<ALL>,[get(%i0/PC_DATA`TEMPLATE)]))])][iter([get(%wl/CG_LIST`TEMPLATE)],%i0|[words(matchall(%q<ATTRS>,%i0))],|)]
+&FN`CENSUS_PLAYSTYLE %ww=[setq(ALL,[active_pc_list()])][setq(ATTRS,[sort(iter(%q<ALL>,[get(%i0/PC_DATA`PLAYSTYLE)]))])][iter([get(%wl/CG_LIST`PLAYSTYLE)],%i0|[words(matchall(%q<ATTRS>,%i0))],|)]
+&FN`CENSUS_CLAN %ww=[setq(ALL,[active_pc_list()])][setq(ATTRS,[sort(iter(%q<ALL>,[iter([get(%wl/CG_LIST`CLAN_STATUS)],[if(has_merit(%i1,%i0),%i0)],|)]))])][iter([get(%wl/CG_LIST`CLAN_STATUS)],%i0|[words(matchall(%q<ATTRS>,%i0))],|)]
+&FN`CENSUS_COVENANT %ww=[setq(ALL,[active_pc_list()])][setq(ALL,[active_pc_list()])][setq(ATTRS,[sort(iter(%q<ALL>,[iter([get(%wl/CG_LIST`COVENANT_STATUS)],[if(has_merit(%i1,%i0),%i0)],|)]))])][iter([get(%wl/CG_LIST`COVENANT_STATUS)],%i0|[words(matchall(%q<ATTRS>,%i0))],|)]
+
+&CMD`BLOODPOOL_AUDIT %ww=$+bpaudit/bp *:@include %wh/FN`MONTHLY_BP_REPORT=%0
+&CMD`BLOODPOOL_AUDIT_BP_LM %ww=$+bpaudit/lm *:@assert [u(%wh/FN`VALID_TERRITORY,%0)]=@nspemit/silent %#=+bpaudit: No such territory by that name;[pemit(%#,[header(Monthly Report for Territory %0)])]@include %wh/FN`MONTHLY_BP_REPORT_BY_TERRITORY=%0,-1
+&CMD`BLOODPOOL_AUDIT_BP %ww=$+bpaudit *:@assert [u(%wh/FN`VALID_TERRITORY,%0)]=@nspemit/silent %#=+bpaudit: No such territory by that name;[pemit(%#,[pemit(%#,[header(Monthly Report for Territory %0)])])]@include %wh/FN`MONTHLY_BP_REPORT_BY_TERRITORY=%0
+
+&CMD`CONDITION %ww=$+condition *=*:[SETQ(9,PC_DATA`CONDITIONS)][SETQ(0, [secure( [pmatch(%0)] )] )][SETQ(1, [secure(%1)] )];@assert %Q0 = @nspemit/silent %#=+condition: No such player by that name;[SETQ(2, [get(%Q0/%Q9)] )][pemit(%#,Current Conditions: %Q2 and Match is [match(%Q2,%Q1,|)] )][IF( [match(%Q2,%Q1,|)] ,[SETQ(2,[remove(%Q2,%Q1,|)] )][pemit(%#,Removed Condition %Q1 from %0)],[SETQ(2, [IF( [words(%Q2)], [insert(%Q2,1,%Q1,|)], %Q1)] )][pemit(%#,Added Condition %Q1 to %0)] )][attrib_set2(%Q0/%Q9,[sort(%Q2,a,|)] )]
+
+&CMD`ACCEPT %ww=$+accept *:@assert pmatch(%0)=@nspemit/silent %#=+accept: No such player by that name.; @assert get(*%0/CHARGEN`WAITING)=@nspemit/silent %#=+accept: [name(*%0)] is not waiting for approval.;@break [get(*%0/CHARGEN`APPROVED)]=@nspemit/silent %#=+accept: [name(*%0)] has already been approved.; @set *%0=CHARGEN`WAITING:0;@set *%0=CHARGEN`APPROVED:1; @tr %ww/FN`FINALIZE_CHAR=*%0; @nspemit/silent %#=+accept: [apostrophe_name([name(*%0)])] application has been accepted.  [capstr(subj(*%0))] may now go IC and interact with other characters. Please remember to +job/approve the player's request!; @mail %0=Application accepted./Congratulations!  The administrators have accepted your application for a character on [mudname()]!  You may now use your character in the IC grid.  Remember, if you have any questions, don't hesitate to ask!;
+
+&CMD`PSAPPROVE %ww=$+psapprove *:@assert pmatch(%0)=@nspemit/silent %#=+accept: No such player by that name.; [if([get(*%0/PC_DATA`PSAPPROVED)],[wipe(*%0/PC_DATA`PSAPPROVED)][pemit(%#,Playstyle unapproved for [name(*%0)])],[attrib_set2(*%0/PC_DATA`PSAPPROVED,1)][pemit(%#,Playstyle approved for [name(*%0)])])
+
+&CMD`ALTS %ww=$+alts *:@nspemit/silent %#=iter(lsearch(all,type,player,eval,\[cor(\[eq(0,\[comp(\[get(*%0/lastip)\],\[get(##/lastip)\])\])\],\[cand(\[hasattr(*%0/pc_data`email)\],\[eq(0,\[comp(\[get(*%0/pc_data`email)\],\[get(##/pc_data`email)\],i)\])\])\])\]),name(%i0))
+
+&CMD`ASPIRATIONS %ww=$+aspirations *:[SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+aspirations: No such player by that name;[pemit(%#,[header(Aspirations: [name(%Q<PC>)])]%r[iter(get(%Q<PC>/PC_DATA`ASPIRATIONS),%r#@\) %i0,|)%r%r[header(Aspirations: [name(%Q<PC>)])]])]
+
+&CMD`HASMERIT %ww=$+hasmerit *:[iter(lsearch(all,type,player),[switch([get(%i0/CHARGEN`APPROVED)][has_merit(%i0,%0)],11,[setq(LIST,[strcat(%q<LIST>,name(%i0),[space(1)])])])])][pemit(%#,%q<LIST>)]
+
+@@ Added bits to reset a player's attribs to original choices.
+@wipe %ww/CMD`REJECT
+&CMD`REJECT %ww=$^\+reject (.*?)(?>=(.*))?$:@assert pmatch(%1)=@nspemit/silent %#=+reject: No such player by that name.; @break get(*%0/CHARGEN`APPROVED)=@nspemit/silent %#=+reject: [name(*%1)] has already been approved.; @break eq(0,comp(,%2))=@nspemit/silent %#=+reject: Please give a justification for why you are rejecting [name(*%1)].; @dolist/inline [lattr(%#/CHARGEN`ATTRIBS`**)]=@set %#=PC_DATA`[after(%i0,`)]:[get(%#/%i0)]; @wipe *%1/CHARGEN`WAITING; @set *%1=CHARGEN`APPROVED:0; @nspemit/silent %#=+reject: [name(*%1)] has been rejected for the following reason(s):%r%r%2;@force/inplace %ww=@mail %1=Application rejected./The administrators have looked over your application for a character on [mudname()] and rejected it for the following reason(s):%r%r%2%r%rPlease go back through CharGen and alter the attributes mentioned in the justification, then resubmit your application.  Remember, if you have any questions, don't hesitate to ask!
+@set %ww/CMD`REJECT=regexp
+
+&CMD`REVIEW %ww=$+review *:@assert pmatch(%0)=@nspemit/silent %#=+review: No such player by that name.; @nspemit/silent %#=[header(Aspirations)]%R[iter(get(*%0/PC_DATA`ASPIRATIONS_CG),%r#@\) %i0,|)]%R[header(Breaking Points)]%R[iter(get(*%0/PC_DATA`BREAKING_POINTS),%r#@\) %i0,|)][if([strmatch([get_template(%#)],VAMPIRE)],%R[header(Touchstone)]%R[get(*%0/PC_DATA`TOUCHSTONE)]%R[header(Favored Attribute)]%R[get(*%0/CHARGEN`FAVORED_ATTRIB)])]%R[header(Justification)]%R[get(*%0/CHARGEN`JUSTIFY)];
+&CMD`BEATSHEET %ww=$+beatsheet *:[SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+beatsheet: No such player by that name;[u(%wb/FN`BEAT.SHEET,%Q<PC>,%#)]
+&CMD`BEATSHEET_LW %ww=$+beatsheet/lw *:[SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+beatsheet: No such player by that name;[u(%wb/FN`BEAT.SHEET,%Q<PC>,%#,-1)]
+&CMD`BEATSHEET_HISTORY %ww=$+beatsheet/history *:[SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+beatsheet: No such player by that name;[u(%wb/FN`BEAT.AUDIT_HISTORY,%Q<PC>,%#)]
+
+&CMD`BEATWIZBEAT_LW %ww=$+wizbeatlw/* *=*:[setq(TYPE,[u(%wb/FN`BEAT.NAME_TO_TYPE,%0)])][if([u(%ww/FN`WIZBEAT.CHECK,%#,%1,%Q<TYPE>,%2)],[u(%wb/FN`BEAT.RUN,%#,%Q<PC>,%Q<TYPE>,%2,-1)])
+&CMD`BEATWIZBEAT %ww=$+wizbeat/* *=*:[setq(TYPE,[u(%wb/FN`BEAT.NAME_TO_TYPE,%0)])][if([u(%ww/FN`WIZBEAT.CHECK,%#,%1,%Q<TYPE>,%2)],[u(%wb/FN`BEAT.RUN,%#,%Q<PC>,%Q<TYPE>,%2)])
+&CMD`BEATWIZBEAT_DELETE %ww=$+wizbeat/delete *:[u(%wb/FN`BEAT.DELETE,%#,%0)])
+
+&FN`WIZBEAT.CHECK %ww=[setq(i,1)][SETQ(PC, [secure( [pmatch(%1)] )] )][if(not(%Q<PC>),[setq(i,0)][pemit(%#,+beatsheet: No such player by that name;)])][if([not(%2)],[setq(i,0)][pemit(%0,+beat: Must pass in a valid Beat Type \(see +help beats\).)])][if(eq([strlen(%3)],0),[setq(i,0)][pemit(%0,+beat: Must pass in a valid description.)])]%qi
+
+@set %ww/CMD`BEATSHEET_PROCESS=regexp
+&CMD`BEATSHEET_PROCESS %ww=$\+beatsheet/process (\w+)$:[if([u(%ww/FN`BEATSHEET_PROCESS`CHECK,%1,-1)],[u(%ww/FN`BEAT.SHEET.PROCESS.RUN,%Q<PC>,%#,-1)])]
+&CMD`BEATSHEET_PROCESS_WITH_ADJ %ww=$+beatsheet/process *=*:[if([u(%ww/FN`BEATSHEET_PROCESS`CHECK,%0,%1)],[u(%ww/FN`BEAT.SHEET.PROCESS.RUN,%Q<PC>,%#,%1)])]
+
+&CMD`BEATSHEETS %ww=$+beatsheets:[pemit(%#,[u(%wb/FN`BEAT.SHEETS.SUMMARY,0)])]
+&CMD`BEATSHEETS_LW %ww=$+beatsheets/lw:[pemit(%#,[u(%wb/FN`BEAT.SHEETS.SUMMARY,-1)])]
+
+&CMD`BEATSHEETS_AUDIT %ww=$+beatsheets/audit:[mapsql(FN`BEATSHEETS_AUDIT_ROW,[u(%wb/FN`BEAT.SHEETS_AUDIT_SQL)])]
+&FN`BEATSHEETS_AUDIT_ROW %ww=[pemit(%#,[name(*#%1)])]
+&CMD`PCAUDIT %ww=$+pcaudit *:[SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+wizdt: No such player by that name;@include %ww/FN`PCAUDIT.RUN=%Q<PC>,0
+&CMD`PCAUDIT_ALL %ww=$+pcaudit/all *:[SETQ(PC, [secure( [pmatch(%0)] )] )];@assert %Q<PC> = @nspemit/silent %#=+wizdt: No such player by that name;@include %ww/FN`PCAUDIT.RUN=%Q<PC>,1
+
+&CMD`WIZUPKEEP`AUDITLM %ww=$+wizupkeep/auditlm:[mapsql(FN`WIZUPKEEP`AUDITLM_ROW,[u(%wd/FN`UPKEEP.MONTHLY_AUDIT_LIST_SQL,[sql_dbref_list([active_pc_list()])],-1)])]
+&FN`WIZUPKEEP`AUDITLM_ROW %ww=[pemit(%#,[align(13 40 20,[name(*#%1)],%3,%5 [u(%wd/FN`UPKEEP.TYPE_TO_NAME,%4)])])]
+
+&CMD`WIZUPKEEP_ADD %ww=$+wizupkeep/add *=*|*|*:@include %ww/FN`WIZUPKEEP=%#,%0,%1,%2,%3
+&CMD`WIZUPKEEP_UPDATE_DESC %ww=$+wizupkeep/updatedesc *=*:@include %ww/FN`WIZUPKEEP_UPDATE_DESC=%#,%0,%1
+&CMD`WIZUPKEEP_UPDATE_COST %ww=$+wizupkeep/updatecost *=*:@include %ww/FN`WIZUPKEEP_UPDATE_COST=%#,%0,%1
+&CMD`WIZUPKEEP_DELETE %ww=$+wizupkeep/delete *:@include %ww/FN`WIZUPKEEP_DELETE=%#,%0
+
+&CMD`WIZUPKEEP_ADDLOG %ww=$+wizupkeep/addlog *=*:@include %ww/FN`WIZUPKEEP_ADDLOG=%#,%0,%1
+&CMD`WIZUPKEEP_DELETELOG %ww=$+wizupkeep/deletelog *=*:@include %ww/FN`WIZUPKEEP_DELETELOG=%#,%0,%1
+&CMD`WIZUPKEEP_LIST %ww=$+wizupkeep/list *:@assert pmatch(%0)=@nspemit/silent %#=+wizupkeep: No such player by that name.;@include %wd/FN`UPKEEP.REPORT=%#,[pmatch(%0)]
+&CMD`WIZUPKEEP_LIST_LM %ww=$+wizupkeep/listlm *:@assert pmatch(%0)=@nspemit/silent %#=+wizupkeep: No such player by that name.;@include %wd/FN`UPKEEP.REPORT=%#,[pmatch(%0)],-1
+
+&FN`WIZUPKEEP %ww=[if(u(%ww/FN`WIZUPKEEP.CHECK,%0,%1,%2,%3,%4),[u(%ww/FN`WIZUPKEEP.RUN,%0,%1,%2,%3,%4)])]
+&FN`WIZUPKEEP.CHECK %ww=[setq(i,1)][if([t(%qi)],[if([not([pmatch(%1)])],[setq(i,0)][pemit(%0,+wizupkeep: No such player by that name.)])])][if([t(%qi)],[if([not([u(%wd/FN`UPKEEP.NAME_TO_TYPE,%2)])],[setq(i,0)][pemit(%0,+wizupkeep: Type must be 'Vitae' or 'Hours'.)])])][if([t(%qi)],[if([or(not([isint(%3)]),[lte(%3,0)])],[setq(i,0)][pemit(%0,+wizupkeep: Cost must be a number greater than 0.)])])][if([t(%qi)],[if([not(strlen(%4))],[setq(i,0)][pemit(%0,+wizupkeep: Desc cannot be empty.)])])]%qi
+&FN`WIZUPKEEP.RUN %ww=[u(%wd/FN`UPKEEP.INSERT,[pmatch(%1)],[u(%wd/FN`UPKEEP.NAME_TO_TYPE,%2)],%3,%4)][pemit(%#,+wizupkeep: Row added: %1 %2 %3 %4)]
+
+&FN`WIZUPKEEP_UPDATE_DESC %ww=[if(u(%ww/FN`WIZUPKEEP_UPDATE_DESC.CHECK,%0,%1,%2),[u(%ww/FN`WIZUPKEEP_UPDATE_DESC.RUN,%0,%1,%2)])]
+&FN`WIZUPKEEP_UPDATE_DESC.CHECK %ww=[setq(i,1)][if([not(isint(%1))],[setq(i,0)][pemit(%0,Upkeep: Upkeep ID must be a valid number)])][if([not([u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD_BY_ID,%1)])],[setq(i,0)][pemit(%0,Upkeep: Not a valid Upkeep ID)])][if([t(%qi)],[if([not(strlen(%2))],[setq(i,0)][pemit(%0,+wizupkeep: Desc cannot be empty.)])])]%qi
+&FN`WIZUPKEEP_UPDATE_DESC.RUN %ww=[u(%wd/FN`UPKEEP.UPDATE_DESC,%1,%2)][pemit(%#,+wizupkeep: Description updated for upkeep %1 to %2)]
+
+&FN`WIZUPKEEP_UPDATE_COST %ww=[if(u(%ww/FN`WIZUPKEEP_UPDATE_COST.CHECK,%0,%1,%2),[u(%ww/FN`WIZUPKEEP_UPDATE_COST.RUN,%0,%1,%2)])]
+&FN`WIZUPKEEP_UPDATE_COST.CHECK %ww=[setq(i,1)][if([not(isint(%1))],[setq(i,0)][pemit(%0,Upkeep: Upkeep ID must be a valid number)])][if([not([u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD_BY_ID,%1)])],[setq(i,0)][pemit(%0,Upkeep: Not a valid Upkeep ID)])][if([t(%qi)],[if([or(not([isint(%2)]),[lte(%2,0)])],[setq(i,0)][pemit(%0,+wizupkeep: Cost must be a number greater than 0.)])])]%qi
+&FN`WIZUPKEEP_UPDATE_COST.RUN %ww=[u(%wd/FN`UPKEEP.UPDATE_COST,%1,%2)][pemit(%#,+wizupkeep: Cost updated for upkeep %1 to %2)]
+
+&FN`WIZUPKEEP_DELETE %ww=[if(u(%ww/FN`WIZUPKEEP_DELETE.CHECK,%0,%1),[u(%ww/FN`WIZUPKEEP_DELETE.RUN,%0,%1)])]
+&FN`WIZUPKEEP_DELETE.CHECK %ww=[setq(i,1)][if([not(isint(%1))],[setq(i,0)][pemit(%0,Upkeep: Upkeep ID must be a valid number)])][if([not([u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD_BY_ID,%1)])],[setq(i,0)][pemit(%0,Upkeep: Not a valid Upkeep ID)])]%qi
+&FN`WIZUPKEEP_DELETE.RUN %ww=[u(%wd/FN`UPKEEP.DELETE,%1)][pemit(%0,+wizupkeep: Upkeep deleted: %1)]
+
+&FN`WIZUPKEEP_ADDLOG %ww=[if(u(%ww/FN`WIZUPKEEP_ADDLOG.CHECK,%0,%1,%2),[u(%ww/FN`WIZUPKEEP_ADDLOG.RUN,%0,%1,%2)])]
+&FN`WIZUPKEEP_ADDLOG.CHECK %ww=[setq(i,1)][if([not(isint(%1))],[setq(i,0)][pemit(%0,Upkeep: Upkeep ID must be a valid number)])][if([not([u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD_BY_ID,%1)])],[setq(i,0)][pemit(%0,Upkeep: Not a valid Upkeep ID)])][if([not([date_valid(%2)])],[setq(i,0)][pemit(%0,Upkeep: Must pass in a valid date..)])][if(not([u(%wd/FN`UPKEEP.FIND_MONTHLY_UPKEEP_LOG_RECORD_BY_MONTH,%1,%2)]),[setq(i,0)][pemit(%0,Upkeep: Already paid for that month.)])]%qi
+&FN`WIZUPKEEP_ADDLOG.RUN %ww=[u(%wd/FN`UPKEEP.INSERT_LOG_WITH_DATE,%1,%Q<COST>,%2)][pemit(%#,+wizupkeep: Row added: %1 %2)]
+
+&FN`WIZUPKEEP_DELETELOG %ww=[if(u(%ww/FN`WIZUPKEEP_DELETELOG.CHECK,%0,%1,%2),[u(%ww/FN`WIZUPKEEP_DELETELOG.RUN,%0,%1,%2)])]
+&FN`WIZUPKEEP_DELETELOG.CHECK %ww=[setq(i,1)][if([not(isint(%1))],[setq(i,0)][pemit(%0,Upkeep: Upkeep ID must be a valid number)])][if([not([u(%wd/FN`DT_UPKEEP.PULL_UPKEEP_RECORD_BY_ID,%1)])],[setq(i,0)][pemit(%0,Upkeep: Not a valid Upkeep ID)])][if([not([date_valid(%2)])],[setq(i,0)][pemit(%0,Upkeep: Must pass in a valid date..)])]%qi
+&FN`WIZUPKEEP_DELETELOG.RUN %ww=[u(%wd/FN`UPKEEP.DELETE_LOG_WITH_DATE,%1,%2)][pemit(%#,+wizupkeep: Row deleted: %1 %2)]
+
+@@ Set Aspirations, Initial DT, etc
+&FN`FINALIZE_CHAR %ww=[attrib_set2(%0/PC_DATA`ASPIRATIONS,[get(%0/PC_DATA`ASPIRATIONS_CG)])]
+
+@@ wizset/type player discipline=number
+@wipe %ww/CMD`WIZSET
+&CMD`WIZSET %ww=$^\+wizset(/\w*)? ?(\w*)? ?([A-Za-z\s]*)?(?>=(.*))?$:@include %ww/FN`WIZSET=%2,%1,%3,%4;@switch %q<WIZSET_SUCC>=1,@log/wiz +WIZSET: [name(%#) sets [apostrophe_name(%2)] %3 [switch(%1,/misc,misc item,[after(%1,/)])] to %4.
+@set %ww/cmd`wizset=regexp
+
+@@ Input enactor %0, player %1, type %2, item %3, new value %4.
+&FN`IF`WIZSET %ww=[setq(i,1)][switch(%2,/misc,[setq(i,1)],/merit,[setq(i,1)],/skill,[setq(i,1)],/discipline,[setq(i,1)],/attribute,[setq(i,1)],[setq(i,0)][pemit(%0,+wizset: Not a valid type. You may only set the types listed in +ahelp +wizset)])][if([t(%qi)],[if([strmatch(%3,)],[setq(i,0)][pemit(%0,+wizset: Set what [after(%2,/)]? Use [strcat(+wizset,%2)] <player> <[after(%2,/)][switch(%2,/misc, item)]>=value)])])][if([t(%qi)],[if([strmatch(%4,)],[setq(i,0)][pemit(%0,+wizset: Please specify a new value for [after(%2,/)].)])])][if([t(%qi)],[if([cand([not([strmatch(%2,/misc)])],[cor([not([isint(%4)])],[lt(%4,0)])])],[setq(i,0)][pemit(%0,+wizset: Please enter an integer greater than or equal to 0.)])])][if([t(%qi)],[if([cand([strmatch(%2,/misc)],[cor([strmatch(%3,vitae)],[strmatch(%3,willpower)],[strmatch(%3,downtime)],[strmatch(%3,humanity)])],[cor([not([isint(%4)])],[lt(%4,0)])])],[setq(i,0)][pemit(%0,+wizset: Please enter an integer greater than or equal to 0.)])])][if([t(%qi)],[if([strmatch(%2,/misc)],[switch(%3,beats,[setq(i,1)],willpower,[setq(i,1)],vitae,[setq(i,1)],surname,[setq(i,1)],specialties,[setq(i,1)],spectext,[setq(i,1)],meritft,[setq(i,1)],downtime,[setq(i,1)],humanity,[setq(i,1)],[setq(i,0)][pemit(%0,+wizset: Not a valid misc item to set. Bug Koug if you want to set %3.)])])])][if([t(%qi)],[if([not([pmatch(%1)])],[setq(i,0)][pemit(%0,+wizset: No such player by that name.)])])][if([t(%qi)],[if([cand([not([strmatch(%2,/misc)])],[not([strmatch([after(%2,/)],[get_type(%3)]*)])])],[setq(i,0)][pemit(%0,+wizset: %3 is not a valid [after(%2,/)].)])])]%qi
+
+
+@@ player %0, type %1, item %2, new value %3.
+&FN`WIZSET %ww=[if([u(%ww/FN`IF`WIZSET,%#,%0,%1,%2,%3)],[u(%ww/FN`WIZSET.RUN,%#,%0,%1,%2,%3)][u(%ww/FN`WIZSET.INSERT_AUDIT,*%0,*%#,%1|%2|%3)]
+
+@@ Input enactor %0, player %1, type %2, item %3, new value %4.
+@@ [pemit(%0,Sanity check passed. Debug variables passed into runner: %0 0 %1 1 %2 2 %3 3 %4 4)]
+&FN`WIZSET.RUN %ww=[setq(1,*%1)][switch(%2,/misc,[switch(%3,beats,[attrib_set2(%q1/PC_DATA`EXP,%4)],willpower,[attrib_set2(%q1/PC_DATA`STATUS`WILLPOWER`PURCHASED,%4)],vitae,[set_vitae_new(%q1,%4)],surname,[attrib_set2(%q1/PC_DATA`SURNAME,%4)],specialties,[attrib_set2(%q1/PC_DATA`SKILL.SPECIALTIES,[trim([strcat([get(%q1/PC_DATA`SKILL.SPECIALTIES)],|%4)],|)])],spectext,[attrib_set2(%q1/PC_DATA`SKILL.SPECIALTIES.TEXT,[trim([strcat([get(%q1/PC_DATA`SKILL.SPECIALTIES.TEXT)],|%4)],|)])],meritft,[attrib_set2(%q1/PC_DATA`MERITS.FT,[trim([strcat([get(%q1/PC_DATA`MERITS.FT)],|%4)],|)])],downtime,[attrib_set2(%q1/PC_DATA`DOWNTIME,%4)],humanity,[attrib_set2(%q1/PC_DATA`STATUS`HUMANITY,%4)])],/merit,[if([has_merit(%q1,%3)],[setq(NEW,[replace([get(%q1/PC_DATA`MERITS)],[match([get(%q1/PC_DATA`MERITS)],%3*,|)],[capstr(%3)]:%4,|)])][attrib_set2(%q1/PC_DATA`MERITS,%q<NEW>)],[attrib_set2(%q1/PC_DATA`MERITS,[strcat([get(%q1/PC_DATA`MERITS)],|[capstr(%3)]:%4)])][attrib_set2(%q1/PC_DATA`MERITS,[trim([get(%q1/PC_DATA`MERITS)],|)])])],/skill,[if([match([get(%wl/CG_LIST`SKILLS.MENTAL)],%3,|)],[setq(MPS,MENTAL)])][if([match([get(%wl/CG_LIST`SKILLS.PHYSICAL)],%3,|)],[setq(MPS,PHYSICAL)])][if([match([get(%wl/CG_LIST`SKILLS.SOCIAL)],%3,|)],[setq(MPS,SOCIAL)])][if([has_skill(%q1,%3)],[setq(NEW,[replace([get(%q1/PC_DATA`SKILL.%q<MPS>)],[match([get(%q1/PC_DATA`SKILL.%q<MPS>)],%3*,|)],[capstr(%3)]:%4,|)])][attrib_set2(%q1/PC_DATA`SKILL.%q<MPS>,%q<NEW>)],[attrib_set2(%q1/PC_DATA`SKILL.%q<MPS>,[strcat([get(%q1/PC_DATA`SKILL.%q<MPS>)],|[capstr(%3)]:%4)])][attrib_set2(%q1/PC_DATA`SKILL.%q<MPS>,[trim([get(%q1/PC_DATA`SKILL.%q<MPS>)],|)])])],/discipline,[if([has_discipline(%q1,%3)],[setq(NEW,[replace([get(%q1/PC_DATA`DISCIPLINES)],[match([get(%q1/PC_DATA`DISCIPLINES)],%3*,|)],[capstr(%3)]:%4,|)])][attrib_set2(%q1/PC_DATA`DISCIPLINES,%q<NEW>)],[attrib_set2(%q1/PC_DATA`DISCIPLINES,[strcat([get(%q1/PC_DATA`DISCIPLINES)],|[capstr(%3)]:%4)])][attrib_set2(%q1/PC_DATA`DISCIPLINES,[trim([get(%q1/PC_DATA`DISCIPLINES)],|)])])],/attribute,[attrib_set2(%q1/PC_DATA`ATTRIBS`[map_attrib(%3)],%4)])][pemit(%0,+wizset: [apostrophe_name(%q1)] [switch(%2,/beats,beats,%3 [after(%2,/)])] set to %4.)][cemit(debug,+wizset: [name(%0)] sets [apostrophe_name(%q1)] %3 [switch(%2,/misc,misc item,[after(%2,/)])] to %4.,noisy)][setq(WIZSET_SUCC,1)]
+
+&FN`BEATSHEET_PROCESS`CHECK %ww=[setq(i,1)][SETQ(PC, [secure( [pmatch(%0)] )] )][if(not(%Q<PC>),[setq(i,0)][pemit(%#,+beatsheet: No such player by that name;)])][if([u(%wb/FN`BEAT.PULL_WEEKLY_AUDIT_RECORD,%Q<PC>,%1)],[setq(i,0)][pemit(%#,+beatsheet: Beats already processed for that week at %Q<DATE_GRANTED> - %Q<BEATS_GRANTED> beats awarded;)])]%qi
+
+&FN`BEAT.SHEET.PROCESS.RUN %ww=[u(%wb/FN`BEAT.SHEET.SUMMARY,%0,%1,[if(%2,%2,0)])][strmatch([get(%0/PC_DATA`EXP)],*/*,OLD_BEATS OLD_MAX_BEATS)][setq(NEW_BEATS,[add(%q<OLD_BEATS>,%Q<WK_EST>)])][setq(NEW_MAX_BEATS,[add(%q<OLD_MAX_BEATS>,%Q<WK_EST>)])][pemit(%1,Awarding %Q<WK_EST> beats to [name(%0)]\,Current Beats: %Q<OLD_BEATS>/%Q<OLD_MAX_BEATS>\, New Beats: %Q<NEW_BEATS>/%Q<NEW_MAX_BEATS> Summary: %q<WK_SUMMARY>)][u(%wb/FN`BEAT.ADD_WEEKLY_AUDIT,%0,%q<WK_EST>,%q<WK_SUMMARY>,[if(%2,%2,0)])][attrib_set2(%0/PC_DATA`EXP,%Q<NEW_BEATS>/%Q<NEW_MAX_BEATS>)][u(%ww/FN`WIZSET.INSERT_AUDIT,*%0,*%1,misc|beats|%Q<NEW_BEATS>/%Q<NEW_MAX_BEATS>)][pemit(%0,You have been awarded %Q<WK_EST> beats for your weekly beat sheet by [name(%1)])];@force/inplace %ww=@mail %0=Weekly Beat Sheet/You have been awarded %Q<WK_EST> beats for your weekly beat sheet by [name(%1)];
+
+
+@@ Insert Audit record
+&FN`WIZSET.INSERT_AUDIT %ww=[setq(i,[sql([ u(%ww/FN`WIZSET.INSERT_AUDIT_SQL, [trim(num(%0),#)],[trim(num(%1),#)], "%2") ])])][if(%qi,0,1)]
+
+@@ PC Audit Report
+&FN`PCAUDIT.RUN %ww=[pemit(%#,[header(Wizset usage for [name(%0)])])][[pemit(%#,[lalign(10 17 51,Staff|Date|Description,|)])][u(%ww/FN`PCAUDIT.SELECT,%0,%1)]
+&FN`PCAUDIT.SELECT %ww=[mapsql(FN`PCAUDIT.ROWFORMAT,[u([IF(%1,%ww/FN`PCAUDIT.SELECT_SQL,%ww/FN`PCAUDIT.SELECT_MONTH_SQL)],[trim(num(%0),#)])],%r)]
+
+&FN`PCAUDIT.ROWFORMAT %ww=[pemit(%#,[align(10 17 51,[left([name(#%1)],8)],[left(%3,16)],%2)])]
+
+@@ SQL
+&FN`WIZSET.INSERT_AUDIT_SQL %ww=INSERT wizset (player_dbref,staff_dbref,event,dt_time) values (%0,%1,%2,now())
+&FN`PCAUDIT.SELECT_SQL %ww=SELECT staff_dbref,event,dt_time FROM wizset WHERE player_dbref=%0
+&FN`PCAUDIT.SELECT_MONTH_SQL %ww=SELECT staff_dbref,event,dt_time FROM wizset WHERE player_dbref=%0 AND dt_time>DATE_SUB(now(), INTERVAL 4 WEEK)
+
+@@ Recreate the wizset audit table
+@sql DROP TABLE wizset
+@sql CREATE TABLE `wizset` (`id` INT(11) NOT NULL AUTO_INCREMENT,`player_dbref` INT(11) NULL DEFAULT NULL,`staff_dbref` INT(11) NULL DEFAULT NULL,`event` VARCHAR(255) NULL DEFAULT NULL,`dt_time` DATETIME NULL DEFAULT NULL,INDEX `PK_ID` (`id`))
+
+@@ Wizard Commands Relating to the new Automation Commands
+
+@@ Retainers - Commands
+@@ Add a Retainer
+@@ Passed: %0 - Name of Player, %1 - Name of Retainer, %2 - Rank, %3-%5 Skills or None, %6-%8 Discipline:Level or Null
+&CMD`ADDRETAINER %ww=$+addret */*=*/*/*/*/*/*/*:@assert [cand(or(t(after(%6,:)),strmatch(%6,Null)),or(t(after(%7,:)),strmatch(%7,Null)),or(t(after(%8,:)),strmatch(%8,Null)))]={@pemit %#=[ansi(hw,RETAINERS:)]%bDisciplines must either be Null or in the format Discipline:Number.};@assert [pmatch(%0)]={@pemit %#=Couldn't match a player};[setq(A,create(%1))];@assert %qA={@pemit %#=[ansi(hw,ERROR:)]%bHmmm, something happened creating the retainer. Error: %qA};[sql(INSERT INTO retainers (name\,player_dbref\,rank\,skill_1\,skill_2\,skill_3\,discipline_1\,discipline_2\,discipline_3) VALUES ('[sqlescape(%1)]'\,[trim(pmatch(%0),#)]\,%2\,'[sqlescape(%3)]'\,'[sqlescape(%4)]'\,'[sqlescape(%5)]'\,[if(strmatch(%6,Null),Null,'[sqlescape(%6)]')]\,[if(strmatch(%7,Null),Null,'[sqlescape(%7)]')]\,[if(strmatch(%8,Null),Null,'[sqlescape(%8)]')]))][tel(%qA,#2936)];@pemit %#=[ansi(hw,RETAINERS:)]%bAdded a retainer to %0.
+
+@@ Edit a Retainer
+&CMD`EDITRETAINER %ww=$+editret */*=*:@assert [match(name rank skill_1 skill_2 skill_3 discipline_1 discipline_2 discipline_3,%1)]={@pemit %#=[ansi(hr,ERROR:)]%b%1 isn't an acceptable field. It needs to be one of Name, Rank, Skill_1 through Skill_3 or Discipline_1 through Discipline_3.};@assert [sql(select * from retainers where id=[sqlescape(%0)])]={@pemit %#=[ansi(hr,ERROR:)]%bCouldn't find ID %0 in the retainers table.};@sql UPDATE retainers SET %1='[sqlescape(%2)]' WHERE id=[sqlescape(%0)];@pemit %#=[ansi(hw,RETAINERS:)]%bUpdated Retainer %0 - [sql(select name from retainers where id=[sqlescape(%0)])]. Set %1 to %2.
+
+@@ Remove a Retainer
+&CMD`REMOVERETAINER %ww=$+remret *:@assert [sql(select * from retainers where id=[sqlescape(%0)])]={@pemit %#=[ansi(hr,ERROR:)]%bCan't find %0 in the retainers table.};[setq(A,locate(#2936,setr(b,sql(select name from retainers where id=[sqlescape(%0)])),T))];@nuke %qA;@nuke %qA;@sql DELETE FROM retainers WHERE id=[sqlescape(%0)];@pemit %#=[ansi(hw,RETAINERS:)]%bDeleted %0 - %qB from the retainers table. Don't forget to remove it from their sheet.
+
+@@ Retainer Action
+&CMD`RETACTTYPES %ww=$+actiontypes:@pemit %#=[center([ansi(hw,Retainer Action Type Chart)],78)]%R%RID - Name - Description%R1 - Cover Movement - Covering Movements of Target%R2 - Cover Feeding - Covering Feeding at Bloodpools by Target%R3 - Patrol Territory - Patrolling a Territory%R4 - Defend Person - Defending another PC%R5 - Defend Asset - Defending a territory location, ally or retainer%R6 - Cover Other - Cover some other action such as investigations into a person%R7 - See Desc - If it doesn't fit anywhere else use this
+
+@@ Add Action - %0 - Retainer ID, %1 - type, %2 - Target, %3 - Site ID or 0 if no site, %4 - sux, %5 - description
+&CMD`ADDRETACTION %ww=$+retaction */*/*/*/*=*:@assert [sql(Select * from retainers where id=[sqlescape(%0)])]={@pemit %#=[ansi(hw,RETAINERS:)]%bCouldn't find that ID in the retainers table.};@assert [cand(lte(%1,7),gte(%1,1))]={@pemit %#=[ansi(hr,ERROR:)]%bType must be between 1 and 7.};[switch(%1,1,[setq(A,[pmatch(%2)])],2,[setq(A,[pmatch(%2)])],3,[setq(A,if(setr(z,sql(select dbref from territory where name='[sqlescape(%2)]')),%qZ,#NT))],4,[setq(A,[pmatch(%2)])],5,[if(locate(#2936,%2,T),[setq(A,locate(#2936,%2,T))],[setq(A,0)])],[setq(A,0)])];@break [strmatch(%qA,#NT)]={@pemit %#=[ansi(hr,ERROR:)]%bYou specified a patrol action but %2 wasn't a valid territory name.};[sql(u(#1246/FN`RETAINERS.SQL_INSERT_ACTION,%0,%1,trim(%qA,#),%5,[timefmt($Y-$m-$d $H:$M:$S,[setr(X,secs())])],[timefmt($Y-$m-$d $H:$M:$S,[add(%qX,mul(86400,7))])],%4))][if(%3,[u(#1246/FN`TERRITORIES.ADD_ACTION,sql(select territory_dbref from territory_site where id=[sqlescape(%3)]),5,trim(locate(#2936,sql(Select name from retainers where id=[sqlescape(%0)]),T),#),0,[timefmt($Y-$m-$d $H:$M:$S,%qX)])])][if(eq(%1,3),[u(#1246/FN`TERRITORIES.ADD_ACTION,%qZ,1,trim(locate(#2936,sql(Select name from retainers where id=[sqlescape(%0)]),T),#),%4,[timefmt($Y-$m-$d $H:$M:$S,%qX)])])];@pemit %#=[ansi(hw,RETAINERS:)]%bAdded an action of type %1 to Retainer %0 - [sql(select name from retainers where id=[sqlescape(%0)])]. It will last 7 days.
+
+@@ Check Retainer
+&CMD`VIEWRET %ww=$+retview *:@assert [setr(a,[sql(Select * from retainers where id=[sqlescape(%0)],|,~)])]={@pemit %#=[ansi(hw,RETAINERS:)]%bCouldn't find that ID in the retainers table.};@pemit %#=[center([ansi(hw,Retainer ID %0 [extract(%qA,2,1,~)])],78)]%R%R[ljust(Player: [name([chr(35)][extract(%qA,3,1,~)])],39)][rjust(Rank: [extract(%qA,4,1,~)],39)]%RSkills: [if(setr(z,[itemize([if(setr(t,extract(%qA,5,1,~)),%qT<Skill 1>)][if(setr(t,extract(%qA,6,1,~)),|%qT<Skill 2>)][if(setr(t,extract(%qA,7,1,~)),|%qT<Skill 3>)],|)]),%qZ,None Registered)]%RDisciplines: [if(setr(z,[itemize([if(setr(t,extract(%qA,8,1,~)),%qT<Discipline 1>)][if(setr(t,extract(%qA,9,1,~)),|%qT<Discipline 2>)][if(setr(t,extract(%qA,10,1,~)),|%qT<Discipline 3>)],|)]),%qZ,None Registered)]
+
+@@ Retainer Actions Audit
+
+@@ Retainers - Functions
+
+@@ Retainers - SQL
+
+@@ Player Actions
+@@ Insert Player Action
+@@ Delete Player Action
+@@ Edit Player Action
+
+@@ Player Actions Audit Commands
+@@ Pactview - +pactview <name> - view all of players actions
+&CMD`PACTVIEW %ww=
+
+@@ pactcup - +coverups <name> - see all coverups for name (whether feeding, movement, or otherwise)
+&CMD`PACTCUP %ww=
+
+@@ pactdefend - +defenders <name> - see all players/retainers defending name
+&CMD`PACTDEFEND %ww=
+
+@@ Self Service XP Purchases
+&FN`SSXP`TIER #7=[switch(%0,>900,8,>550,7,>250,6,5)]
+
+&FN`SSXP`INCLAN #7=[switch(%0,Daeva,[match(Celerity Majesty Vigor,%1)],Mekhet,[match(Auspex Celerity Obfuscate,%1)],Gangrel,[match(Resilience Animalism Protean,%1)],Nosferatu,[match(Nightmare Obfuscate Vigor,%1)],Ventrue,[match(Resilience Dominate Animalism,%1)])]
+
+@@ Passed %0 - what we're increasing, %1 - spent beats, %2 - player dbref, %3 - levels it's going up
+&FN`SSXP`COST #7=[setq(A,[u(FN`SSXP`TIER,%1)])][setq(B,[switch([get_type(%0)],ATTRIB,4,DISCIPLINE,[if(u(FN`SSXP`INCLAN,xget(%2,PC_DATA`CLAN),%0),3,4)],SKILL,2,MERIT,1)])][mul(mul(%qA,%qB),%3)]
+
+@@ Passed: %0 - What they're buying, %1 - level buying to, %2 - reason
+&CMD`SSXP #7=$+xp/buy */*=*:@assert [not(strmatch(get_type(%0),ERROR))]={@pemit %#=[ansi(hr,ERROR:)]%bThe system doesn't currently support that type of item as an automated purchase or you didn't spell the item correctly.};@break [cand(strmatch(get_type(%0),DISCIPLINE),not(u(FN`SSXP`INCLAN,xget(%#,PC_DATA`CLAN),%0)))]={@pemit %#=[ansi(Hr,ERROR:)]%bYou can't learn out of clan disciplines using the automated command. Opening a +request.;@trigger #18/TRIG_CREATE=%#,#2011,2,[name(%#)]'s Beat Spends,[name(%#)] wants to increase %0\, an out of clan discipline\, to %1. Their given reason was:%R%R%2};@break [cand(strmatch(get_type(%0),SKILL),gte(%1,4))]={@pemit %#=[ansi(hr,ERROR:)]%bCan't buy skills at 4 or 5 with the automated system. Opening a request.;@trigger #18/TRIG_CREATE=%#,#2011,2,[name(%#)]'s Beat Spends,[name(%#)] wants to increase %0 to %1. Their given reason was:%R%R%2};@break [cor([match(xget(#7,SSXP`DENIED),%0,|)],[strmatch(%0,Status*)])]={@pemit %#=[ansi(hr,ERROR:)]%bCan't buy those merits with this system. You have to discuss those with staff. Opening a job.;@trigger #18/TRIG_CREATE=%#,#2011,2,[name(%#)]'s Beat Spends,[name(%#)] wants to increase %0 to %1. Their given reason was:%R%R%2};[setq(c,[switch(get_type(%0),ATTRIB,[switch(%0,Strength,[sub([get_attrib(%#,%0)],[get_discipline(%#,Vigor)])],Stamina,[sub(get_attrib(%#,%0),get_discipline(%#,Resilience))],[get_attrib(%#,%0)])],DISCIPLINE,[get_discipline(%#,%0)],SKILL,[get_skill(%#,%0)],MERIT,[get_merit(%#,%0)])])][setq(d,sub(%1,%qC))][setq(e,u(FN`SSXP`COST,%0,[sub(after(xget(%#,PC_DATA`EXP),/),before(xget(%#,PC_DATA`EXP),/))],%#,%qD))];@assert [lte(%qE,before(xget(%#,PC_DATA`EXP),/))]={@pemit %#=[ansi(hr,ERROR:)]%bYou don't have the beats for that!};[u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/[switch([get_type(%0)],Attrib,Attribute,[get_type(%0)])],%0,[switch(%0,Strength,add(get_attrib(%#,Strength),%qD),Stamina,add(get_attrib(%#,Stamina),%qD),%1)])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Raise %0 to %1 for %2)][u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/MISC,Beats,[setr(beats,[sub(before(xget(%#,PC_DATA`EXP),/),%qE)]/[after(xget(%#,PC_DATA`EXP),/)])])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Cost %qE Beats (Final %q<beats>) for %0 to %1)][switch(%0,Vigor,[u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/ATTRIBUTE,Strength,[add(xget(%#,PC_DATA`ATTRIBS`STR),%qD)])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Increase Strength by %qD for vigor)],Resilience,[u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/ATTRIBUTE,Stamina,[add(xget(%#,PC_DATA`ATTRIBS`STA),%qD)])][u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/MISC,Downtime,[add(xget(%#,PC_DATA`DOWNTIME),[mul(%qD,switch(xget(%#,PC_DATA`TEMPLATE),Ghoul,5,4))])])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Increase Stamina by %qD for Resilience)][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Increase DT by [mul(%qD,switch(xget(%#,PC_DATA`TEMPLATE),Ghoul,5,4))] for Resilience)],Intelligence,[u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/MISC,Downtime,[add(xget(%#,PC_DATA`DOWNTIME),[if(strmatch(xget(%#,PC_DATA`TEMPLATE),Ghoul),5,4)])])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Increase DT for Stat Purchase)],Stamina,[u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/MISC,Downtime,[add(xget(%#,PC_DATA`DOWNTIME),[if(strmatch(xget(%#,PC_DATA`TEMPLATE),Ghoul),5,4)])])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Increase DT for Stat Purchase)],Resolve,[u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/MISC,Downtime,[add(xget(%#,PC_DATA`DOWNTIME),[if(strmatch(xget(%#,PC_DATA`TEMPLATE),Ghoul),5,4)])])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Increase DT for Stat Purchase)],Good Time Management,[u(#1773/FN`WIZSET.RUN,#7,[name(%#)],/MISC,Downtime,[add(xget(%#,PC_DATA`DOWNTIME),4)])][u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#7,Increase DT for GTM)])];@pemit %#=[ansi(hw,Self Serve XP:)]%bYou have raised %0 to %1 at a cost of %qE beats.
+
+&SSXP`DENIED #7=Herd|Resources|Fame|Alternate Identity|Blood Potency
+
+&CMD`XP #7=$+xp:@pemit %#=[header(XP Overview)]%R[center(Unspent: [before(xget(%#,PC_DATA`EXP),/)],78)]%R[center(Spent: [sub([after(xget(%#,PC_DATA`EXP),/)],[before(xget(%#,PC_DATA`EXP),/)])],78)]%R[center(Total: [after(xget(%#,PC_DATA`EXP),/)],78)]%R[center(Tier: Each Experience is [u(FN`SSXP`TIER,sub(after(xget(%#,PC_DATA`EXP),/),before(xget(%#,PC_DATA`EXP),/)))] Beats,78)]
+
+&CMD`WIZBEATS %ww=$+wizspend */*=*:@assert [pmatch(%0)]={@pemit %#=[ansi(hr,ERROR:)]%bCan't match a player with %0.};[switch(mid(%1,0,1),+,[setq(a,[add(extract(xget(pmatch(%0),PC_DATA`EXP),1,1,/),mid(%1,1,sub(strlen(%1),1)))])][setq(B,[add(extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/),mid(%1,1,sub(strlen(%1),1)))])],-,[setq(A,[sub(extract(xget(pmatch(%0),PC_DATA`EXP),1,1,/),mid(%1,1,sub(strlen(%1),1)))])])];@assert [gte(%qA,0)]={@pemit %#=[ansi(hr,ERROR:)]%bCan't reduce current beats below 0.};[u(#1773/FN`WIZSET.RUN,%#,[name(pmatch(%0))],/MISC,Beats,%qA/[if(%qB,%qB,[extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/)])])][u(#1773/FN`WIZSET.INSERT_AUDIT,[pmatch(%0)],%#,Set beats to %qA/[if(%qB,%qB,[extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/)])] for %2)];@pemit %#=[ansi(hw,BEATS:)]%bSet beats and added an entry to audit.
+
+&CMD`WIZBEATS`REFUND %ww=$+wizspend/r */*=*:@assert [pmatch(%0)]={@pemit %#=[ansi(hr,ERROR:)]%bCan't match a player with %0.};[setq(a,[add(extract(xget(pmatch(%0),PC_DATA`EXP),1,1,/),%1)])];[u(#1773/FN`WIZSET.RUN,%#,[name(pmatch(%0))],/MISC,Beats,%qA/[extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/)])][u(#1773/FN`WIZSET.INSERT_AUDIT,[pmatch(%0)],%#,Set beats to %qA/[extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/)] for %2)];@pemit %#=[ansi(hw,BEATS:)]%bSet beats and added an entry to audit.
+
+@@ Territories Commands
+
+@@ Patrol Check
+&CMD`PATCHECK %ww=$+patrollers *:@assert [setr(b,sql(select dbref from territory where name='[sqlescape(%0)]'))]={@pemit %#=[ansi(hr,ERROR:)]%bCouldn't find %0 in the territory database.};[setq(a,sql(select by_dbref from territory_action where DATE_ADD(dt_time\,INTERVAL 7 DAY) > now() and type=1 and territory_dbref=%qB,:))];@pemit %#=[center([ansi(nc,People Patrolling %0)],78)]%R%R[itemize(iter(%qA,[name(#%i0)][if(setr(C,sql(select player_dbref from retainers where name='[sqlescape([name(#%i0)])]')),<[name(#%qC)]>)],:,-),-)]
+
+@@ Patrol DT Daily
+&TRIG`PATROLDT %ww=@cemit/noisy debug=Beginning Patrol DT Upkeep;@dolist [lattr(#4091/**)]=[u(FN`CHECK_PATROL_DT,##)]
+&FN`CHECK_PATROL_DT %ww=[setq(A,xget(#4091,%0))][u(#2930/FN`INSERT,%0,[extract(%qA,1,1,~)],Patrol Upkeep)][if(lte(sub(extract(%qA,2,1,~),extract(%qA,1,1,~)),0),[attrib_set(#4091/%0)],[attrib_set(#4091/%0,[extract(%qA,1,1,~)]~[sub(extract(%qA,2,1,~),extract(%qA,1,1,~))])])]
+
+&FUNCTIONS Wizard Commands=
+&FUNCTIONS`FUN.ATTRIB_SET2 %ww=[if([elock(%ww/basic,%!)],[attrib_set(%0,%1)])]
+
+&FUNCTIONS`FUN.SET_FLAG %ww=[if([elock(%ww/basic,%!)],[set(%0,%1)])]
+
+&TR_STARTUP %ww=@dolist lattr(me/functions`fun.*)=@function [after(%i0,.)]=%!, %i0
+
+&WC %ww=#1706
+&wl %ww=#1705
+&WW %ww=#1773

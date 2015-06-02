@@ -1,0 +1,16 @@
+@@ Scotty - teleport commands
+
+@create Scotty
+@link Scotty = #2
+@set Scotty = SAFE
+@set Scotty = !NO_COMMAND
+@set Scotty=WIZARD
+@power Scotty = Tport_Anything
+@power Scotty = Tport_Anywhere
+
+&AUDITION-LOCK Scotty=[hasflag(%#, suspect)]
+&CMD-MDECLINE Scotty=$+mdecline *:@switch [u(%#/meetme)]=[num(*%0)],@pemit *%0=%N declines your invitation to meet.,@pemit %#={You have no meetme attribute, perhaps the invitation ran out of time or you misspelled the name.}
+&CMD-MEET-OFFER Scotty=$+meetme *:&meetme *%0=%#;@pemit %#=You offer to meet [name(*%0)].;@pemit *%0=[u(msg-meetme,%N)];@wait 120=&meetme *%0=&CMD-MJOIN Scotty=$+mjoin *:@switch [u(%#/meetme)]=[num(*%0)],@tel %#=[loc(*%0)],@pemit %#={You have no meetme attribute, perhaps the invitation ran out of time or you misspelled the name.}
+&CMD-MSUMMON Scotty=$+msummon *:@switch [u(%#/meetme)]=[num(*%0)],@tel *%0=%l,@pemit %#={You have no meetme attribute, perhaps the invitation ran out of time or you misspelled the name.}
+&MSG-MEETME Scotty=%r%0 has offered to `meet' you at location: [name(%L)].%r[ljust(To be beamed up to where they are: ,35)]Type +Mjoin %0%r[ljust(To beam them to you:,35)]Type +Msummon %0%r[ljust(To decline:,35)]Type +Mdecline %0%rThis offer will expire in 120 seconds.%rThis is an OOC service of 'Scotty' and your friendly Kougyoku.
+&CMD-OOC Scotty=$+goooc:[pemit(%#,Sending you Out-Of-Character!)][tel(%#,#0)]

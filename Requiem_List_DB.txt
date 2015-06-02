@@ -1,0 +1,308 @@
+@@ List Database (#1705)
+@create List Database
+@link List Database = #39
+@set List Database = SAFE
+@set List Database = NO_COMMAND
+
+&CG_LIST List Database=CharGen related lists
+
+&CG_LIST`ATTRIBUTE.FREEDOT %wl=
+&CG_LIST`ATTRIBUTE.FREEDOT.DAEVA %wl=Dexterity|Manipulation
+&CG_LIST`ATTRIBUTE.FREEDOT.GANGREL %wl=Composure|Stamina
+&CG_LIST`ATTRIBUTE.FREEDOT.MEKHET %wl=Intelligence|Wits
+&CG_LIST`ATTRIBUTE.FREEDOT.NOSFERATU %wl=Composure|Strength
+&CG_LIST`ATTRIBUTE.FREEDOT.VENTRUE %wl=Presence|Resolve
+
+&CG_LIST`ATTRIBUTE.FOR_TABLE List Database=Intelligence|Strength|Presence|Wits|Dexterity|Manipulation|Resolve|Stamina|Composure
+
+&CG_LIST`ATTRIBUTE.MENTAL List Database=Intelligence|Resolve|Wits
+
+&CG_LIST`ATTRIBUTE.PHYSICAL List Database=Dexterity|Stamina|Strength
+
+&CG_LIST`ATTRIBUTE.SOCIAL List Database=Composure|Manipulation|Presence
+
+&CG_LIST`BLOODLINE List Database=Bloodlines for each clan
+
+&CG_LIST`BLOODLINE.DAEVA %wl=Amara Havana|Anvari|Asnam|California Xiao|Carnival|Children of Judas|Duchagne|En|Erzsebet|Eupraxus|Gulikan|Kallisti|Kinnaree|Malintzin|Mortifiers of the Flesh|Naditu|Nelapsi|Septimi|Spina|Tianpan Xiao|Toreador|Zelani
+
+&CG_LIST`BLOODLINE.GANGREL %wl=Annunaku|Barjot|Bohagande|Bruja|Carnon|Childer of the Morrigan|Dead Wolves|Empusae|Hounds of Actaeon|Gens Libres|Mabry|Mara|Moroi|Mystikoi|Nepheshim|Oberlochs|Shepherds|Taifa|Vedma
+
+&CG_LIST`BLOODLINE.GHOUL %wl=Alley Men|Angustri|Asmundarson|Bellsmeade|Bulls|Children of Nirriti|Crassus|Gravenor|Hostewick
+
+&CG_LIST`BLOODLINE.MEKHET %wl=Agonistes|Alucinor|Bak-Ra|Brothers of Ypres|Csalad|Iltani|Khaibit|Kuufukuji|Libitinarius|Lynx|Mnemosyne|Morbus|Norvegi|Osites|Players|Qedeshah|Sangiovanni|Tismanu
+
+&CG_LIST`BLOODLINE.NOSFERATU %wl=Adroanzi|Azerkatil|Baddacelli|Burakumin|Calacas|Caporetti|Cockscomb Society|Galloi|Gethsemani|Lygos|Mayarap|Moroi|Morotrophians|Noctuku|Order of Sir Martin|Rakshasa|Telamones|Usiri|Yagnatia
+
+&CG_LIST`BLOODLINE.VENTRUE %wl=Adrestoi|Apollinaire|Architects of the Monolith|Bron|Canda Bhanu|Corajoso|Deucalion|Dragolescu|Geheim|Gorgons|Icarians|Macellarius|Malkovians|Malocusians|Melissidae|Nahualli|Rotgrafen|Sotoha
+
+&CG_LIST`CLAN List Database=Daeva|Gangrel|Mekhet|Nosferatu|Ventrue
+
+&CG_LIST`COVENANT %wl=Carthian|Circle of the Crone|Invictus|Lancea Sanctum|Ordo Dracul|Unaligned
+
+&CG_LIST`CLAN_STATUS %wl=Status_Daeva|Status_Gangrel|Status_Mekhet|Status_Nosferatu|Status_Ventrue
+
+&CG_LIST`COVENANT_STATUS %wl=Status_Carthians|Status_Circle_of_the_Crone|Status_Invictus|Status_Lancea_Sanctum|Status_Ordo_Dracul
+
+&CG_LIST`TEMPLATE %wl=VAMPIRE|GHOUL|HUMAN
+
+&CG_LIST`DISCIPLINES.DOSTUFF %wl=Animalism|Ars Speculorum|Auspex|Blood Tenebrous|Breath-Drinking|Continence|Dementation|Detournement|Dominate|Hamartiaphage|Majesty||Nightmare|Obfuscate|Protean|Spoiling|Thanatology|Sakti Pata|Nepenthe|Ralab|Kingjan|The Show|Despond|Licencieux|Ortam|Perfidy|Scourge|Abjurism|Courtoisie|Xinyao|Serendipity|Tenure|Sunnikuse|Sublunario|Nahdad|Spiritus Sancti|Zagovny|Insomnium|Asphyx|Obtenebration|Shihai|Mortualia|Web|Meminisse|Cachexy|Bloodworking|Memento Mori|Embrocation|Cattiveria|Eupraxia|Nburu|Suikast|Mimetismo|Getsumei|Taurobolium|Stigmatica|Bhumispara|Institutionalize|Phagia|Hypnogogia|Carrefour|Crochan|Linagem|Impurity|Essentiaphagia|Blut Alchemie|Amphivena|Constance|Gustus|Domus|Tezcatl|Kamen|Coil of the Ascendant|Coil of the Wyrm|Coil of the Voivode
+
+&CG_LIST`DISCIPLINES.PHYSICAL %wl=Celerity|Resilience|Praestantia|Vigor
+
+&CG_LIST`DISCIPLINES.RITUALS %wl=Ahranite Sorcery|Cruac|Gilded Cage|Lithopedia|Merges Sorcery|Nomenclature|Theban Sorcery|Rapport
+
+&CG_LIST`DISCIPLINES.RITUALS.THEMES %wl=Creation|Destruction|Divination|Protection|Transmutation
+
+&CG_LIST`MASKDIRGE %wl=Authoritarian|Child|Competitor|Conformist|Conspirator|Courtesan|Cult Leader|Deviant|Follower|Guru|Idealist|Jester|Junkie|Martyr|Masochist|Monster|Nomad|Nurturer|Perfectionist|Penitent|Questioner|Rebel|Sadist|Scholar|Social Chameleon|Spy|Survivor|Teacher|Visionary|Haggler|Punisher
+
+&CG_LIST`MERITS %wl=Merits.
+@@ merit_name:cost:max_value|merit2:cost:max_value|...
+&CG_LIST`MERITS`COST %wl=Ambidextrous:3:1|Common_Sense:3:1|Danger_Sense:2:1|Direction_Sense:2:1|Eidetic_Memory:2:1|Holistic_Awareness:1:1|Patient:1:1|Sympathetic:2:1|True_Friend:3:5|Encyclopedic_Knowledge:2:5|Language:1:5|Multilingual:1:5|Area_of_Expertise:1:5|Aura_Reading:3:1|Barfly:2:1|Cheap_Shot:2:1|Choke_Hold:2:1|Clairvoyance:3:1|Cursed:2:1|Double_Jointed:2:1|Eye_for_the_Strange:2:1|Fighting_Finesse_Brawl:2:1|Fighting_Finesse_Weaponry:2:1|Fixer:2:1|Good_Time_Management:1:1|Hobbyist_Clique:2:5|Indomitable:2:1|Inspiring:3:1|Interdisciplinary_Specialty:1:5|Iron_Will:2:1|Medium:3:1|Mind_of_a_Madman:2:1|Omen_Sensitivity:3:1|Psychometry:3:1|Pusher:1:1|Quick_Draw_Weaponry:1:1|Quick_Draw_Firearms:1:1|Sleight_of_Hand:2:1|Small_Unit_Tactics:2:1|Taste:1:1|Thief_of_Fate:3:1|Tolerance_for_Biology:1:1|Unseen_Sense:2:1|Virtuous:2:1|Vice-Ridden:2:1|Allies_(Bureaucracy):1:5|Allies_(Church):1:5|Allies_(Finance):1:5|Allies_(Health):1:5|Allies_(High Society):1:5|Allies_(Industry):1:5|Allies_(Legal):1:5|Allies_(Media):1:5|Allies_(Occult):1:5|Allies_(Police):1:5|Allies_(Politics):1:5|Allies_(Street):1:5|Allies_(Transportation):1:5|Allies_(Underworld):1:5|Alternate_Identity:1:3|Alternate_Identity2:1:3|Alternate_Identity3:1:3|Contacts:1:5|Fame:1:3|Library_Academics:1:3|Library_Computers:1:3|Library_Crafts:1:3|Library_Investigation:1:3|Library_Medicine:1:3|Library_Occult:1:3|Library_Politics:1:3|Library_Science:1:3|Mentor:1:5|Mentor2:1:5|Mentor3:1:5|Mystery_Cult_Initiation:1:5|Golden_Dawn:1:5|Eye_of_Amara:1:5|Freemasons:1:5|Chosen_of_Mammon:1:5|Brothers_and_Sisters:1:5|Cult_of_the_Wheel:1:5|Black_Tide:1:5|Gnomes_of_Zurich:1:5|Mechanists:1:5|Cult_of_Revelations:1:5|Guardians_at_the_Door:1:5|GenuCorp:1:5|Rebuilders:1:5|Adrenal_Junkies:1:5|Demon_Handlers:1:5|Alchemists:1:5|Cult_of_the_Nile:1:5|Things_That_Should_Not_Be:1:5|Commonwealth:1:5|Covenant:1:5|Devil's_Eye:1:5|Mother's_Army:1:5|Prima_Invicta:1:5|Hundred_Faces:1:5|Brides_of_Dracula:1:5|Harbingers:1:5|Children_of_the_Thorns:1:5|Holy_Engineers:1:5|Nemites:1:5|Society_of_the_Accord:1:5|Sun-Walking_Knights:1:5|Moirai:1:5|Moulding_Room:1:5|Followers_of_Seth:1:5|Sons_of_Phobos:1:5|Cherubim:1:5|Fellowship_of_Artemis:1:5|Octopus:1:5|Thorned_Wreath:1:5|Die_Nachteulen:1:5|Narodnaia_Volia:1:5|Children_of_the_Naga:1:5|Impaled:1:5|Sworn_of_the_Locust:1:5|Sworn_of_the_Ladder:1:5|Mysteries_of_Mithras:1:5|Sons_of_the_Serpent:1:5|Blood_Gods:1:5|Sin-Eaters:1:5|Mnemonic_Institute:1:5|VII:1:5|Resources:1:5|Retainer:1:5|Retainer2:1:5|Retainer3:1:5|Retainer4:1:5|Retainer5:1:5|Safe_Place_Outskirts:1:5|Safe_Place_Arkham_Heights:1:5|Safe_Place_Airport:1:5|Safe_Place_Derrick:1:5|Safe_Place_Borden_Rim:1:5|Safe_Place_Arkham_Green:1:5|Safe_Place_Lassiter:1:5|Safe_Place_Grafton:1:5|Safe_Place_Kirby:1:5|Safe_Place_Chapman_Fields:1:5|Safe_Place_Asbury_Marsh:1:5|Safe_Place_Monaughey:1:5|Safe_Place_East-town:1:5|Safe_Place_Dalton:1:5|Safe_Place_Bister_Shore:1:5|Safe_Place_Casford:1:5|Safe_Place_Fairbridge:1:5|Safe_Place_Wingrave:1:5|Safe_Place_University_Ruins:1:5|Safe_Place_Tunnels:1:5|Safe_Place_Whitechapel:1:5|Safe_Place_Birchen:1:5|Safe_Place_Loftus:1:5|Safe_Place_Covenside:1:5|Safe_Place_Crowninshield:1:5|Safe_Place_Merecroft:1:5|Safe_Place_Derby:1:5|Safe_Place_Ramsay:1:5|Safe_Place_Verwood:1:5|Safe_Place_Oldtown:1:5|Safe_Place_Bridgetown:1:5|Safe_Place_Tarbock:1:5|Safe_Place_Newton:1:5|Safe_Place_Merceyside:1:5|Safe_Place_Isley:1:5|Safe_Place_Kingsport_Head:1:5|Safe_Place_Osyth:1:5|Safe_Place_Chirk_Point:1:5|Safe_Place_Hartford:1:5|Safe_Place_Stratton:1:5|Safe_Place_The_Hollow:1:5|Safe_Place_Sagecroft:1:5|Safe_Place_Central_Hill:1:5|Safe_Place_Tiverton:1:5|Safe_Place_Kerne:1:5|Safe_Place_Prospect:1:5|Staff:1:5|Status:1:5|Status_Daeva:1:5|Status_Gangrel:1:5|Status_Mekhet:1:5|Status_Nosferatu:1:5|Status_Ventrue:1:5|Status_Carthians:1:5|Status_Circle_of_the_Crone:1:5|Status_Invictus:1:5|Status_Lancea_Sanctum:1:5|Status_Ordo_Dracul:1:5|Status_Bureaucracy:1:5|Status_Church:1:5|Status_Education:1:5|Status:Entertainment:1:5|Status_Finance:1:5|Status_Health:1:5|Status_High_Society:1:5|Status_Industry:1:5|Status_Legal:1:5
+
+@set %wl=CG_LIST`MERITS`COST:[strcat([get(%wl/CG_LIST`MERITS`COST)],Status_Media:1:5|Status_Military:1:5|Status_Occult:1:5|Status_Police:1:5|Status_Politics:1:5|Status_Street:1:5|Status_Transportation:1:5|Status_Underworld:1:5|Striking_Looks:1:2|Armed_Defense:1:5|Anonymity:1:5|Biokinesis:1:5|Close_Quarters_Combat:1:5|Demolisher:1:3|Fast-Talking:1:5|Firefight:1:5|Grappling:1:5|Hardy:1:3|Heavy_Weapons:1:5|Improvised_Weaponry:1:3|Iron_Stamina:1:3|Light_Weapons:1:5|Marksmanship:1:5|Martial_Arts:1:5|Parkour:1:5|Police_Tactics:1:3|Shiv:1:2|Street_Fighting:1:5|Telekinesis:1:5|Unarmed_Defense:1:5|Crack_Driver:1:3|Iron_Skin:1:4|Meditative_Mind:1:4|Psychokinesis:1:5|Telepathy:1:5|Trained_Observer:1:3|Defensive_Combat_Brawl:1:1|Defensive_Combat_Weaponry:1:1|Giant:3:1|Fleet_of_Foot:1:3|Fast_Reflexes:1:3|Professional_Training:1:5|Small-Framed:2:1|Acute_Senses:1:1|Altar:1:1|Anointed:2:1|Atrocious:1:1|Attache:1:1|Bloodhound:2:1|Cacophony_Savvy:1:3|Status_City:1:5|Carthian_Pull:1:1|Claws_of_the_Unholy:1:1|Close_Family:1:1|Cutthroat:1:1|Distinguished_Palate:1:1|Dream_Visions:1:1|Dynasty_Membership:1:3|Enticing:1:1|Feeding_Grounds:1:5|Friends_in_High_Places:1:1|Herd:1:5|Honey_Trap:1:1|Invested:1:1|Kiss_of_the_Succubus:1:1|Lineage:1:1|Lorekeeper:1:1|Mother-Daughter_Bond:1:1|Night_Doctor_Surgery:3:1|Speaker_for_the_Silent:3:1|Pack_Alpha:1:1|Unnatural_Affinity:1:5|Swarm_Form:2:1|Secret_Society_Junkie:1:1|Sworn:1:1|I_Know_a_Guy:1:1|Touchstone:1:5|Undead_Menses:2:1|Unsettling_Gaze:1:1|Where_the_Bodies_Are_Buried:2:1|Lex_Terrae:2:1|Mandate_from_the_Masses:5:1|Right_of_Return:2:1|Strength_of_Resolution:1:1|Plausible_Deniability:4:1|Notary:2:1|Oath_of_Action:4:1|Oath_of_Fealty:1:1|Oath_of_Penance:3:1|Oath_of_Serfdom:2:1|Kindred_Dueling:1:5|Riding_the_Wave:1:5|Etiquette:1:5|Blood_Potency:5:10|Serpentine_Seduction:2:1|Esoteric_Armory:1:5|Sin-Eater:2:1|Taste_of_Shadow:2:1|Taste_of_the_Serpent:2:1|Taste_of_the_Wild:2:1|Taste_of_Gold:2:1|Taste_of_Fear:2:1|Producer:1:1|Weakened_Bond:3:1|Clear-Sighted:2:1|Source_Sympathy:1:1|Protected:2:1|Empowered_to_Speak:1:1|Vitae_Hound:1:1|Beast_Whispers:2:1|Beloved:1:1|Watch_Dog:2:1|Livian_Heresy:1:5|Crimson_Cavalry:1:5|Bodhisatcracy:1:5|Carthian_Atheism:1:5|Sabotage_Artists:1:5|Anti-Obstructionist_Army:1:5|Oppositionists:1:5|PPI:1:5|People_of_the_Land:1:5|Second_Descent:1:5|Hag-Touched:1:5|Covey_of_the_Three_Roads:1:5|Disciples_of_Silence:1:5|Sipan:1:5|Amanot_Sukai:1:5|Daughters_of_the_Goddess:1:5|Semioticians:1:5|Haven:1:5|Haven2:1:5|Haven3:1:5|Hardliners:1:5|Unifiers:1:5|Neo-Reformists:1:5|Mendicants:1:5|Nepheshim:1:5|Proselytizers:1:5|Messengers_of_Longinus:1:5|Exorcists:1:5|Godslayers:1:5|Monastics:1:5|Family_Ties:1:3|Necropolis:1:5|Hypnotic_Gaze:3:1|Mind_Of_The_Unblinking_Serpent:2:1|Mind_Of_The_Inscrutable_Hydra:2:1|Knights_of_Columbus:1:5)]
+
+@@ cg_list`merits`depend.merit_name
+@@ = req1|req2|req3-req4|req5|...
+@@ where | delimiter is AND then req3-req4 means REQ3 OR REQ4.
+&CG_LIST`MERITS`DEPEND %wl=Merit Dependencies
+&CG_LIST`MERITS`DEPEND.ACUTE_SENSES List Database=Vampire
+&CG_LIST`MERITS`DEPEND.ALTAR List Database=Status Circle of the Crone:1
+&CG_LIST`MERITS`DEPEND.ANOINTED List Database=Status Lancea Sanctum:1
+&CG_LIST`MERITS`DEPEND.AREA_OF_EXPERTISE List Database=Resolve:2
+&CG_LIST`MERITS`DEPEND.ARMED_DEFENSE List Database=Dexterity:3|Weaponry:2|Defensive Combat Weaponry:1
+&CG_LIST`MERITS`DEPEND.ATTACHE List Database=Status Invictus:1
+&CG_LIST`MERITS`DEPEND.AURA_READING List Database=Human
+&CG_LIST`MERITS`DEPEND.BARFLY List Database=Socialize:2
+&CG_LIST`MERITS`DEPEND.BEAST_WHISPERS List Database=Human-Ghoul
+&CG_LIST`MERITS`DEPEND.BELOVED List Database=Human-Ghoul
+&CG_LIST`MERITS`DEPEND.BIOKINESIS List Database=Human
+&CG_LIST`MERITS`DEPEND.BLOODHOUND List Database=Vampire|Wits:3
+&CG_LIST`MERITS`DEPEND.BLOOD_POTENCY List Database=Vampire
+&CG_LIST`MERITS`DEPEND.CARTHIAN_PULL List Database=Status Carthians:1
+&CG_LIST`MERITS`DEPEND.CHEAP_SHOT List Database=Street Fighting:2|Subterfuge:2
+&CG_LIST`MERITS`DEPEND.CHOKE_HOLD List Database=Brawl:2
+&CG_LIST`MERITS`DEPEND.CLAIRVOYANCE List Database=Human
+&CG_LIST`MERITS`DEPEND.CLAWS_OF_THE_UNHOLY List Database=Vampire|Protean:4
+&CG_LIST`MERITS`DEPEND.CLEAR-SIGHTED List Database=Human
+&CG_LIST`MERITS`DEPEND.CLOSE_FAMILY List Database=Vampire
+&CG_LIST`MERITS`DEPEND.CLOSE_QUARTERS_COMBAT List Database=Wits:3|Athletics:2|Brawl:3
+&CG_LIST`MERITS`DEPEND.CRACK_DRIVER List Database=Drive:3
+&CG_LIST`MERITS`DEPEND.CRIMSON_CAVALRY List Database=Status Lancea Sanctum:1
+&CG_LIST`MERITS`DEPEND.CURSED List Database=Human
+&CG_LIST`MERITS`DEPEND.DEFENSIVE_COMBAT_BRAWL List Database=Brawl:1
+&CG_LIST`MERITS`DEPEND.DEFENSIVE_COMBAT_WEAPONRY List Database=Weaponry:1
+&CG_LIST`MERITS`DEPEND.DEMOLISHER List Database=Strength:3-Intelligence:3
+&CG_LIST`MERITS`DEPEND.DISTINGUISHED_PALATE List Database=Vampire
+&CG_LIST`MERITS`DEPEND.DOUBLE_JOINTED List Database=Dexterity:3
+&CG_LIST`MERITS`DEPEND.DREAM_VISIONS List Database=Mekhet
+&CG_LIST`MERITS`DEPEND.DYNASTY_MEMBERSHIP List Database=Vampire
+&CG_LIST`MERITS`DEPEND.EMPOWERED_TO_SPEAK List Database=Ghoul
+&CG_LIST`MERITS`DEPEND.ETIQUETTE List Database=Composure:3|Socialize:2
+&CG_LIST`MERITS`DEPEND.EYE_FOR_THE_STRANGE List Database=Resolve:2|Occult:1
+&CG_LIST`MERITS`DEPEND.FAST_REFLEXES List Database=Wits:3-Dexterity:3
+&CG_LIST`MERITS`DEPEND.FAST-TALKING List Database=Manipulation:3|Subterfuge:2
+&CG_LIST`MERITS`DEPEND.FEEDING_GROUNDS List Database=Vampire
+&CG_LIST`MERITS`DEPEND.FIGHTING_FINESSE_BRAWL List Database=Dexterity:3|Brawl:1
+&CG_LIST`MERITS`DEPEND.FIGHTING_FINESSE_WEAPONRY List Database=Dexterity:3|Weaponry:1
+&CG_LIST`MERITS`DEPEND.FIREFIGHT List Database=Composure:3|Dexterity:3|Athletics:2|Firearms:2
+&CG_LIST`MERITS`DEPEND.FIXER List Database=Contacts:2|Wits:3
+&CG_LIST`MERITS`DEPEND.FLEET_OF_FOOT List Database=Athletics:2
+&CG_LIST`MERITS`DEPEND.FRIENDS_IN_HIGH_PLACES List Database=Status Invictus:1
+&CG_LIST`MERITS`DEPEND.GOOD_TIME_MANAGEMENT List Database=Academics:2-Science:2
+&CG_LIST`MERITS`DEPEND.GRAPPLING List Database=Stamina:3|Strength:2|Athletics:2|Brawl:2
+&CG_LIST`MERITS`DEPEND.HARDY List Database=Stamina:3
+&CG_LIST`MERITS`DEPEND.HEAVY_WEAPONS List Database=Stamina:3|Strength:3|Athletics:2|Weaponry:2
+&CG_LIST`MERITS`DEPEND.HERD List Database=Vampire
+&CG_LIST`MERITS`DEPEND.HONEY_TRAP List Database=Vampire
+&CG_LIST`MERITS`DEPEND.I_KNOW_A_GUY List Database=Status Carthians:1
+&CG_LIST`MERITS`DEPEND.IMPROVISED_WEAPONRY List Database=Wits:3|Weaponry:1
+&CG_LIST`MERITS`DEPEND.INDOMITABLE List Database=Resolve:3
+&CG_LIST`MERITS`DEPEND.INSPIRING List Database=Presence:3
+&CG_LIST`MERITS`DEPEND.INVESTED List Database=Status Invictus:1
+&CG_LIST`MERITS`DEPEND.IRON_SKIN List Database=Martial Arts:2|Street Fighting:2|Stamina:3
+&CG_LIST`MERITS`DEPEND.IRON_STAMINA List Database=Stamina:3-Resolve:3
+&CG_LIST`MERITS`DEPEND.IRON_WILL List Database=Resolve:4
+&CG_LIST`MERITS`DEPEND.KINDRED_DUELING List Database=Composure:3|Weaponry:2
+&CG_LIST`MERITS`DEPEND.KISS_OF_THE_SUCCUBUS List Database=Daeva
+&CG_LIST`MERITS`DEPEND.LEX_TERRAE List Database=Status Carthians:1|Feeding Grounds:1
+&CG_LIST`MERITS`DEPEND.LIGHT_WEAPONS List Database=Wits:3-Fighting Finesse Weaponry:1|Dexterity:3|Athletics:2|Weaponry:2
+&CG_LIST`MERITS`DEPEND.LINEAGE List Database=Vampire
+&CG_LIST`MERITS`DEPEND.LOREKEEPER List Database=Status Lancea Sanctum:1
+&CG_LIST`MERITS`DEPEND.MANDATE_FROM_THE_MASSES List Database=Status Carthians:5
+&CG_LIST`MERITS`DEPEND.MARKSMANSHIP List Database=Composure:3|Resolve:3|Firearms:2
+&CG_LIST`MERITS`DEPEND.MARTIAL_ARTS List Database=Resolve:3|Dexterity:3
+&CG_LIST`MERITS`DEPEND.MEDIUM List Database=Empathy:2|Human
+&CG_LIST`MERITS`DEPEND.MIND_OF_A_MADMAN List Database=Empathy:3|Human
+&CG_LIST`MERITS`DEPEND.MIND_OF_THE_UNBLINKING_SERPENT %wl=Intelligence:3|Eidetic Memory:1|Vampire
+&CG_LIST`MERITS`DEPEND.MIND_OF_THE_INSCRUTABLE_HYDRA %wl=Intelligence:3|Mind of the Unblinking Serpent:1|Vampire
+&CG_LIST`MERITS`DEPEND.MOTHER-DAUGHTER_BOND List Database=Status Circle of the Crone:1
+&CG_LIST`MERITS`DEPEND.CHERUBIM List Database=Invictus
+&CG_LIST`MERITS`DEPEND.DIE_NACHTEULEN List Database=Invictus
+&CG_LIST`MERITS`DEPEND.FELLOWSHIP_OF_ARTEMIS List Database=Invictus
+&CG_LIST`MERITS`DEPEND.LIVIAN_HERESY List Database=Vampire
+&CG_LIST`MERITS`DEPEND.SWORN_OF_THE_LADDER List Database=Ordo Dracul
+&CG_LIST`MERITS`DEPEND.SWORN_OF_THE_LOCUST List Database=Ordo Dracul
+&CG_LIST`MERITS`DEPEND.THE_IMPALED List Database=Ordo Dracul
+&CG_LIST`MERITS`DEPEND.THORNED_WREATH List Database=Invictus
+&CG_LIST`MERITS`DEPEND.NIGHT_DOCTOR_SURGERY List Database=Status Carthians:2
+&CG_LIST`MERITS`DEPEND.NOTARY List Database=Status Invictus:3
+&CG_LIST`MERITS`DEPEND.OATH_OF_ACTION List Database=Vampire
+&CG_LIST`MERITS`DEPEND.OATH_OF_FEALTY List Database=Status Invictus:1
+&CG_LIST`MERITS`DEPEND.OATH_OF_PENANCE List Database=Vampire
+&CG_LIST`MERITS`DEPEND.OATH_OF_SERFDOM List Database=Vampire
+&CG_LIST`MERITS`DEPEND.OMEN_SENSITIVITY List Database=Human
+&CG_LIST`MERITS`DEPEND.PACK_ALPHA List Database=Gangrel
+&CG_LIST`MERITS`DEPEND.PARKOUR List Database=Dexterity:3|Athletics:2
+&CG_LIST`MERITS`DEPEND.PLAUSIBLE_DENIABILITY List Database=Status Carthians:3
+&CG_LIST`MERITS`DEPEND.POLICE_TACTICS List Database=Brawl:2|Weaponry:1
+&CG_LIST`MERITS`DEPEND.PRODUCER List Database=Human
+&CG_LIST`MERITS`DEPEND.PROTECTED List Database=Human-Ghoul
+&CG_LIST`MERITS`DEPEND.PSYCHOKINESIS List Database=Human
+&CG_LIST`MERITS`DEPEND.PSYCHOMETRY List Database=Human
+&CG_LIST`MERITS`DEPEND.PUSHER List Database=Persuasion:2
+&CG_LIST`MERITS`DEPEND.QUICK_DRAW_WEAPONRY List Database=Wits:3|Spec_Weaponry:1
+&CG_LIST`MERITS`DEPEND.QUICK_DRAW_FIREARMS List Database=Wits:3|Spec_Firearms:1
+&CG_LIST`MERITS`DEPEND.RIDING_THE_WAVE List Database=Vampire|Composure:3|Resolve:3
+&CG_LIST`MERITS`DEPEND.RIGHT_OF_RETURN List Database=Status Carthians:2|Status City:1
+&CG_LIST`MERITS`DEPEND.SECRET_SOCIETY_JUNKIE List Database=Status Ordo Dracul:1
+&CG_LIST`MERITS`DEPEND.SERPENTINE_SEDUCTION List Database=Vampire
+&CG_LIST`MERITS`DEPEND.SHIV List Database=Street Fighting:2|Weaponry:1
+&CG_LIST`MERITS`DEPEND.SIN-EATER List Database=Resolve:3|Composure:2|Occult:1
+&CG_LIST`MERITS`DEPEND.SLEIGHT_OF_HAND List Database=Larceny:3
+&CG_LIST`MERITS`DEPEND.SMALL_UNIT_TACTICS List Database=Presence:3
+&CG_LIST`MERITS`DEPEND.SOURCE_SYMPATHY List Database=Ghoul
+&CG_LIST`MERITS`DEPEND.SPEAKER_FOR_THE_SILENT List Database=Status Invictus:1|Dynasty Membership:1
+&CG_LIST`MERITS`DEPEND.STATUS_CITY List Database=Vampire
+&CG_LIST`MERITS`DEPEND.CHERUBIM List Database=Invictus
+&CG_LIST`MERITS`DEPEND.DIE_NACHTEULEN List Database=Invictus
+&CG_LIST`MERITS`DEPEND.FELLOWSHIP_OF_ARTEMIS List Database=Invictus
+&CG_LIST`MERITS`DEPEND.LIVIAN_HERESY List Database=Vampire
+&CG_LIST`MERITS`DEPEND.SWORN_OF_THE_LADDER List Database=Ordo Dracul
+&CG_LIST`MERITS`DEPEND.SWORN_OF_THE_LOCUST List Database=Ordo Dracul
+&CG_LIST`MERITS`DEPEND.THE_IMPALED List Database=Ordo Dracul
+&CG_LIST`MERITS`DEPEND.THORNED_WREATH List Database=Invictus
+&CG_LIST`MERITS`DEPEND.STREET_FIGHTING List Database=Stamina:3|Composure:3|Brawl:2|Streetwise:2
+&CG_LIST`MERITS`DEPEND.STRENGTH_OF_RESOLUTION List Database=Status Carthians:1
+&CG_LIST`MERITS`DEPEND.SWARM_FORM List Database=Protean:3
+&CG_LIST`MERITS`DEPEND.SWORN List Database=Status Ordo Dracul:1
+&CG_LIST`MERITS`DEPEND.TASTE List Database=Crafts:2|Spec_Crafts:1-Spec_Expression
+&CG_LIST`MERITS`DEPEND.TASTE_OF_FEAR List Database=Ghoul|Nosferatu
+&CG_LIST`MERITS`DEPEND.TASTE_OF_GOLD List Database=Ghoul|Ventrue
+&CG_LIST`MERITS`DEPEND.TASTE_OF_SHADOW List Database=Ghoul|Mekhet
+&CG_LIST`MERITS`DEPEND.TASTE_OF_THE_SERPENT List Database=Ghoul|Daeva
+&CG_LIST`MERITS`DEPEND.TASTE_OF_THE_WILD List Database=Ghoul|Gangrel
+&CG_LIST`MERITS`DEPEND.TELEKINESIS List Database=Human
+&CG_LIST`MERITS`DEPEND.TELEPATHY List Database=Human
+&CG_LIST`MERITS`DEPEND.TOLERANCE_FOR_BIOLOGY List Database=Resolve:3
+&CG_LIST`MERITS`DEPEND.TOUCHSTONE List Database=Vampire
+&CG_LIST`MERITS`DEPEND.TRAINED_OBSERVER List Database=Wits:3-Composure:3
+&CG_LIST`MERITS`DEPEND.UNARMED_DEFENSE List Database=Dexterity:3|Brawl:2|Defensive Combat Brawl:1
+&CG_LIST`MERITS`DEPEND.UNDEAD_MENSES List Database=Vampire
+&CG_LIST`MERITS`DEPEND.UNNATURAL_AFFINITY List Database=Vampire
+&CG_LIST`MERITS`DEPEND.UNSEEN_SENSE List Database=Human
+&CG_LIST`MERITS`DEPEND.UNSETTLING_GAZE List Database=Nosferatu
+&CG_LIST`MERITS`DEPEND.VICE_RIDDEN List Database=Human-Ghoul
+&CG_LIST`MERITS`DEPEND.VIRTUOUS List Database=Human-Ghoul
+&CG_LIST`MERITS`DEPEND.VITAE_HOUND List Database=Ghoul
+&CG_LIST`MERITS`DEPEND.WATCH_DOG List Database=Ghoul
+&CG_LIST`MERITS`DEPEND.WEAKENED_BOND List Database=Human-Ghoul
+&CG_LIST`MERITS`DEPEND.WHERE_THE_BODIES_ARE_BURIED List Database=Status Invictus:2
+&CG_LIST`MERITS`DEPEND.BODHISATCRACY List Database=Vampire
+&CG_LIST`MERITS`DEPEND.CARTHIAN_ATHEISM List Database=Carthian
+&CG_LIST`MERITS`DEPEND.ANTI-OBSTRUCTIONIST_ARMY List Database=Carthian
+&CG_LIST`MERITS`DEPEND.SABOTAGE_ARTISTS List Database=Vampire
+&CG_LIST`MERITS`DEPEND.HARDLINERS List Database=Vampire
+&CG_LIST`MERITS`DEPEND.UNIFIERS List Database=Vampire
+&CG_LIST`MERITS`DEPEND.NEO-REFORMISTS List Database=Vampire
+&CG_LIST`MERITS`DEPEND.MENDICANTS List Database=Lancea Sanctum
+&CG_LIST`MERITS`DEPEND.NEPHESHIM List Database=Lancea Sanctum
+&CG_LIST`MERITS`DEPEND.PROSELYTIZERS List Database=Lancea Sanctum
+&CG_LIST`MERITS`DEPEND.MESSENGERS_OF_LONGINUS List Database=Lancea Sanctum
+&CG_LIST`MERITS`DEPEND.MONASTICS List Database=Lancea Sanctum
+&CG_LIST`MERITS`DEPEND.FAMILY_TIES List Database=Vampire
+&CG_LIST`MERITS`DEPEND.NECROPOLIS List Database=Nosferatu
+&CG_LIST`MERITS`DEPEND.HYPNOTIC_GAZE List Database=Vampire
+&CG_LIST`MERITS`DEPEND.SONS_OF_THE_SERPENT List Database=Vampire
+&CG_LIST`MERITS`DEPEND.GOLDEN_DAWN List Database=Human-Vampire
+&CG_LIST`MERITS`DEPEND.MOULDING_ROOM List Database=Human-Vampire
+&CG_LIST`MERITS`DEPEND.ADRENAL_JUNKIES List Database=Human
+
+
+&CG_LIST`MERITS`FT %wl=Encyclopedic_Knowledge|Language|Multilingual|Area_of_Expertise|Hobbyist_Clique|Interdisciplinary_Specialty|Virtuous|Vice-Ridden|Contacts|Fame|Professional_Training|Retainer|Mentor|Retainer|Retainer2|Retainer3|Retainer4|Retainer5|Mentor|Mentor2|Mentor3|True_Friend|Unseen_Sense|Alternate_Identity|Alternate_Identity2|Alternate_Identity3|Status|Striking_Looks|Unnatural_Affinity|Touchstone|Distinguished_Palate|Beloved|Attache|Fighting_Finesse_Weaponry|Fighting_Finesse_Brawl|Contacts|Lorekeeper|Sworn
+
+&CG_LIST`MERITS`RESTRICT %wl= Anonymity|Fame|Giant|Small-Framed|Atrocious|Enticing|Cutthroat
+&CG_LIST`MERITS`RESTRICT.ANONYMITY %wl= Fame
+&CG_LIST`MERITS`RESTRICT.FAME %wl= Anonymity
+&CG_LIST`MERITS`RESTRICT.GIANT %wl=Small-Framed
+&CG_LIST`MERITS`RESTRICT.SMALL-FRAMED %wl=Giant
+&CG_LIST`MERITS`RESTRICT.ATROCIOUS %wl=Cutthroat|Enticing
+&CG_LIST`MERITS`RESTRICT.ENTICING %wl=Atrocious|Cutthroat
+&CG_LIST`MERITS`RESTRICT.CUTTHROAT %wl=Atrocious|Enticing
+
+
+&CG_LIST`PLAYSTYLE List Database=Civilian|Support|Political
+&CG_LIST`POINT_CATS List Database=MENTAL|PHYSICAL|SOCIAL
+
+&CG_LIST`RITUALS %wl=
+&CG_LIST`RITUALS`DEPEND.BALANCING_THE_FOUR_HUMORS %wl=Cruac:1|Protection:1
+&CG_LIST`RITUALS`DEPEND.BASIC_NAME %wl=Nomenclature:1
+&CG_LIST`RITUALS`DEPEND.BITING_BLADE %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.BLOOD_SCOURGE %wl=Theban Sorcery:1|Transmutation:1|Destruction:1
+&CG_LIST`RITUALS`DEPEND.BOYAR'S_CAUL %wl=Cruac:1|Divination:1
+&CG_LIST`RITUALS`DEPEND.CELIBACY %wl=Theban Sorcery:1|Protection:1
+&CG_LIST`RITUALS`DEPEND.CENSURE_OF_SIN %wl=Theban Sorcery:1|Destruction:1
+&CG_LIST`RITUALS`DEPEND.CLOUD_THE_WATCHER'S_EYE %wl=Cruac:1|Protection:1
+&CG_LIST`RITUALS`DEPEND.COMPLEX_NAME %wl=Nomenclature:1
+&CG_LIST`RITUALS`DEPEND.CONFIDENCE_IN_ADVERSITY %wl=Cruac:1|Creation:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.CONTROL_ANGER %wl=Merges Sorcery:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.CROWN_OF_THORNS %wl=Theban Sorcery:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.DROPS_OF_DESTINY %wl=Cruac:1|Divination:1
+&CG_LIST`RITUALS`DEPEND.FIRES_OF_INSPIRATION %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.GENIUS_LOCI %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.HARVEST_OF_SLAVES %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.INTRICATE_NAME %wl=Nomenclature:1
+&CG_LIST`RITUALS`DEPEND.LAIR_OF_THE_BEAST %wl=Lithopedia:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.LIGHTNING_ROD %wl=Theban Sorcery:1|Creation:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.LINE_IN_THE_SAND %wl=Cruac:1|Creation:1
+&CG_LIST`RITUALS`DEPEND.LOVE-LIES-BLEEDING %wl=Cruac:1|Protection:1
+&CG_LIST`RITUALS`DEPEND.MESSENGER'S_MARK %wl=Theban Sorcery:1|Creation:1
+&CG_LIST`RITUALS`DEPEND.PALADIN'S_ABSOLUTION %wl=Theban Sorcery:1|Protection:1
+&CG_LIST`RITUALS`DEPEND.PANGS_OF_PROSERPINA %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.PATHS_OF_THE_PREY %wl=Gilded Cage:1|Divination:1
+&CG_LIST`RITUALS`DEPEND.PYTHIAN_RENEWAL %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.RED_LIGHT %wl=Gilded Cage:1|Divination:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.RIGOR_MORTIS %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.RITE_OF_THE_BLOODY_CROSSROADS %wl=Cruac:1|Divination:1
+&CG_LIST`RITUALS`DEPEND.SIMPLE_NAME %wl=Nomenclature:1
+&CG_LIST`RITUALS`DEPEND.SOUL'S_WORK %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.SPRING_SANCTIFICATION %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.TAPAS_TO_BRAHMA %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.TAPAS_TO_HUNNAMAN %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.TAPAS_TO_MA_DURGA %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.TASTE_OF_KNOWLEDGE %wl=Cruac:1|Divination:1
+&CG_LIST`RITUALS`DEPEND.THE_ANGEL'S_TOUCH %wl=Theban Sorcery:1|Protection:1
+&CG_LIST`RITUALS`DEPEND.THEBAN_INSCRIPTION %wl=Theban Sorcery:1|Creation:1
+&CG_LIST`RITUALS`DEPEND.UNIQUE_NAME %wl=Nomenclature:1
+&CG_LIST`RITUALS`DEPEND.VENOM_OF_LETHARGY %wl=Merges Sorcery:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.VENOM_OF_MADNESS %wl=Merges Sorcery:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.VENOM_OF_PARALYSIS %wl=Merges Sorcery:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.VENOMOUS_BITE %wl=Merges Sorcery:1|Destruction:1
+&CG_LIST`RITUALS`DEPEND.VISAGE_OF_THE_CRONE %wl=Cruac:1|Transmutation:1
+&CG_LIST`RITUALS`DEPEND.VITAE_RELIQUARY %wl=Theban Sorcery:1|Transmutation:1
+
+&CG_LIST`SKILLS.FOR_TABLE List Database=Academics|Athletics|Animal Ken|Crafts|Brawl|Empathy|Computer|Drive|Expression|Investigation|Firearms|Intimidation|Medicine|Larceny|Persuasion|Occult|Stealth|Socialize|Politics|Survival|Streetwise|Science|Weaponry|Subterfuge
+
+&CG_LIST`SKILLS.MENTAL List Database=Academics|Crafts|Computer|Investigation|Medicine|Occult|Politics|Science
+
+&CG_LIST`SKILLS.PHYSICAL List Database=Athletics|Brawl|Drive|Firearms|Larceny|Stealth|Survival|Weaponry
+
+&CG_LIST`SKILLS.SOCIAL List Database=Animal Ken|Empathy|Expression|Intimidation|Persuasion|Socialize|Streetwise|Subterfuge
+
+&CG_LIST`VICES %wl=Envious|Jealous|Paranoid|Skeptical|Gluttonous|Corrupt|Hedonistic|Addictive|Greedy|Avaricious|Ambitious|Selfish|Obsessed|Hasty|Deceitful|Lascivious|Proud|Arrogant|Treacherous|Stubborn|Lazy|Pessimistic|Untrustworthy|Cowardly|Vengeful|Hateful|Cruel|Violent|Sneaky
+
+&CG_LIST`VIRTUES %wl=Generous|Supportive|Kind|Loving|Reliable|Humble|Loyal|Spiritual|Determined|Trustworthy|Courageous|Diligent|Ambitious|Hopeful|Optimistic|Confident|Just|Righteous|Honorable|Honest|Patient|Peaceful|Sensible|Vigilant|Steady|Thrifty|Chaste|Forgiving
+
+&WC List Database=#1706
+&WL List Database=#1705
+
+

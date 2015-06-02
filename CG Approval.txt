@@ -1,0 +1,30 @@
+@dig/teleport CharGen Approval
+@parent here=#44
+@set here = WIZARD
+@power here = See_All
+&CMD here=
+
+&CMD`CHARGEN/SUBMIT here=$+chargen/submit:@include #1766/FN`CHARGEN/SUBMIT=%#
+
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+
+&CMD`JUSTIFY here=$^\+justify(/\w*)?(.*+)?$:@include #1766/FN`JUSTIFY=%1,[trim(%2)]
+
+@set here/CMD`JUSTIFY=regexp
+
+&DESCRIBE here=This is the final approval room.  If you believe you are done creating your character, have carefully reviewed the rules and regulations of [mudname()], and agree to all relevant terms and conditions, type [ansi(h,+chargen/submit)].%r%r[ansi(h,IMPORTANT:)] This decision is [ansi(h,FINAL)].  If you think you would like to change any aspects of your character that are important to the game, now is your opportunity to go back and do so.%R%RThe commands to submit your justification are:%R+justify/set <text> - Sets your justification to <text>.%R+justify/view - Shows your current justification text.%R+justify/wipe - Wipes your current justification.
+
+&FN here=
+@@ Add bits to capture player's starting attributes here.
+&FN`CHARGEN/SUBMIT here=@break [get(%0/CHARGEN`WAITING)]=@pemit %0=You have already submitted for approval!; @dolist/inline [lattr(%#/PC_DATA`ATTRIBS`**)]=@set %#=CHARGEN`[after(%i0,`)]:[get(%#/%i0)]; @wait 10=@tr #1766/FN`FINALIZE_CHAR=%# ; @set %0=CHARGEN`WAITING:1; @force %0=+request CG Approval: [name(%0)]=[name(%0)] is requesting for CharGen approval. Please review [obj(%0)] with +csheet [name(%0)] and +review [name(%0)]. If you are satisfied with the application and wish to approve it, type +accept [name(%0)]. Make sure to email the player if needed. If you wish to reject [apostrophe_name(%0)] application, type +reject [name(%0)]=<reason>
+
+@@ Update attributes with Disciplines that do so.
+@@ Calculate player statuses with new attributes and add merits.
+@@ Set player statuses with new updated attributes.
+&FN`FINALIZE_CHAR here=[switch([get_template(%0)],VAMPIRE,[attrib_set(%0/PC_DATA`ATTRIBS`[map_attrib([get(%0/CHARGEN`FAVORED_ATTRIB)])],[inc([get_attrib(%0,[get(%0/CHARGEN`FAVORED_ATTRIB)])])])])][if([has_discipline(%0,Resilience)],[attrib_set(%0/PC_DATA`ATTRIBS`[map_attrib(stamina)],[add([get_attrib(%0,stamina)],[get_discipline(%0,Resilience)])])])][if([has_discipline(%0,Vigor)],[attrib_set(%0/PC_DATA`ATTRIBS`[map_attrib(strength)],[add([get_attrib(%0,strength)],[get_discipline(%0,Vigor)])])])][if([has_discipline(%0,Praestantia)],[attrib_set(%0/PC_DATA`ATTRIBS`[map_attrib(Dexterity)],[add([get_attrib(%0,dexterity)],[get_discipline(%0,Praestantia)])])])][attrib_set(%0/PC_DATA`SIZE,5)][if([has_merit(%0,Giant)],[attrib_set(%0/PC_DATA`SIZE,6)])][if([has_merit(%0,Small-Framed)],[attrib_set(%0/PC_DATA`SIZE,4)])][setq(m,0)][setq(m,[if([cand([has_merit(%0,Defensive Combat Brawl)],[has_merit(%0,Defensive Combat Weaponry)])],[max([get_skill(%0,Brawl)],[get_skill(%0,Weaponry)])],0)])][if([not(%qm)],[if([has_merit(%0,Defensive Combat Brawl)],[get_skill(%0,Brawl)],0)])][if([not(%qm)],[if([has_merit(%0,Defensive Combat Weaponry)],[get_skill(%0,Weaponry)],0)])][attrib_set(%0/PC_DATA`STATUS`DEFENSE,[add([min([get_attrib(%0,Wits)],[get_attrib(%0,Dexterity)])],[max([get_skill(%0,Athletics)],%qm)],[get_discipline(%0,Celerity)])])][attrib_set(%0/PC_DATA`STATUS`INIT_MOD,[add([get_attrib(%0,Dexterity)],[get_attrib(%0,Composure)],[get_discipline(%0,Fast Reflexes)])])][attrib_set(%0/PC_DATA`SPEED,[add([get_attrib(%0,Strength)],[get_attrib(%0,Dexterity)],5,[get_discipline(%0,Fleet of Foot)])])][attrib_set(%0/PC_DATA`STATUS`HUMANITY,7)][attrib_set(%0/PC_DATA`STATUS`HUMANITY.MAX,7)][attrib_set(%0/PC_DATA`STATUS`VITAE,[get_vitae(%0,max)])][attrib_set(%0/PC_DATA`STATUS`WILLPOWER`PURCHASED,0)][attrib_set(%0/PC_DATA`STATUS`WILLPOWER,[get_willpower(%0,max)])]
+
+&FN`JUSTIFY here=[if([not([get(%#/CHARGEN`WAITING)])],[switch(%0,/set,[if([not([strmatch(%1,)])],[attrib_set(%#/CHARGEN`JUSTIFY,[edit([decompose(%1)],\\,)])][pemit(%#,Justification set. To view it\, type +justify/view.)],[pemit(%#,set: You must type SOMEthing to set!)])],/view,[pemit(%#, Your current justification is:%R[get(%#/CHARGEN`JUSTIFY)])],/wipe,[attrib_set(%#/CHARGEN`JUSTIFY,)][pemit(%#,+justify: Justification wiped.)],[pemit(%#,+justify: Valid switches are: /set\, /view\, /wipe)])],[pemit(%#,+justify: You have already submitted for CharGen approval.)])]
+
+
+[attrib_set(%0/PC_DATA`STATUS`INIT_MOD,[add([get_attrib(%0,Dexterity)],[get_attrib(%0,Composure)],[get_discipline(%0,Fast Reflexes)])])]
+[attrib_set(%0/PC_DATA`SPEED,[add([get_attrib(%0,Strength)],[get_attrib(%0,Dexterity)],5,[get_merit(%0,Fleet of Foot)])])]

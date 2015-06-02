@@ -1,0 +1,26 @@
+@	Custom Request Commands
+@	Coded by: Gizmo AKA Ourea, Alzie, Oukranos
+@	Email: ccubed.techno@gmail.com
+@	Date Last Touched: 1/28/15
+@----------------------------------------------------------------------------
+@	Purpose: Calculated Ascendancy and Eminency 
+@----------------------------------------------------------------------------
+@	Commands:
+@	+socialcalc - display the results
+
+&FILS`IS_DAEVA #1773=[strmatch(xget(%0,PC_DATA`CLAN),Daeva)]
+&FILS`IS_MEKHET #1773=[strmatch(xget(%0,PC_DATA`CLAN),Mekhet)]
+&FILS`IS_NOSFERATU #1773=[strmatch(xget(%0,PC_DATA`CLAN),Nosferatu)]
+&FILS`IS_GANGREL #1773=[strmatch(xget(%0,PC_DATA`CLAN),Gangrel)]
+&FILS`IS_VENTRUE #1773=[strmatch(xget(%0,PC_DATA`CLAN),Ventrue)]
+&FILS`IS_CIRCLE #1773=[strmatch(xget(%0,PC_DATA`COVENANT),Circle of the Crone)]
+&FILS`IS_ORDO #1773=[strmatch(xget(%0,PC_DATA`COVENANT),Ordo Dracul)]
+&FILS`IS_INVICTUS #1773=[strmatch(xget(%0,PC_DATA`COVENANT),Invictus)]
+&FILS`IS_CARTHIAN #1773=[strmatch(xget(%0,PC_DATA`COVENANT),Carthian)]
+&FILS`IS_LANCE #1773=[strmatch(xget(%0,PC_DATA`COVENANT),Lancea Sanctum)]
+&FILS`IS_UNALIGNED #1773=[strmatch(xget(%0,PC_DATA`COVENANT),Unaligned)]
+&FILS`IS_VAMPIRE #1773=[strmatch(xget(%0,PC_DATA`TEMPLATE),Vampire)]
+
+&FN`CALC_SOCIAL_STRATA #1773=[setq(tempvar,0)][iter(%0,[setq(tempvar,[add(mul(get_merit(%i0,status city),5),get_merit(%i0,laurels),%q<tempvar>)])], ,[space(0)])]%q<tempvar>
+
+&CMD`CALC.ASCENDANCY.EMINENCY #1773=$+socialcalc:@assert [orflags(%#,Wr)];@pemit %#=[setq(a,filter(#1773/FILS`IS_VAMPIRE,active_pc_list()))][setq(b,filterbool(#1773/FILS`IS_STATUS_DAEVA,%qA))][setq(c,filterbool(#1773/FILS`IS_STATUS_MEKHET,%qA))][setq(d,filterbool(#1773/FILS`IS_STATUS_NOSFERATU,%qA))][setq(e,filterbool(#1773/FILS`IS_STATUS_GANGREL,%qA))][setq(f,filterbool(#1773/FILS`IS_STATUS_VENTRUE,%qA))][setq(g,filterbool(#1773/FILS`IS_STATUS_CIRCLE,%qA))][setq(h,filterbool(#1773/FILS`IS_STATUS_ORDO,%qA))][setq(i,filterbool(#1773/FILS`IS_STATUS_INVICTUS,%qA))][setq(j,filterbool(#1773/FILS`IS_STATUS_CARTHIAN,%qA))][setq(k,filterbool(#1773/FILS`IS_STATUS_LANCE,%qA))][setq(l,filterbool(#1773/FILS`IS_UNALIGNED,%qA))][setq(m,u(FN`CALC_SOCIAL_STRATA,%qB))][setq(n,u(FN`CALC_SOCIAL_STRATA,%qC))][setq(o,u(FN`CALC_SOCIAL_STRATA,%qD))][setq(p,u(FN`CALC_SOCIAL_STRATA,%qE))][setq(q,u(FN`CALC_SOCIAL_STRATA,%qF))][setq(r,u(FN`CALC_SOCIAL_STRATA,%qG))][setq(s,u(FN`CALC_SOCIAL_STRATA,%qH))][setq(y,u(FN`CALC_SOCIAL_STRATA,%qI))][setq(u,u(FN`CALC_SOCIAL_STRATA,%qJ))][setq(v,u(FN`CALC_SOCIAL_STRATA,%qK))][setq(w,u(FN`CALC_SOCIAL_STRATA,%qL))]%RClans%R%TDaeva Status: %qM%R%TMekhet Status: %qN%R%TNosferatu Status: %qO%R%TGangrel Status: %qP%R%TVentrue Status: %qQ%R%RCovenants%R%TCircle Status: %qR%R%TCarthian Status: %qU%R%TOrdo Status: %qS%R%TInvictus Status: %qY%R%TLance Status: %qV%R%TUnaligned Status: %qW

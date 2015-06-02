@@ -1,0 +1,15 @@
+@@ CharGen Start (#51)
+@dig/teleport CharGen Start
+@parent here=#44
+@set here = WIZARD
+&CMD here=
+&CMD`ACCEPT here=$accept:@switch [hasattrval(%#/pc_data`rules.read)][get(%#/pc_data`rules.read)]=11,{@set %#=pc_data`rules.accept:1;@pemit %#=You have accepted the RULES of Requiem for Kingsmouth and may continue with CharGen.},{@pemit %#=You haven't read the rules yet. Type RULES and read up.}
+
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+
+&CMD`RULES here=$rules:@force %#=+help rules;@set %#=pc_data`rules.read:1
+&CMD`RESET #51=$reset:[wipe(%#/PC_DATA`**)][wipe(%#/CHARGEN)][attrib_set(%#/CHARGEN,)]@pemit %#=You reset your character! You will have to accept the rules again, and start from scratch.
+&CODER here=kougyoku.gentou@gmail.com
+@set here/CODER=wizard mortal_dark
+&DESCRIBE here=%tHere is where you will begin building the character you want to play as in Requiem for Kingsmouth. Before we begin, the Staff ask that you read the RULES. When you are finished reading the RULES, type ACCEPT. With that out of the way, you will embark on a short, easy journey to find out WHO you are and what you will be doing in the game. In the next room, you will select your primary and secondary attributes and be granted a certain number of 'points' that you will spend on various attributes for your character. Use them wisely, because they will disappear when the character generation is finished. %r%rOnce you read the RULES, and ACCEPT them, please exit through one of the marked doors: VAMPIRE, HUMAN, or GHOUL.%r%rCommands:%rrules - Read the rules.%raccept - Accept the rules after you have read them.%rreset - Reset your character and start from scratch%r%rA few commands you will likely want to set before moving on:%r@set me=color	This will allow you to see pretty colors.%r@set me=ENTER_OK	This will allow people to give you things, if necessary.%r@lock me=me	This will prevent anyone from picking you up and carrying you around.%r%rA list of other helpful commands can be found at +HELP COMMANDS.%r%r+HELP CHARGEN will give you character-generation-specific commands.%rIf you have any difficulties, Type +pub I need help, and the lovely people on channel will try to help you!%r%rhttp://kingsmouth.info/wiki/Character_Creation/Walkthrough
+@set here/DESCRIBE=no_command visual prefixmatch public nearby

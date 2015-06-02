@@ -1,0 +1,106 @@
+#836 #1885 #2208 #2209 #2210 #2211 #2213 #2214 #2216 #2218 #2225 #2226 #2228 #2229 #2230 #2231 #2232 #2233 #2234 #2235 #2236 #2237 #2238 #2239 #2240 #2241 #2242 #2243 #2244 #2245 #2246 #2247 #2248 #2249 #2250 #2251 #2252 #2253 #2254 #2255 #2256 #2258 #2259 #2260 #2261 #2262 #2263 #2264 #2265 #2266 #2267 #2268 #2269 #2270 #2271 #2272 #2273 #2288
+
+<Admin> Shaalwyd says, "The max for a pool can be 4, 8, 12, 16, or 20."
+<Admin> Shaalwyd says, "X is 1, 2, 3, 4, or 5"
+<Admin> Shaalwyd says, "So if the max is 16, it refills 4 blood every time the cron job runs."
+<Admin> Shaalwyd says, "Does that make sense?"
++ad Yes. So Max/4 would be correct?
+<Admin> Kougyoku says, "Yes. So Max/4 would be correct?"
+<Admin> Shaalwyd says, "Yes."
++ad That makes things simple.
+<Admin> Kougyoku says, "That makes things simple."
++ad Man, last time I did a pool code, it was stupid complicated.
+<Admin> Kougyoku says, "Man, last time I did a pool code, it was stupid complicated."
++ad What I think will need to happen though is a couple new attributes on the bloodpools. I won't be usin MONEY
+<Admin> Kougyoku says, "What I think will need to happen though is a couple new attributes on the bloodpools. I won't be usin MONEY"
++ad In the theme of simple, how about Bloodpool/MAX_VITAE
+<Admin> Kougyoku says, "In the theme of simple, how about Bloodpool/MAX_VITAE"
+GAME: Simon has disconnected.
+<Admin> Shaalwyd says, "That's nicely simple!"
+<Admin> Shaalwyd says, "MONEY is a terrible way to do it, but it was within the scope of my abilities for a temporary solution. *Grins*"
++ad I will need you to go around to all the bloodpools and &MAX_VITAE Bloodpool #
+<Admin> Kougyoku says, "I will need you to go around to all the bloodpools and &MAX_VITAE Bloodpool #"
++ad I will need you to go around to all the bloodpools and &MAX_VITAE Bloodpool=#
+<Admin> Kougyoku says, "I will need you to go around to all the bloodpools and &MAX_VITAE Bloodpool=#"
+<Admin> Shaalwyd says, "The list I sent you has the maxes on them, but has them as multiples of 3. We'll want to up them to multiples of 4."
+
+
+<Admin> Kougyoku says, "Alright. Bloodpools now have three new things:"
++ad BLOODPOOL Flag.
+<Admin> Kougyoku says, "BLOODPOOL Flag."
++ad CURRENT_VITAE=0 (initial value)
+<Admin> Kougyoku says, "CURRENT_VITAE=0 (initial value)"
++ad MAX_VITAE (Whatever the maximum value is)
+<Admin> Kougyoku says, "MAX_VITAE (Whatever the maximum value is)"
+
+<Admin> Shaalwyd says, "Sure."
++ad As long as the MAX_VITAE value is correct. My math will only do /4
+<Admin> Kougyoku says, "As long as the MAX_VITAE value is correct. My math will only do /4"
+
+--------------------------
+Hunt Discussion
+--------------------------
+<Admin> Kougyoku says, "Hm. Not sure how to integrate +hunt to +feed, as +feed takes from the bloodpool.. However I think +hunt might actually replace feed."
+<Admin> Shaalwyd nods.
+<Admin> Shaalwyd says, "Streamlining so players are giving one command rather than two."
++ad Exactly. While +feed might actually draw from players instead. 
+<Admin> Kougyoku says, "Exactly. While +feed might actually draw from players instead."
++ad *mulls*
+<Admin> Kougyoku says, "*mulls*"
+<Admin> Shaalwyd says, "Yes! We need that."
+<Admin> Shaalwyd says, "I'm doing that bit manually at the moment."
++ad Problem is it won't blood bond automagically.
+<Admin> Kougyoku says, "Problem is it won't blood bond automagically."
+<Admin> Shaalwyd says, "That's fine."
+<Admin> Shaalwyd says, "You get a beat for being bloodbound, so people are pretty good at reporting it."
++job/add 9=+hunt will replace the current feed code to draw from the bloodpools. +feed will be altered to draw from PCs
+Comments to Job 9 added.
+JOBS: Comments added to Job 9 by Kougyoku.
++ad Alright. Let's talk about +hunt.
+<Admin> Kougyoku says, "Alright. Let's talk about +hunt."
+<Admin> Shaalwyd says, "Gladly."
+<Admin> Shaalwyd says, "So there are four methods to hunt, each of which use a different combination of Attribute + Skill."
+<Admin> Shaalwyd says, "Casanovas seduce, using Presence + Persuasion. Muggers mug people (obviously), using Strength + Stealth. Sandmen drink from sleeping people, using Wits + Larceny. Farmers feed from animals, which means they /must/ be BP2 or less, and use Wits + Survival. Ideally, the first three - which are all feeding on humans - will pull from the bloodpools, while Farmers will not. If you're drinking animal blood there are virtually unlimited quantities."
+<Admin> Shaalwyd says, "What I want is for the player to be able to say +hunt/sandman or +hunt/s"
+<Admin> Shaalwyd says, "Have it automatically roll their stats and territory modifier."
+<Admin> Kougyoku says, "Sounds like we need to add a territory modifier to... wherever people hunt."
+<Admin> Shaalwyd says, "And instead of showing how many successes they get, give a textual response for how easy it was to hunt, and ask them how much they would like to feed for."
+Admin> Kougyoku says, "How about TMOD`<type> bloodpool="
+
+<Admin> Shaalwyd says, "Three modifiers, one each for casanova, sandman, and mugger."
+
+<Admin> Kougyoku says, "Alright. So I understand three types, casanova, sandman, and mugger. That'll be the only three that people can use after +hunt."
+<Admin> Kougyoku stifles a caugh as his internet hiccups.
+
+<Admin> Kougyoku says, "Alright. So I understand three types, casanova, sandman, and mugger. That'll be the only three that people can use after +hunt."
+Admin> Shaalwyd says, "So for now at least, let's stick to the blood pools and make it four types."
+<Admin> Kougyoku says, "Heck, +hunt/farmer wont even pull from the pool."
+<Admin> Shaalwyd says, "GENIUS."+
+<Admin> Shaalwyd says, "<3"
+<Admin> Shaalwyd says, "If you can make that happen, that's perfect."
+<Admin> Kougyoku says, "But it'd be like it was earlier.. nearly limitless blood"
+<Admin> Shaalwyd says, "Yep, that's fine. As long as only BP 1 and 2 can do it."
+
+<Admin> Shaalwyd says, "+hunt/casanova=Presence + Persuasion - Stability"
+th get_type(persuasion)
+SKILL
+
+<Admin> Shaalwyd says, "Farmers, who don't feed from the bloodpools, always have the same modifier: +3"
+<Admin> Shaalwyd says, "Nope, that's a bonus to represent them feeding on animals. It's less risky than feeding on humans. Less chance of getting caught, etc."
+<Admin> Kougyoku says, "what are the three modifiers?"
+<Admin> Shaalwyd says, "Stability (for Casanovas), Awareness (for Sandmen), and Safety (for Muggers)."
+<Admin> Kougyoku says, "OK. So we'll do the three modifiers on each bloodpool."
+<Admin> Kougyoku says, "TMOD`CASANOVA should = stability... or we can do something different, like TMOD`??? where it's clear that it's "stability""
++ad the reason why I suggest TMOD`type is it makes it a little easier to GET()
+<Admin> Kougyoku says, "the reason why I suggest TMOD`type is it makes it a little easier to GET()"
+<Admin> Shaalwyd says, "I am happy with TMOD`CASANOVA=#"
+
+<Admin> Kougyoku says, "Any other auto-jobs? eg, tried to take from an empty, tried to take too much..."
+<Admin> Shaalwyd says, "Trying to take more than the bloodpool has or taking 5 or more vitae from a bloodpool in one go. Those should be the only two!" + Dramatic Failure
+
+EQUATIONS
+casanova: Presence + Persuasion + TMOD`CASANOVA
+Sandmen: "Wits + Larceny + TMOD`SANDMEN
+Mugger: Strength + Stealth + TMOD`MUGGER"
+Farmer: Wits + Survival + 3
+

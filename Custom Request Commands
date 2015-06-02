@@ -10,15 +10,17 @@
 @	+req/beats <description> - Open a request to spend beats on <description>
 @	+req/infl <title>/<people>=<description> - Open a job about influence groups with title <title>. People is an optional parameter that adds extra people to a job.
 
+&CMDS`TERRITORY #3287=$+req/* *=*:@break [or([strmatch(%0,infl)],[strmatch(%0,wiki)])];@assert [setq(2,0)][setq(1,[u(F`FIND_AREA,%0)])][if(not(%q1),[setq(2,1)][setq(1,[u(F`FIND_AREA,%0 [first(%1)])])])][setq(1,trim(%q1))][t(%q1)]={@pemit %#=[ansi(hw,REQ:)]%bThat wasn't a valid territory.};@assert [switch([t(after(%1,/))],0,1,1,[setr(3,[u(F`VERIFY_PLAYERS,[after(%1,/)])])])]={@pemit %#=[ansi(hw,REQ:)]%bSome of the players specified for the job weren't found.};[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,[u(F`GRAB_BUCKET,%q1)],[xget([u(F`GRAB_BUCKET,%q1)],PRIORITY)],[if(%q2,[before([after(%1,%b)],/)],[before(%1,/)])],Territory:[if(%q2,%0 [first(%1)],%0)]%R%R%2,[if(%q3,%q3 %#,%#)],[xget([u(F`GRAB_BUCKET,%q1)],staffer)];@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for [if(%q2,[before([after(%1,%b)],/)],[before(%1,/)])]
 
-
-&CMDS`TERRITORY #3287=$+req/* *=*:@break [strmatch(%0,infl)];@assert [setq(2,0)][setq(1,[u(F`FIND_AREA,%0)])][if(not(%q1),[setq(2,1)][setq(1,[u(F`FIND_AREA,%0 [first(%1)])])])][setq(1,trim(%q1))][t(%q1)]={@pemit %#=[ansi(hw,REQ:)]%bThat wasn't a valid territory.};@assert [switch([t(after(%1,/))],0,1,1,[setr(3,[u(F`VERIFY_PLAYERS,[after(%1,/)])])])]={@pemit %#=[ansi(hw,REQ:)]%bSome of the players specified for the job weren't found.};[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,[u(F`GRAB_BUCKET,%q1)],[xget([u(F`GRAB_BUCKET,%q1)],PRIORITY)],[if(%q2,[before([after(%1,%b)],/)],[before(%1,/)])],Territory:[if(%q2,%0 [first(%1)],%0)]%R%R%2,[if(%q3,%q3 %#,%#)],[xget([u(F`GRAB_BUCKET,%q1)],staffer)];@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for [if(%q2,[before([after(%1,%b)],/)],[before(%1,/)])]
-
-+req/beats text (What you're buying)
 &CMDS`BEATS #3287=$+req/beats *:[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,#2011,2,[name(%#)]'s Beat Spends,%0;@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for Beat Spends
 
-+req/infl Title/other people=text
 &CMDS`INFLUENCE #3287=$+req/infl *=*:@assert [switch([t(after(%0,/))],0,1,1,[setr(3,[u(F`VERIFY_PLAYERS,[after(%1,/)])])])]={@pemit %#=[ansi(hw,REQ:)]%bSome of the players specified for the job weren't found.};[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,#2994,2,%0,%1,[if(%q3,%q3 %#,%#)];@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for %0
+
+&CMD_REQUEST2 #17=$+request */*=*:@assert [setr(A,locate(#20,%0,i))]={@pemit %#=%0 is not a bucket. Please see +buckets.};@break [t(match(Becca Apps Bay Dtwn Fhill Htwn Mbay Mdist Ninn Nside Outr Query Rtwn Sinn Sside Terra Wside,%0))]={@pemit %#=You are not allowed to create a job in that bucket. Please see +help buckets.};@switch [u(%va/FN_GUEST,%#)]=1,{@pemit %#=This command is not available to guests.},{@pemit %#=You have requested [secure(u(%va/FN_STRTRUNC,trim(%1),30))] from staff. Please allow for some time to process it. Do not page staff about it - you will hear back soon.;@trigger %va/TRIG_CREATE=%#,%qA,2,[u(%va/FN_STRTRUNC,trim(secure(%1)),30)],[u(%va/FN_STRTRUNC,trim(%2),get(%va/BUFFER))],,,2}
+
+&CMDS`WIKI #3287=$+req/wiki *=*:$+req/wiki *=*:[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,#4018,2,%0,%1;@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for %0
+
+&CMDS`BUILD #3287=$+req/build *=*:[setq(9,[inc([xget(#18,JOBS_NUM)])])];@trigger #18/TRIG_CREATE=%#,#24,2,%0,%1;@pemit %#=[ansi(hc,JOBS:)]%bCreated job %q9 for %0
 
 &F`FIND_AREA #3287=[setq(0,0)][iter(lattr(me/data`*),[if([match([xget(me,%i0)],%0,|)],[setq(0,[after(%i0,`)])])])]%q0
 

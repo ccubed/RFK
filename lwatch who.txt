@@ -1,0 +1,29 @@
+#@@ Existing Code to reference is below
+VA [#6]: #7
+VB [#6]: #8
+VC [#6]: #11
+VD [#6]: #9
+VE [#6]: #10
+VI [#6]: #13
+VS [#6]: #12
+
+&lwatch`cmd.lwatch-add %va=$+lwatch/add *: @nspemit/silent %#=ufun(%ve/tag,lwatch)[ufun(%vb/lwatch`fun.lwatch-add,%0)]
+ 
+&lwatch`fun.lwatch-add %vb=switch(0,hastype(%#,PLAYER),Only players can use this command.,t(setr(0,objid(pmatch(%0)))),No such player.,comp(%q0,%:),You can't watch yourself!,member(get(%#/lwatch),%q0),You start watching [name(%q0)].[ufun(lwatch`fun.lwatch-adjust,%:,LWATCH,%q0,union)][ufun(lwatch`fun.lwatch-adjust,%q0,LWATCH`BY,%:,union)],You're already watching [name(%q0)].)
+ 
+%ve/tag TAG [#6]: udefault(%vc/info`%0`tag,)
+
+INFO`LWATCH`TAG [#6]: \[+LWATCH\]%b
+
+ex #8/lwatch`fun.lwatch
+LWATCH`FUN.LWATCH [#6]: You [switch(squish(get(%#/LWATCH)),,aren't watching anyone,are watching [itemize(map(#lambda/name(%%0),#$,,|),|)])].%r[space(10)][switch(squish(get(%#/LWATCH`BY)),,Nobody is watching you.,You are being watched by [itemize(iter(#$,ufun(lwatch`fun.lwatch-hilite,##),,|),|)].)]
+
+***** Custom lwatch/who
+&lwatch`cmd.lwatch-who #7=$+lwatch/who: @nspemit/silent %#=ufun(%ve/tag,lwatch)[ufun(%vb/lwatch`fun.lwatch-who)]
+
+&lwatch`fun.lwatch-who #8=switch(0,hastype(%#,PLAYER),Only players can use this command.,
+[switch(squish(get(%#/LWATCH)),,You aren't watching anyone,
+	@@ Insert names/online status here.
+	The following people you are watching are online:
+	
+)]

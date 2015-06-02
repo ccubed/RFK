@@ -1,0 +1,208 @@
+Shaalwyd says, "Okay, let's start with a question."
+say sure
+You say, "sure"
+Shaalwyd says, "Later, when we come to spend xp, will this be a largely manual process? For example, I add X to the character sheet and then either deduct Y Beats (which is what we're calling xp) or tell it how many beats to deduct?"
+say I'll be writing a whole suite of nifty Staff commands to spend xp
+You say, "I'll be writing a whole suite of nifty Staff commands to spend xp"
+Shaalwyd says, "Because if it is that way, rather than trying to automate the process (so by giving them X it automatically deducts Y, because it knows how much to do) Disciplines get /waaaaay/ more complicated."
+Shaalwyd says, "Wait."
+Shaalwyd says, "Other way around."
+:confuses immediately.
+Kougyoku confuses immediately.
+Shaalwyd says, "Trying to make it all automatic makes things way more complicated."
+say How so?
+You say, "How so?"
+Shaalwyd says, "Okay, so."
+Shaalwyd says, "There are in-Clan Disciplines and out-of-Clan Disciplines."
+Shaalwyd says, "These are the same Disciplines. Celerity, for example."
+Shaalwyd says, "But if I am a Gangrel, Celerity is out of clan."
+say Yeah, that's going to make things difficult.. :(
+You say, "Yeah, that's going to make things difficult.. :("
+Shaalwyd says, "If I am a Mekhet, Celerity is in clan."
+Shaalwyd says, "So they cost different amounts."
+Shaalwyd says, "Whereas if we just say 'Okay, you buy a dot of Celerity, I look with my eyeballs to see what you are and I deduct the appropriate amount of beats...' we do not have to worry about the distinction between in-clan and out of clan."
+Shaalwyd says, "And I am thinking that is probably the wiser way to go."
+say A manual deduction of exp would make things a ton easier.. example +wizdisc/add <discipline name>
+You say, "A manual deduction of exp would make things a ton easier.. example +wizdisc/add <discipline name>"
+say Followed by +deduct <player>=exp
+You say, "Followed by +deduct <player>=exp"
+Shaalwyd says, "Right!"
+Shaalwyd says, "I think that is what I'd prefer."
+Shaalwyd says, "Which makes this stage muuuuuuuch less fiddly."
+say Mekhet, say Celerity is 1exp
+You say, "Mekhet, say Celerity is 1exp"
+say What other clan has Celerity
+You say, "What other clan has Celerity"
+Shaalwyd says, "Daeva"
+say Is it ALSO 1exp?
+You say, "Is it ALSO 1exp?"
+Shaalwyd says, "Yes."
+say So all in-clan disciplines cost the same across the board. Same with all out-of-clan costs
+You say, "So all in-clan disciplines cost the same across the board. Same with all out-of-clan costs"
+Shaalwyd says, "Right. The complication is with bloodlines, because it adds fifty different iterations of what is in-clan and what is out-of-clan."
+:bangs head here.
+Kougyoku bangs head here.
+Shaalwyd says, "So what I think we should do is this:"
+Shaalwyd says, "Forget about how much things cost. Because if we don't automate the xp spending, it doesn't /matter/ how much it costs."
+Shaalwyd says, "Which leaves us with three and a half categories of Disciplines."
+say I think I want to do the manual deduction of exp anyway.. since there's so many different iterations and combinations.
+You say, "I think I want to do the manual deduction of exp anyway.. since there's so many different iterations and combinations."
+Shaalwyd nodnod.
+Shaalwyd says, "And honestly, I can't see us being able to predict all of them."
+say But for discipline selection here in CG, do we have a cost/points system like we had with Merits?
+You say, "But for discipline selection here in CG, do we have a cost/points system like we had with Merits?"
+Shaalwyd says, "We do. Vampires get three dots of disciplines. The first two have to be in clan. The third can be anything."
+say Manual check of that is acceptable?
+You say, "Manual check of that is acceptable?"
+Shaalwyd says, "Yep!"
+say brb, meeting.
+You say, "brb, meeting."
+say 30 min.. hopefully.
+You say, "30 min.. hopefully."
+Shaalwyd says, "Ok."
+:is done with meeting.
+Kougyoku is done with meeting.
+Shaalwyd says, "How was it?"
+say It's just the daily standup. We go over news headlines.
+You say, "It's just the daily standup. We go over news headlines."
+Shaalwyd says, "Oh, fun."
+:is quite abreast of recent events.
+Kougyoku is quite abreast of recent events.
+Shaalwyd says, "Okay. Three and a half categories of disciplines. Category one are physical disciplines."
+Shaalwyd says, "Celerity, Vigor, Resilience."
+say So we need to get these disciplines into lists. Does the category matter? As in, do I need to seperate them or can I make one long list of Disciplines like we did for Merits
+You say, "So we need to get these disciplines into lists. Does the category matter? As in, do I need to seperate them or can I make one long list of Disciplines like we did for Merits"
+Shaalwyd says, "Well, I've divided them into categories because I think they'll need to be handled differently."
+say Okay. I will wait for you to explain further.
+You say, "Okay. I will wait for you to explain further."
+Shaalwyd says, "Physical disciplines have passive effects as well as active effects. That is, the player can turn them on to do certain things, but even if they don't every dot is doing something. Vigor adds to Strength, Resilience adds to Stamina, Celerity adds to Defense."
+Shaalwyd says, "Fortunately, there are not many of those!"
+Shaalwyd says, "Category two are Disciplines That Do Stuff. 1-5 dots. Some of them are only available to certain bloodlines or covenants - that's the 'and a half'. But basically, they're like attributes or skills as far as the character sheet goes."
+I'm assuming all disciplines are 1-5 dots
+Huh?  (Type "help" for help.)
+'I'm assuming all disciplines are 1-5 dots
+<OOC> You say, "I'm assuming all disciplines are 1-5 dots"
+Shaalwyd says, "Yes."
+say How do you think they need to be handled differently?
+You say, "How do you think they need to be handled differently?"
+Shaalwyd says, "Well, the physical disciplines make a flat-out change to the character sheet. Like adding dots in Celerity to Defense."
+say Hmm.
+You say, "Hmm."
+Shaalwyd says, "The third category is the complicated one."
+Shaalwyd says, "Category three are ritual disciplines. There are a half-dozen different ritual disciplines (Theban, Cruac, Nomenclature, etc) that all link back to the same five Themes: Destruction, Creation, Transformation, Divination, Protection. One dot of the ritual discipline gives three dots to spend across those five Themes."
+say Yeah, that is the complicated one.
+You say, "Yeah, that is the complicated one."
+Shaalwyd says, "Right."
+Shaalwyd says, "Disciplines get Devotions, in the same way that Attributes/Skills get Merits."
+Shaalwyd says, "That should be pretty straightforward, though - the hard work has all been done already, working out Merits. They have X, Y, and Z as prerequisites, and they're good to go. Devotions aren't going to be an issue in character creation, /except/ for the ones for the ritual disciplines."
+Shaalwyd says, "Because they get one free with each dot of the ritual discipline."
+say Hm, the big picture seems pretty complicated.
+You say, "Hm, the big picture seems pretty complicated."
+Shaalwyd says, "Again, that /should/ be simple. It's selecting from a list."
+Shaalwyd says, "But that's why I divide them into 3 categories. Because we'll have to treat them somewhat differently."
+say Need to think carefully on how i'm going to pull this off. How'd we do merits.. haha. I need this broken down into smaller, more manageable bits.
+You say, "Need to think carefully on how i'm going to pull this off. How'd we do merits.. haha. I need this broken down into smaller, more manageable bits."
+Kougyoku ponders.
+Shaalwyd says, "Seems logical to start with the easy stuff, which are the non-physical disciplines."
+say Well, I'm thinking thusly:
+You say, "Well, I'm thinking thusly:"
+say DISCIPLINES.PHYSICAL=
+You say, "DISCIPLINES.PHYSICAL="
+say DISCIPLINES.DOSTUFF=
+You say, "DISCIPLINES.DOSTUFF="
+say DISCIPLINES.RITUALS=
+You say, "DISCIPLINES.RITUALS="
+Shaalwyd says, "(Hee, DOSTUFF)"
+Shaalwyd says, "So first step is to give you a list of each of those things?"
+say Yes, I think so. But we also need those themes as well, I think.
+You say, "Yes, I think so. But we also need those themes as well, I think."
+say DISCIPLINES.RITUALS.THEMES ???=
+You say, "DISCIPLINES.RITUALS.THEMES ???="
+Shaalwyd says, "Sure."
+say THEMES only comes into play with RITUALS
+You say, "THEMES only comes into play with RITUALS"
+say correct?
+You say, "correct?"
+Shaalwyd says, "Correct."
+say mmmm.
+You say, "mmmm."
+say So if I have RITUAL Cruac:1
+You say, "So if I have RITUAL Cruac:1"
+say CRUAC has 5 themes.
+You say, "CRUAC has 5 themes."
+Shaalwyd says, "You get three dots to divide between those five themes. Now, to complicate that: each ritual discipline is linked to two of those themes. Two of your three dots have to go into the linked themes. One can go wherever you want."
+say Does THEBAN share those THEME points? 
+You say, "Does THEBAN share those THEME points?"
+Shaalwyd says, "Again, that part can be a manual check."
+Shaalwyd says, "Yep!"
+say Whew.
+You say, "Whew."
+say I thought each ritual had it's own theme points.
+You say, "I thought each ritual had it's own theme points."
+Shaalwyd says, "All ritual disciplines come back to the same five themes. What differs is what their two linked ones are. (Plus cinematic stuff.)"
+Shaalwyd says, "Well, they do! But in a Merit way. Like, for example, Blood Blight is a ritual that requires you to have Creation 4 and Transmutation 4."
+say So if I gain CRUAC, spend 1 point on CREATION.... when i take the THEBAN ritual It will ALSO have 1 point in CREATION
+You say, "So if I gain CRUAC, spend 1 point on CREATION.... when i take the THEBAN ritual It will ALSO have 1 point in CREATION"
+say Currect?
+You say, "Currect?"
+Shaalwyd says, "Well, at character generation that's not possible. Because ritual disciplines are always out of clan. You get three dots to spend, and the first two have to be in-clan, which means you're only ever going to have one ritual discipline at character creation. BUT."
+Shaalwyd says, "Yes, if you have Cruac 1 and put 1 point into Creation, and then later buy Theban 1, you /already/ have 1 point in creation that you can use for your Theban rituals."
+:wants to get this setup for the word go.
+Kougyoku wants to get this setup for the word go.
+say Okay, that makes things TONS easier.
+You say, "Okay, that makes things TONS easier."
+Shaalwyd says, "The first dot of any blood sorcery gives you three dots to spend in themes. Any dots after that only give you one dot to put in a theme."
+say Because if it was Cruac 1 with 1 pt creation, and THEBAN was different... then it would have been a nightmare.
+You say, "Because if it was Cruac 1 with 1 pt creation, and THEBAN was different... then it would have been a nightmare."
+Shaalwyd laughs.
+Shaalwyd says, "Yeah, seriously!"
+:breathes a sign of relief. "So what were you saying about that dot of blood sorcery, and themes..?
+Kougyoku breathes a sign of relief. "So what were you saying about that dot of blood sorcery, and themes..?
+say blood sorcery=ritual?
+You say, "blood sorcery=ritual?"
+Shaalwyd says, "Oh! Yes."
+Shaalwyd says, "Blood sorcery is another classification for ritual disciplines."
+Shaalwyd says, "Just different names for the same thing."
+say Then not worrying about it.
+You say, "Then not worrying about it."
+say Okay. I think we have our starting point. DISCIPLINES.PHYSICAL=
+You say, "Okay. I think we have our starting point. DISCIPLINES.PHYSICAL="
+say DISCIPLINES.DOSTUFF=
+You say, "DISCIPLINES.DOSTUFF="
+say DISCIPLINES.RITUALS
+You say, "DISCIPLINES.RITUALS"
+say DISCIPLINES.RITUALS.THEMES
+You say, "DISCIPLINES.RITUALS.THEMES"
+
+You say, "I don't get this list of prereqs you gave me."
+Shaalwyd says, "Alright. Let me see if I can clarify."
+ex %wl/CG_LIST`DISCIPLINES.RITUALS
+CG_LIST`DISCIPLINES.RITUALS [#5]: Ahranite Sorcery|Cruac|Gilded Cage|Lithopedia|Merges Sorcery|Nomenclature|Theban Sorcery|Vodoun
+Shaalwyd says, "So we have these ritual disciplines. Taking a dot in a ritual discipline gives you thre dots to put in themes, and then one free ritual."
+@decomp %wl/CG_LIST`DISCIPLINES.RITUALS
+&CG_LIST`DISCIPLINES.RITUALS List Database=Ahranite Sorcery|Cruac|Gilded Cage|Lithopedia|Merges Sorcery|Nomenclature|Theban Sorcery|Vodoun
+Shaalwyd says, "What I've just given you is the complete list of rituals."
+Shaalwyd says, "But if you take a dot in Cruac, you cannot get a Theban Sorcery ritual."
+&CG_LIST`DISCIPLINES.RITUALS List Database=Ahranite Sorcery|Cruac|Gilded Cage|Lithopedia|Merges Sorcery|Nomenclature|Theban Sorcery|Rapport
+List Database/CG_LIST`DISCIPLINES.RITUALS - Set.
+say &CG_LIST`DISCIPLINES.RITUALS List Database=Ahranite Sorcery|Cruac|Gilded Cage|Lithopedia|Merges Sorcery|Nomenclature|Theban Sorcery|Rapport
+You say, "&CG_LIST`DISCIPLINES.RITUALS List Database=Ahranite Sorcery|Cruac|Gilded Cage|Lithopedia|Merges Sorcery|Nomenclature|Theban Sorcery|Rapport"
+Shaalwyd says, "Right. Those are the ritual disciplines."
+Shaalwyd says, "And all the rituals have one of the ritual disciplines as a prerequisite."
+say The rituals are Boyar's Caul, Harari, etc?
+You say, "The rituals are Boyar's Caul, Harari, etc?"
+Shaalwyd says, "Right."
+:groans as more work needs done here. "So close to the end, but so far."
+Kougyoku groans as more work needs done here. "So close to the end, but so far."
+Shaalwyd says, "It should not be that bad! Simpler than the merits, and you should be able to reuse some of the same code, right?"
+say So I need to do Rituals in this room too. Yeah, I can reuse the code. 
+You say, "So I need to do Rituals in this room too. Yeah, I can reuse the code."
+Shaalwyd says, "But they only get a ritual if they take a dot in a ritual discipline. Any of the other kinds of disciplines are straightforward."
+
+Discipline Room: Add +rituals code.
+
+You say, "you said 1 ritual?"
+Shaalwyd says, "Yep!"
+say per point of RitualDisciplineX
+You say, "per point of RitualDisciplineX"
+Shaalwyd says, "Right. But they can only take one point at character generation, because none of those are in-clan. So if they try to take more than one point they are Being Naughty."

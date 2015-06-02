@@ -1,0 +1,143 @@
+@@ CharGen Basics: Vampire (#227)
+@dig/teleport CharGen Basics: Vampire
+@parent here=#44
+@set here = WIZARD
+@power here = See_All
+
+&CMD here=
+&CMD`AGE here=$+age *:@include #227/FN`AGE=%0
+&CMD`BLOODLINE here=$+bloodline *:@include #227/FN`BLOODLINE=%0
+&CMD`CLAN here=$+clan *:@include #227/FN`CLAN=%0
+
+&CMD`COMMANDS here=$+commands:[pemit(%#,Here are the commands available in this room. For help on each individual command\, please see +HELP CG_<Command Name>%R[iter([lattr(%L/CMD`**)],+[lcstr([after(%i0,`)])],,%R)])]
+
+&CMD`CONCEPT here=$+concept *:@include #227/FN`CONCEPT=%0
+&CMD`COVENANT here=$+covenant *:@include #227/FN`COVENANT=%0
+&CMD`DIRGE here=$+dirge *:@include #227/FN`DIRGE=%0
+&CMD`DOB here=$+dob *:@include #227/FN`DOB=%0
+&CMD`DOE here=$+doe *:@include #227/FN`DOE=%0
+&CMD`DOG here=$+dog *:@include #227/FN`DOE=%0
+&CMD`EMAIL here=$+email *:@include #227/FN`EMAIL=%0
+&CMD`GENDER here=$+gender *:@force %#=@sex me=%0
+&CMD`MASK here=$+mask *:@include #227/FN`MASK=%0
+&CMD`PLAYSTYLE here=$+playstyle *:@include #227/FN`PLAYSTYLE=%0
+&CMD`QUOTE here=$+quote *:@include #227/FN`QUOTE=%0
+&CMD`SURNAME here=$+surname *:@include #227/FN`SURNAME=%0
+&CMD`VICE here=$+vice *:@include #227/FN`VICE=%0
+&CMD`VIRTUE here=$+virtue *:@include #227/FN`VIRTUE=%0
+
+@@ Ghoul Desc
+@DESC here=The general information pertaining to your character. All these are visible to all players except Email. Email will NEVER be given out and spam will NEVER be sent.%R[header(Required)]%R[align(18 50,Name:,[name(%#)])]%R[iter(Surname|DOB|Apparent_Age|Concept|Quote|Email|Playstyle|Vice|Virtue,[align(18 50,[edit(%i0,_,[space(1)])]:,[get(%#/PC_DATA`%i0)])],|,%R)]%R[align(18 10,Gender:,[get(%#/SEX)])]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[if([strmatch(get_template(%#),VAMPIRE)],[iter(Date_Of_Embrace|Mask|Dirge,[align(18 50,[edit(%i0,_,[space(1)])]:,[if([cor([strmatch(%i0,Mask)],[strmatch(%i0,Dirge)])],[get(%#/PC_DATA`VAMP.%i0)],[get(%#/PC_DATA`%i0)])])],|,%R)],[align(18 50,Date Of Ghouling:,[get(%#/PC_DATA`Date_Of_Embrace)])])]%R[iter(Clan|Covenant,[align(18 50,%i0:,[get(%#/PC_DATA`%i0)])],|,%R)])]%R%R[align(18 60,Description:,[get(%#/DESCRIBE)])]%R[header(Optional)]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[align(18 50,Bloodline:,[get(%#/PC_DATA`BLOODLINE)])]%R)][align(18 50,Note:,[get(%#/PC_DATA`NOTE)])]%R[align(18 50,Online Info:,[get(%#/PC_DATA`ONLINE)])]%R[header()]%R%TYour unholy master calls you to his chamber. "Ah. My latest Ghoul. How does it feel, to be my eternal servant? Don't fight it. You've already been bound to me. You've traded your service for a taste of real power... my blood. Don't you feel it coursing through your veins? Don't worry, you will... soon enough. Your first task in my service is to provide the above information. Required information is above whilst optional information below." Your master hands you a clipboard and pen. "Hurry on, hurry on. Don't dawdle. We have much to do while the night is still young."%R%RSEE +HELP CG_<ITEM> for additional details.%R[footer()]
+
+@@ Human Desc
+@DESC here=The general information pertaining to your character. All these are visible to all players except Email. Email will NEVER be given out and spam will NEVER be sent.%R[header(Required)]%R[align(18 50,Name:,[name(%#)])]%R[iter(Surname|DOB|Apparent_Age|Concept|Quote|Email|Playstyle|Vice|Virtue,[align(18 50,[edit(%i0,_,[space(1)])]:,[get(%#/PC_DATA`%i0)])],|,%R)]%R[align(18 10,Gender:,[get(%#/SEX)])]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[if([strmatch(get_template(%#),VAMPIRE)],[iter(Date_Of_Embrace|Mask|Dirge,[align(18 50,[edit(%i0,_,[space(1)])]:,[if([cor([strmatch(%i0,Mask)],[strmatch(%i0,Dirge)])],[get(%#/PC_DATA`VAMP.%i0)],[get(%#/PC_DATA`%i0)])])],|,%R)],[align(18 50,Date Of Ghouling:,[get(%#/PC_DATA`Date_Of_Embrace)])])]%R[iter(Clan|Covenant,[align(18 50,%i0:,[get(%#/PC_DATA`%i0)])],|,%R)])]%R%R[align(18 60,Description:,[get(%#/DESCRIBE)])]%R[header(Optional)]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[align(18 50,Bloodline:,[get(%#/PC_DATA`BLOODLINE)])]%R)][align(18 50,Note:,[get(%#/PC_DATA`NOTE)])]%R[align(18 50,Online Info:,[get(%#/PC_DATA`ONLINE)])]%R[header()]%R%T"Hey there!" A broad and overly obese man calls out to you with a wave. "I'm the mayor of Innsmouth. Haven't seen you around here before. Let me be the first to welcome you to my fair city. Keep out of trouble, and you and I will get along just fine." The mayor heaves his breaths, the fat gliding up and down on his stomach as he does. "Now I don't just let any old schmuck in, I like to know the folks around my town! Makes for a right peaceful neighborhood, it does. I'll need you to fill out Form 36-1 if you'd like to stay a while. All the important boxes are here on top and there's even a space for you to doodle or write what ya like. Fill that out and return it to City Hall along with your vote for me!"%R%RSEE +HELP CG_<ITEM> for additional details.%R[footer()]
+
+@@ Vamp Desc
+@DESC here=The general information pertaining to your character. All these are visible to all players except Email. Email will NEVER be given out and spam will NEVER be sent.%R[header(Required)]%R[align(18 50,Name:,[name(%#)])]%R[iter(Surname|DOB|Apparent_Age|Concept|Quote|Email|Playstyle,[align(18 50,[edit(%i0,_,[space(1)])]:,[get(%#/PC_DATA`%i0)])],|,%R)]%R[align(18 10,Gender:,[get(%#/SEX)])]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[if([strmatch(get_template(%#),VAMPIRE)],[iter(Date_Of_Embrace|Mask|Dirge,[align(18 50,[edit(%i0,_,[space(1)])]:,[if([cor([strmatch(%i0,Mask)],[strmatch(%i0,Dirge)])],[get(%#/PC_DATA`VAMP.%i0)],[get(%#/PC_DATA`%i0)])])],|,%R)],[align(18 50,Date Of Ghouling:,[get(%#/PC_DATA`Date_Of_Embrace)])])]%R[iter(Clan|Covenant,[align(18 50,%i0:,[get(%#/PC_DATA`%i0)])],|,%R)])]%R%R[align(18 60,Description:,[get(%#/DESCRIBE)])]%R[header(Optional)]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[align(18 50,Bloodline:,[get(%#/PC_DATA`BLOODLINE)])]%R)][align(18 50,Note:,[get(%#/PC_DATA`NOTE)])]%R[align(18 50,Online Info:,[get(%#/PC_DATA`ONLINE)])]%R[header()]%R%TDim, dingy yellow lights sputter overhead. The bar is empty now, at this limnal hour just before dawn. The bartender is alone, a scraggly fellow, on the wrong side of middle age. He cleans a shot glass with a slate-grey rag and cold hands. He stares at you, unblinking, with bloodshot eyes. In that moment you know, he is like you. Dead, but not. Cursed to live forever in darkness. Blessed to be more powerful than any human. A parasite. A paragon. He sees you enter and gestures at a stool. The bottle he sets on the counter is filled with dark red liquid and marked with a single white sigil in a language that died before Christ.%R%RHis voice reminds you of gravel and glass. "Welcome to Kingsmouth, Kindred. Have a seat and a drink on the house. It's always nice to see a new face." The way he says "nice" sounds like he's talking about how "nice" it is to take home the first cut of freshly-slaughtered meat. "Tell me about yourself." His dead eyes blink, once. Is that what you look like?%R%RSEE +HELP CG_<ITEM> for additional details.%R[footer()]
+
+@@ OLD VARIABLE DESC CODE
+&DESC`COMMON here=The general information pertaining to your character. All these are visible to all players except Email. Email will NEVER be given out and spam will NEVER be sent.%R[header(Required)]%R[align(18 50,Name:,[name(%#)])]%R[iter(Surname|DOB|Apparent_Age|Concept|Quote|Email|Playstyle,[align(18 50,[edit(%i0,_,[space(1)])]:,[get(%#/PC_DATA`%i0)])],|,%R)]%R[align(18 10,Gender:,[get(%#/SEX)])]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[if([strmatch(get_template(%#),VAMPIRE)],[iter(Date_Of_Embrace|Mask|Dirge,[align(18 50,[edit(%i0,_,[space(1)])]:,[if([cor([strmatch(%i0,Mask)],[strmatch(%i0,Dirge)])],[get(%#/PC_DATA`VAMP.%i0)],[get(%#/PC_DATA`%i0)])])],|,%R)],[align(18 50,Date Of Ghouling:,[get(%#/PC_DATA`Date_Of_Embrace)])])]%R[iter(Clan|Covenant,[align(18 50,%i0:,[get(%#/PC_DATA`%i0)])],|,%R)])]%R%R[align(18 60,Description:,[get(%#/DESCRIBE)])]%R[header(Optional)]%R[if([not([strmatch([get_template(%#)],HUMAN)])],[align(18 50,Bloodline:,[get(%#/PC_DATA`BLOODLINE)])]%R)][align(18 50,Note:,[get(%#/PC_DATA`NOTE)])]%R[align(18 50,Online Info:,[get(%#/PC_DATA`ONLINE)])]%R[header()]%R%T
+
+&DESC`FOOTER here=%R[footer()]
+
+&DESC`GHOUL here=Your unholy master calls you to his chamber. "Ah. My latest Ghoul. How does it feel, to be my eternal servant? Don't fight it. You've already been bound to me. You've traded your service for a taste of real power... my blood. Don't you feel it coursing through your veins? Don't worry, you will... soon enough. Your first task in my service is to provide the above information. Required information is above whilst optional information below." Your master hands you a clipboard and pen. "Hurry on, hurry on. Don't dawdle. We have much to do while the night is still 	young."%R%RSEE +HELP CG_<ITEM> and +HELP FINGER for additional details.
+
+&DESC`HUMAN here="Hey there!" A broad and overly obese man calls out to you with a wave. "I'm the mayor of Innsmouth. Haven't seen you around here before. Let me be the first to welcome you to my fair city. Keep out of trouble, and you and I will get along just fine." The mayor heaves his breaths, the fat gliding up and down on his stomach as he does. "Now I don't just let any old schmuck in, I like to know the folks around my town! Makes for a right peaceful neighborhood, it does. I'll need you to fill out Form 36-1 if you'd like to stay a while. All the important boxes are here on top and there's even a space for you to doodle or write what ya like. Fill that out and return it to City Hall along with your vote for me!"%R%RSEE +HELP CG_<ITEM> and +HELP FINGER for additional details.
+
+&DESC`VAMPIRE here="Greetings Childe. You may call me Prince." A dark, ominous figure greets you from the shadows. "May I offer you a drink?" The Prince snaps his fingers and a butler comes out holding a small platter. A chalice full of dark red blood is sitting atop. "This is my city. Let no others fool you elsewise. You seek entrance to my city, I require... a small service." The Prince grins, and the butler comes forward with the platter. It holds the chalice of blood as well as a small, neat ledger with a pen. The Prince looks you in the eyes, "You WILL provide me with all your basic details into the ledger." Unconciously, your hand lifts and picks up the pen and begins to write against your will.%R%RSEE +HELP CG_<ITEM> and +HELP FINGER for additional details.
+
+&FN here=
+
+&FN`AGE here=[if([cand([isnum(%0)],[gte(%0,18)],[lte(%0,100)])],[attrib_set(%#/PC_DATA`APPARENT_AGE,%0)][pemit(%#,Apparent Age set to %0.)],[pemit(%#,+age: Your apparent age must be between 18 and 100 years old.)])]
+
+&FN`BLOODLINE here=[if([u(#227/FN`IF`CHECK.BLOODLINE,%#,%0)],[u(#227/FN`SET.BLOODLINE,%#,%0)])]
+
+&FN`CLAN here=[if([u(#227/FN`IF`CHECK.CLAN,%#,%0)],[u(#227/FN`SET.CLAN,%#,%0)])]
+
+&FN`CONCEPT here=[attrib_set(%#/PC_DATA`CONCEPT,[edit([decompose(%0)],\\,)])][pemit(%#,Concept set!)]
+
+&FN`COVENANT here=[if([u(#227/FN`IF`CHECK.COVENANT,%#,%0)],[u(#227/FN`SET.COVENANT,%#,%0)])]
+
+&FN`DIRGE here=[if([u(#227/FN`IF`CHECK.DIRGE,%#,%0)],[u(#227/FN`SET.DIRGE,%#,%0)])]
+
+&FN`DOB here=[if([u(#227/FN`IF`CHECK.DOB,%#,%0)],[u(#227/FN`SET.DOB,%#,%0)])]
+
+&FN`DOE here=[if([u(#227/FN`IF`CHECK.DOE,%#,%0)],[u(#227/FN`SET.DOE,%#,%0)])]
+
+&FN`EMAIL here=[if([u(#227/FN`IF`CHECK.EMAIL,%#,%0)],[u(#227/FN`SET.EMAIL,%#,%0)])]
+
+&FN`IF here=
+
+&FN`IF`CHECK.BLOODLINE here=[setq(i,1)][if([strmatch([get_template(%0)],HUMAN)],[setq(i,0)][pemit(%1,+bloodline: Only Ghouls or Vampires need to set their bloodline.)])][if([t(%qi)],[if([not([hasattrval(%0/PC_DATA`CLAN)])],[setq(i,0)][pemit(%0,+bloodline: You must set your clan first!)])])][if([t(%qi)],[iter([get(%wl/CG_LIST`BLOODLINE.[get(%0/PC_DATA`CLAN)])],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[if([strmatch([get_template(%0)],GHOUL)],[iter([get(%wl/CG_LIST`BLOODLINE.GHOUL)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)])])][if([not(%qi)],[pemit(%0,%1 is not a valid bloodline. Please see +HELP [switch([get_template(%0)],GHOUL,GHOUL,[ucstr([get(%0/PC_DATA`CLAN)])])] BLOODLINES for a listing.)])])]%qi
+
+&FN`IF`CHECK.CLAN here=[setq(i,1)][if([strmatch([get_template(%0)],HUMAN)],[setq(i,0)][pemit(%0,+clan: Only Ghouls or Vampires need to set their clan.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`CLAN)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,%1 is not a valid clan. Please see +HELP CLAN for a listing.)])])]%qi
+
+&FN`IF`CHECK.COVENANT here=[setq(i,1)][if([strmatch([get_template(%0)],HUMAN)],[setq(i,0)][pemit(%0,+covenant: Only Ghouls or Vampires need to set their covenant.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`COVENANT)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,%1 is not a valid covenant. Please see +HELP COVENANT for a listing.)])])]%qi
+
+&FN`IF`CHECK.DIRGE here=[setq(i,1)][if([not([strmatch([get_template(%0)],VAMPIRE)])],[setq(i,0)][pemit(%0,+dirge: Only Vampires need to set their Dirge.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`MASKDIRGE)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,%1 is not a valid Dirge. Please see +HELP DIRGE for a listing.)])])]%qi
+
+&FN`IF`CHECK.DOB here=[setq(i,0)][setq(i,[regmatch(%1,^0\[1-9\]|1\[0-2\]/0\[1-9\]|\[12\]\[0-9\]|3\[01\]/\\d\\d\\d\\d)])][if([not(%qi)],[pemit(%0, That is not a valid Date of Birth! Please use the following format: MM/DD/YYYY)])]%qi
+
+&FN`IF`CHECK.DOE here=[setq(i,1)][if([strmatch([get_template(%0)],HUMAN)],[setq(i,0)][pemit(%0,Only Vampires or their Ghouls have a date of Embrace or Ghouling.)])][if([t(%qi)],[setq(i,[regmatch(%1,^0\[1-9\]|1\[0-2\]/0\[1-9\]|\[12\]\[0-9\]|3\[01\]/\\d\\d\\d\\d)])][if([not(%qi)],[pemit(%0, That is not a valid Date of [if([strmatch([get_template(%0)],VAMPIRE)],Embrace,Ghouling)]! Please use the following format: MM/DD/YYYY)])])]%qi
+
+&FN`IF`CHECK.EMAIL here=[setq(i,0)][setq(i,[regmatch(%1,\[\\w\.-\]+@\[\\w\.-\]+\\.\\w\{2\,4\})])][if([not(%qi)],[pemit(%0, That is not a valid email! Please use the following format: name@example.com)])]%qi
+
+&FN`IF`CHECK.MASK here=[setq(i,1)][if([not([strmatch([get_template(%0)],VAMPIRE)])],[setq(i,0)][pemit(%0,+mask: Only Vampires need to set their Mask.)])][if([t(%qi)],[iter([get(%wl/CG_LIST`MASKDIRGE)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,%1 is not a valid Mask. Please see +HELP MASK for a listing.)])])]%qi
+
+&FN`IF`CHECK.PLAYSTYLE here=[setq(i,1)][if([t(%qi)],[iter([get(%wl/CG_LIST`PLAYSTYLE)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,%1 is not a valid playstyle. Please see +HELP CG_PLAYSTYLE for a listing.)])])]%qi
+
+&FN`IF`CHECK.VICE here=[setq(i,1)][if([t(%qi)],[iter([get(%wl/CG_LIST`VICES)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,%1 is not a valid vice. Please see +HELP VICE for a listing.)])])]%qi
+
+&FN`IF`CHECK.VIRTUE here=[setq(i,1)][if([t(%qi)],[iter([get(%wl/CG_LIST`VIRTUES)],[if([strmatch(%1,%i0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)][if([not(%qi)],[pemit(%0,%1 is not a valid virtue. Please see +HELP VIRTUE for a listing.)])])]%qi
+
+&FN`MASK here=[if([u(#227/FN`IF`CHECK.MASK,%#,%0)],[u(#227/FN`SET.MASK,%#,%0)])]
+
+&FN`PLAYSTYLE here=[if([u(#227/FN`IF`CHECK.PLAYSTYLE,%#,%0)],[u(#227/FN`SET.PLAYSTYLE,%#,%0)])]
+
+&FN`QUOTE here=[attrib_set(%#/PC_DATA`QUOTE,[edit([decompose(%0)],\\,)])][pemit(%#,Quote set!)]
+
+&FN`SET.BLOODLINE here=[setq(i,0)][iter([get(%wl/CG_LIST`BLOODLINE.[get(%0/PC_DATA`CLAN)])],[if([strmatch(%1,%i0)],[setq(i,1)][attrib_set(%0/PC_DATA`BLOODLINE,%i0)][pemit(%0,Bloodline set to [capstr(%i0)]!)])],|)][if([not(%qi)],[iter([get(%wl/CG_LIST`BLOODLINE.GHOUL)],[if([strmatch(%1,%i0)],[setq(i,1)][attrib_set(%0/PC_DATA`BLOODLINE,%i0)][pemit(%0,Bloodline set to [capstr(%i0)]!)])],|)])]
+
+&FN`SET.CLAN here=[iter([get(%wl/CG_LIST`CLAN)],[if([strmatch(%1,%i0)],[attrib_set(%0/PC_DATA`CLAN,%i0)][pemit(%0,Clan set to [capstr(%i0)]!)])],|)]
+
+&FN`SET.COVENANT here=[iter([get(%wl/CG_LIST`COVENANT)],[if([strmatch(%1,%i0)],[attrib_set(%0/PC_DATA`COVENANT,%i0)][pemit(%0,Covenant set to [capstr(%i0)]!)])],|)]
+
+&FN`SET.DIRGE here=[iter([get(%wl/CG_LIST`MASKDIRGE)],[if([strmatch(%1,%i0)],[attrib_set(%0/PC_DATA`VAMP.DIRGE,%i0)][pemit(%0,Dirge set to [capstr(%i0)]!)])],|)]
+
+&FN`SET.DOB here=[attrib_set(%0/PC_DATA`DOB,[secure(%1)])][pemit(%#,Date of Birth set to [secure(%1)].)]
+
+&FN`SET.DOE here=[attrib_set(%0/PC_DATA`DATE_OF_EMBRACE,[secure(%1)])][pemit(%0,Date of [if([strmatch([get_template(%0)],VAMPIRE)],Embrace,Ghouling)] set to [secure(%1)].)]
+
+&FN`SET.EMAIL here=[attrib_set(%0/PC_DATA`EMAIL,[secure(%1)])][pemit(%#,Email set to [secure(%1)])]
+
+&FN`SET.MASK here=[iter([get(%wl/CG_LIST`MASKDIRGE)],[if([strmatch(%1,%i0)],[attrib_set(%0/PC_DATA`VAMP.MASK,%i0)][pemit(%0,Mask set to [capstr(%i0)]!)])],|)]
+
+&FN`SET.PLAYSTYLE here=[iter([get(%wl/CG_LIST`PLAYSTYLE)],[if([strmatch(%1,%i0)],[attrib_set(%0/PC_DATA`PLAYSTYLE,%i0)][pemit(%0,Playstyle set to [capstr(%i0)]!)])],|)][if([strmatch([get(%0/PC_DATA`PLAYSTYLE)],Hardcore)],[attrib_set(%0/PC_DATA`STATUS`INFLUENCE,1)],[attrib_set(%0/PC_DATA`STATUS`INFLUENCE,0)])][pemit(%0,Influence set to [get(%0/PC_DATA`STATUS`INFLUENCE)].)]
+
+&FN`SET.VICE here=[iter([get(%wl/CG_LIST`VICES)],[if([strmatch(%1,%i0)],[attrib_set(%0/PC_DATA`VICE,%i0)][pemit(%0,Vice set to [capstr(%i0)]!)])],|)]
+
+&FN`SET.VIRTUE here=[iter([get(%wl/CG_LIST`VIRTUES)],[if([strmatch(%1,%i0)],[attrib_set(%0/PC_DATA`VIRTUE,%i0)][pemit(%0,Virtue set to [capstr(%i0)]!)])],|)]
+
+&FN`SURNAME here=[attrib_set(%#/PC_DATA`SURNAME,[edit([decompose([capstr(%0)])],\\,)])][pemit(%#,Surname set!)]
+
+&FN`VICE here=[if([u(#227/FN`IF`CHECK.VICE,%#,%0)],[u(#227/FN`SET.VICE,%#,%0)])]
+&FN`VIRTUE here=[if([u(#227/FN`IF`CHECK.VIRTUE,%#,%0)],[u(#227/FN`SET.VIRTUE,%#,%0)])]
+
+&WL here=#1705
+
+
+----------------- Next Reqs_Met code
+@@ Next (#1745), in CharGen Basic Information (#227)
+@open Next
+@link Next = #1744
+@lock/Basic Next=FLAG\^WIZARD|FLAG\^ROYALTY|REQS_MET/1
+@lset Next/Basic=no_inherit
+@power Next = See_All
+&ALIAS Next=N
+@set Next/ALIAS=no_command visual prefixmatch
+&FAILURE Next=
+@set Next/FAILURE=no_command prefixmatch
+&REQS_MET Next=[setq(i,1)][if([not([hasattrval(%#/DESCRIBE)])],[setq(i,0)][pemit(%#,Your description is not set. Please use @desc me=DESCRIPTION to describe your character. Your description will be scrubbed by staff before your character is approved and you are allowed to play.)])][if([t(%qi)],[if([not([cor([strmatch([get(%#/SEX)],male)],[strmatch([get(%#/SEX)],female)],[strmatch([get(%#/SEX)],unclear)])])],[setq(i,0)][pemit(%#,Your gender is not set. Please use @sex me=MALE , @sex me=FEMALE or @sex me=UNCLEAR to continue.)])])][if([t(%qi)],[iter(Surname|DOB|Apparent_Age|Concept|Quote|Email|Playstyle|Vice|Virtue,[if([not([hasattrval(%#,PC_DATA`%i0)])],[setq(i,0)][pemit(%#,Your [edit(%i0,_,[space(1)])] is not set. Please use the appropriate +command to set your [edit(%i0,_,[space(1)])] before continuing. For help\, see +HELP CG_<item>.)][ibreak()])],|,)])][if([cand([t(%qi)],[not([strmatch([get_template(%#)],HUMAN)])])],[iter(Date_Of_Embrace|Clan|Covenant,[if([not([hasattrval(%#,PC_DATA`%i0)])],[setq(i,0)][pemit(%#,Your [if([cand([strmatch(Date_Of_Embrace,%i0)],[strmatch([get_template(%#)],GHOUL)])],Date of Ghouling,[edit(%i0,_,[space(1)])])] is not set. Please use the appropriate +command to set your [if([cand([strmatch(Date_Of_Embrace,%i0)],[strmatch([get_template(%#)],GHOUL)])],Date of Ghouling,[edit(%i0,_,[space(1)])])] before continuing. For help\, see +HELP CG_<item>.)][ibreak()])],|,)])][if([cand([t(%qi)],[strmatch([get_template(%#)],VAMPIRE)])],[iter(Mask|Dirge,[if([not([hasattrval(%#,PC_DATA`VAMP.%i0)])],[setq(i,0)][pemit(%#,Your %i0 is not set. Please use the appropriate +command to set your %i0 before continuing. For help\, see +HELP CG_<item>.)][ibreak()])],|,)])]%qi
+
+*** Vamp Reqs_Met -- Does not have virtue|vice
+&REQS_MET Next=[setq(i,1)][if([not([hasattrval(%#/DESCRIBE)])],[setq(i,0)][pemit(%#,Your description is not set. Please use @desc me=DESCRIPTION to describe your character. Your description will be scrubbed by staff before your character is approved and you are allowed to play.)])][if([t(%qi)],[if([not([cor([strmatch([get(%#/SEX)],male)],[strmatch([get(%#/SEX)],female)],[strmatch([get(%#/SEX)],unclear)])])],[setq(i,0)][pemit(%#,Your gender is not set. Please use @sex me=MALE \, @sex me=FEMALE or @sex me=UNCLEAR to continue.)])])][if([t(%qi)],[iter(Surname|DOB|Apparent_Age|Concept|Quote|Email|Playstyle,[if([not([hasattrval(%#,PC_DATA`%i0)])],[setq(i,0)][pemit(%#,Your [edit(%i0,_,[space(1)])] is not set. Please use the appropriate +command to set your [edit(%i0,_,[space(1)])] before continuing. For help\, see +HELP CG_<item>.)][ibreak()])],|,)])][if([cand([t(%qi)],[not([strmatch([get_template(%#)],HUMAN)])])],[iter(Date_Of_Embrace|Clan|Covenant,[if([not([hasattrval(%#,PC_DATA`%i0)])],[setq(i,0)][pemit(%#,Your [if([cand([strmatch(Date_Of_Embrace,%i0)],[strmatch([get_template(%#)],GHOUL)])],Date of Ghouling,[edit(%i0,_,[space(1)])])] is not set. Please use the appropriate +command to set your [if([cand([strmatch(Date_Of_Embrace,%i0)],[strmatch([get_template(%#)],GHOUL)])],Date of Ghouling,[edit(%i0,_,[space(1)])])] before continuing. For help\, see +HELP CG_<item>.)][ibreak()])],|,)])][if([cand([t(%qi)],[strmatch([get_template(%#)],VAMPIRE)])],[iter(Mask|Dirge,[if([not([hasattrval(%#,PC_DATA`VAMP.%i0)])],[setq(i,0)][pemit(%#,Your %i0 is not set. Please use the appropriate +command to set your %i0 before continuing. For help\, see +HELP CG_<item>.)][ibreak()])],|,)])]%qi

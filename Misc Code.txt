@@ -1,0 +1,128 @@
+@@ Misc Code (#1774)
+@create Misc Code
+@link Misc Code = #2
+@set Misc Code = SAFE
+@set Misc Code = !NO_COMMAND
+@power Misc Code = See_All
+
+&CMD`ASPIRATIONS %wm=$+aspirations:[pemit(%#,header(Aspirations)%r[iter(get(%#/PC_DATA`ASPIRATIONS),%r#@\) %i0,|)]%r%r[header(Aspirations)])]
+&CMD`ASPIRATION_ADD %wm=$+aspirations/add *:[attrib_set2(%#/PC_DATA`ASPIRATIONS,[IF([get(%#/PC_DATA`ASPIRATIONS)],[get(%#/PC_DATA`ASPIRATIONS)]|)][edit([decompose(%0)],\\,)])][pemit(%#,Aspiration added!)][cemit(Debug,+aspirations: %N adds aspiration %0, NOISY)]
+&CMD`ASPIRATION_COMPLETE %wm=$+aspirations/complete *:[setq(ASP,[get(%#/PC_DATA`ASPIRATIONS)])][setq(ASP_COUNT,[words(%q<ASP>,|)])];@break [or( [not(isnum(%0))], [lte(%0,0)], [gt(%0,[words(%q<ASP>,|)])] )]=@nspemit/silent %#=Aspiration must be between 1 and %Q<ASP_COUNT>;[setq(ASP_TEXT,[extract(%q<ASP>,%0,1,|)])][attrib_set2(%#/PC_DATA`ASPIRATIONS,[ldelete(%Q<ASP>,%0,|)])][pemit(%#,Aspiration %q<ASP_TEXT> achieved!)][cemit(Debug,+aspirations: %N achieves aspiration %Q<ASP_TEXT>, NOISY)]
+
+&CMD`AVAILABLE %wm=$+available:[switch([get(%#/PC_DATA`AVAILABLE)],1,[attrib_set2(%#/PC_DATA`AVAILABLE,0)][pemit(%#,You are no longer available for Roleplay.)][set_flag(%#,Unfindable)],[attrib_set2(%#/PC_DATA`AVAILABLE,1)][pemit(%#,You have set yourself available for Roleplay.)][set_flag(%#,!Unfindable)])]
+
+&CMD`DAMAGE %wm=$+damage/* *:@include %wm/FN`DAMAGE=%0,%1
+&CMD`TIME %wm=$+time:[pemit(%#,[time()])]
+&CMD`DATE %wm=$+date:[pemit(%#,[time()])]
+&CMD`HEAL %wm=$+heal *:@include %wm/FN`HEAL=%0
+
+&CMD`NOTE %wm=$+note *:@include %wm/FN`NOTE=%0
+&CMD`PB %wm=$+pb *:@include %wm/FN`PB=%0
+&CMD`QUOTE %wm=$+quote *:@include %wm/FN`QUOTE=%0
+&CMD`ONLINE %wm=$+online *:@include %wm/FN`ONLINE=%0
+
+&CMD`XPAUDIT %wm=$+xpaudit:@include %wm/FN`PCAUDIT.RUN=%#
+
+&CMD_PLUSNEWS %wm=$+news: @pemit %#=Please see http://kingsmouth.info/wiki/Requiem_for_Kingsmouth_Wiki for the latest news relating to the game!
+&CMD_NEWS %wm=$news: @pemit %#=Please see http://kingsmouth.info/wiki/Requiem_for_Kingsmouth_Wiki for the latest news relating to the game!
+
+&CMD`REVIEW %wm=$+review:@nspemit/silent %#=[header(Aspirations)]%R[iter(get(%#/PC_DATA`ASPIRATIONS_CG),%r#@\) %i0,|)]%R[header(Breaking Points)]%R[iter(get(%#/PC_DATA`BREAKING_POINTS),%r#@\) %i0,|)][if([strmatch([get_template(%#)],VAMPIRE)],%R[header(Touchstone)]%R[get(%#/PC_DATA`TOUCHSTONE)]%R[header(Favored Attribute)]%R[get(%#/CHARGEN`FAVORED_ATTRIB)])]%R[header(Justification)]%R[get(%#/CHARGEN`JUSTIFY)];
+
+@@ to port
+&CMD`MEET %wm=$+meet *:[setq(0,*%0)];@break strmatch(wipe,%0)={[attrib_set2(%#/MEET,)][pemit(%#,+meet: Wiped.)]};@break strmatch(show,%0)=@switch/inline hasattrval(%#/MEET)=1,[pemit(%#,[iter([get(%#/MEET)],%i0,|)])],@nspemit/silent %#=You haven't met anyone yet!;@assert [pmatch(%q0)]=@nspemit/silent %#=No such player by that name.;@break eq(0,comp(num(%q0),%#,d))=@nspemit/silent %#=You cannot meet yourself!;[setq(i,0)][iter([get(%#/MEET)],[if([strmatch(%i0,%0)],[setq(i,1)][ibreak()],[setq(i,0)])],|)];@break %qi=@nspemit/silent %#=You have already met [name(%q0)]!;@set %#=MEET:[get(%#/MEET)][name(%q0)]|;@nspemit/silent %#=You have met [name(%q0)]!
+
+&CMD`NOM %wm=$+nom *:@assert [pmatch(%0)]=@nspemit/silent %#=No such player by that name.;@break eq(0,comp(num(*%0),%#,d))=@nspemit/silent %#=You cannot nominate yourself!;@nspemit/silent *%0=%N has just nominated you for excellent roleplay!;@nspemit/silent [setq(0,inc(get(*%0/PC_DATA`NOMS)))]%#=You have nominated [name(*%0)] for good RP!;{[attrib_set2(*%0/PC_DATA`NOMS,[inc([get(*%0/PC_DATA`NOMS)])])]}
+
+&CMD`PING Misc Code=$+ping:@pemit %#=+ping: PONG!
+
+@wipe %wm/CMD`WILLPOWER
+
+&CMD`WILLPOWER %wm=$^\+willpower(/\w*)? (.*)$:[setq(WP_MAX,[get_willpower(%#,max)])][setq(WP_CURR,[get_willpower(%#,current)])][if([not(isint(%q<WP_CURR>))],setq(WP_CURR,%q<WP_MAX>))]@assert %2=@nspemit/silent %#=+willpower: You must input a REASON for why you are spending willpower.;[pemit(%#,+willpower: Current: %q<WP_CURR> Max: %q<WP_MAX>)][switch(%1,/all,[setq(WP_TYPE,GAIN)][setq(WP_CALC,%q<WP_MAX>)],/regain,[setq(WP_TYPE,GAIN)][setq(WP_CALC,[add(%q<WP_CURR>,1)])],[setq(WP_TYPE,SPEND)][setq(WP_CALC,[sub(%q<WP_CURR>,1)])])];@break and([strmatch(%q<WP_TYPE>,GAIN)],[eq(%q<WP_CURR>,%q<WP_MAX>)])=@nspemit/silent %#=+willpower: Already at max willpower;@break and([strmatch(%q<WP_TYPE>,SPEND)],[eq(%q<WP_CURR>,0)])=@nspemit/silent %#=+willpower: No willpower left to spend!;[switch(%1,/all,[remit(loc(%#),%N regains all of their willpower\, REASON: %2.)][cemit(Debug,+willpower: %N regains all of their willpower\, REASON: %2, NOISY)],/regain,[remit(loc(%#),%N regains 1 willpower\, REASON: %2.)][cemit(Debug,+willpower: %N regains 1 willpower\, REASON: %2, NOISY)],[remit(loc(%#),%N spends 1 willpower\, REASON: %2.)])];@include %wm/FN`WILLPOWER=%q<WP_CALC>
+
+@set %wm/CMD`WILLPOWER=regexp
+
+&CMD`DANCECARD_LIST %wm=$+dancecard:[SETQ(DC,[get(%#/DANCECARD)])][SETQ(REM,[sort([remove([active_pc_list()],[tr(%Q<DC>,|,space(1))] %#)],name)])][pemit(%#,[header(Your Dance Card!)]%r%rTotal Points: [words(%Q<DC>,|)]%r%rOn your Dance Card are:)][pemit(%#,[iter(%Q<DC>,[name(%i0)],|)])][pemit(%#,%r[words(%Q<REM>)] still remaining to mark off:%r[iter(%Q<REM>,[name(%i0)])])]
+
+&CMD`DANCECARD %wm=$+dancecard *:[SETQ(PC, [secure( [pmatch(%0)] )] )][SETQ(DC,[get(%Q<PC>/DANCECARD)])]@assert %Q<PC>=+dancecard: @nspemit/silent %#=No such player by that name.;@assert not([member(%Q<DC>,%#,|)])=@nspemit/silent %#=+dancecard: You have already marked yourself off of [name(%Q<PC>)]'s dance card!;[SETQ(DC,[if(%Q<DC>,[insert(%Q<DC>,1,%#,|)],%#)])][attrib_set2(%Q<PC>/DANCECARD,%Q<DC>)][remit(loc(%#),[name(%#)] marks their name off of [name(%Q<PC>)]'s dance card!)]
+
+&CMD`XMAS %wm=$+xmas *:[pemit(%#, You leave a message on the christmas card\, saying %0)][setq(NUM,[trim([num(%#)],#)])][setq(LIST,[get(#3212/GREETINGS_LIST)])][attrib_set2(#3212/GREETINGS_[trim([num(%#)],#)],[name(%#)] wrote: %0%r)][if(not([member(%Q<LIST>,%Q<NUM>,|)]),[attrib_set2(#3212/GREETINGS_LIST,[if(%Q<LIST>,[insert(%Q<LIST>,1,%Q<NUM>,|)],%Q<NUM>)])])]
+
+&CMD`CENSUS %wm=$+census:[pemit(%#,[u(%wm/FN`CENSUS.SELECT)])]
+
+&FN`CENSUS.SELECT %wm = [setq(ALL,[sort([active_pc_list()],name)])][setq(C,[sql([u(FN`CENSUS.SELECT_SQL)])])][pemit(%#,header(Census as of [extract(%Q<C>,1)])%r)][pemit(%#,[table(Active PCs: [extract(%Q<C>,19)]|Unique Players: [extract(%Q<C>,20)],20,78,|)])][pemit(%#,[table(Civilian: [extract(%Q<C>,3)]|Support: [extract(%Q<C>,4)]|Political: [extract(%Q<C>,5)]|Vampires: [extract(%Q<C>,6)]|Ghouls: [extract(%Q<C>,7)]|Mortals: [extract(%Q<C>,8)],20,78,|)]%r)][pemit(%#,header(Vampire Demographics)%r)][pemit(%#,[table(Daeva: [extract(%Q<C>,9)]|Gangrel: [extract(%Q<C>,10)]|Mekhet: [extract(%Q<C>,11)]|Nosferatu: [extract(%Q<C>,12)]|Ventrue: [extract(%Q<C>,13)],20,78,|)]%r)][pemit(%#,[table(Carthians: [extract(%Q<C>,14)]|Circle: [extract(%Q<C>,15)]|Invictus: [extract(%Q<C>,16)]|Lancea Sanctum: [extract(%Q<C>,17)]|Ordo Dracul: [extract(%Q<C>,18)]|Unaligned: [sub([extract(%Q<C>,6)],[add([extract(%Q<C>,14)],[extract(%Q<C>,15)],[extract(%Q<C>,16)],[extract(%Q<C>,17)],[extract(%Q<C>,18)])])],20,78,|)]%r)][pemit(%#,[footer()])]
+
+&FN`DAMAGE %wm=[if([u(%wm/FN`IF`CHECK.DAMAGE,%#,%0,%1)],[u(%wm/FN`DAMAGE.RUN,%#,%0,%1)])]
+
+@@ Input player %0, type %1, # of damage to take %2.
+@@ easy case: The player has not hit their 	max health of damage boxes to fill.
+@@ Code to sort HP 32213 becomes 33221: edit(sort(edit(321132,,%b),-n),%b,)
+
+&FN`DAMAGE.RUN %wm=[if([lte([add([strlen([get_hp(%0,current)])],%2)],[get_hp(%0,max)])],[setq(DAM,[repeat([switch(%1,agg,3,lethal,2,bash,1)],%2)])][set_hp(%0,[edit([sort([edit([strcat([get_hp(%0,current)],%q<DAM>)],,%b)],-n)],%b,)])],[setq(UPGRADE,0)][iter([lnum([dec(%2)])],[if([lte([inc([strlen([get_hp(%0,current)])])],[get_hp(%0,max)])],[setq(DAM,[switch(%1,agg,3,lethal,2,bash,1)])][set_hp(%0,[edit([sort([edit([strcat([get_hp(%0,current)],%q<DAM>)],,%b)],-n)],%b,)])],[setq(UPGRADE,1)][setq(UPGRADE_AMT,[sub(%2,%i0)])][ibreak()])])0][if(%q<UPGRADE>,[if([strmatch(%1,agg)],[setq(DAM,[repeat(3,%q<UPGRADE_AMT>)])][set_hp(%0,[edit([sort([edit([strcat([get_hp(%0,current)],%q<DAM>)],,%b)],-n)],%b,)])][set_hp(%0,[left([get_hp(%0,current)],[get_hp(%0,max)])])],[if([lt([right([get_hp(%0,current)],1)],3)],[iter([lnum(1,%q<UPGRADE_AMT>)],[setq(DAM,[get_hp(%0,current)])][setq(DAM,[replace(%q<DAM>,-1,[left(%q<DAM>,[dec([strlen(%q<DAM>)])])][inc([right([get_hp(%0,current)],1)])])])][set_hp(%0,[edit([sort([edit(%q<DAM>,,%b)],-n)],%b,)])])])])])])][remit([loc(%0)],%N takes %2 [switch(%2,1,point,points)] of [switch(%1,agg,aggravated,lethal,lethal,bash,bashing)] damage.)][cemit(debug,[name(%0)] takes %2 [switch(%2,1,point,points)] of [switch(%1,agg,aggravated,lethal,lethal,bash,bashing)] damage.,noisy)]
+
+&FN`HEAL %wm=[if([u(%wm/FN`IF`CHECK.HEAL,%#,%0)],[u(%wm/FN`HEAL.RUN,%#,%0)])]
+
+@@ Input player %0, number of Vitae to spend %1.
+&FN`HEAL.RUN %wm=[setq(NUM_AGG,[div(%1,5)])][setq(NUM_OTH,[modulo(%1,5)])][setq(AGG_HEALED,0)][setq(LEATH_HEALED,0)][setq(BASH_HEALED,0)][setq(HEALED,0)][setq(HEAL_ITER,0)][if([gt(%q<NUM_AGG>,0)],[iter([lnum(1,%q<NUM_AGG>)],[if([strmatch([get_hp(%0,current)],3*)],[set_hp(%0,[right([get_hp(%0,current)],[dec([strlen([get_hp(%0,current)])])])])][setq(AGG_HEALED,[inc(%q<AGG_HEALED>)])][attrib_set2(%0/PC_DATA`VAMP.HEALAGG,1)][setq(HEALED,1)])])])][setq(NUM_OTH,[mul([add(%q<NUM_OTH>,[mul([sub(%q<NUM_AGG>,%q<AGG_HEALED>)],5)])],2)])][if([gt(%q<NUM_OTH>,0)],[iter([lnum(1,%q<NUM_OTH>)],[setq(HEAL_ITER,0)][if([strmatch([get_hp(%0,current)],*1)],[set_hp(%0,[left([get_hp(%0,current)],[dec([strlen([get_hp(%0,current)])])])])][setq(BASH_HEALED,[inc(%q<BASH_HEALED>)])][setq(HEALED,1)][setq(HEAL_ITER,1)])][if([cand([strmatch([get_hp(%0,current)],*2)],[not(%q<HEAL_ITER>)])],[setq(HP_EDIT,[edit([get_hp(%0,current)],,%b)])][setq(HP_EDIT,[replace(%q<HP_EDIT>,[words(%q<HP_EDIT>)],[dec([right(%q<HP_EDIT>,1)])])])][setq(HP_EDIT,[edit(%q<HP_EDIT>,%b,)])][set_hp(%0,%q<HP_EDIT>)][setq(LEATH_HEALED,[inc(%q<LEATH_HEALED>)])][setq(HEALED,1)])])])][if(%q<HEALED>,[set_vitae_new(%0,[sub([get_vitae(%0,current)],%1)])][remit([loc(%0)],[name(%0)] spends %1 vitae and heals %q<AGG_HEALED> agg damage\, reduces %q<LEATH_HEALED> lethal damage\, and heals %q<BASH_HEALED> bashing damage.)][cemit(debug,[name(%0)] spends %1 vitae and heals %q<AGG_HEALED> agg damage\, reduces %q<LEATH_HEALED> lethal damage\, and heals %q<BASH_HEALED> bashing damage.,noisy)],[pemit(%0,+heal: Something went terribly wrong with Koug's code. Poke him immediately!)][cemit(debug,[ansi(hw,\[**BUG**\])]: +heal: [name(%0)]\, Vitae spent %1\, current player health [get_hp(%0,current)]: Healing code should NOT have gotten here. Inform Kougyoku immediately.,noisy)])]
+		
+@@ Input player %0, type %1, # of damage to take %2.
+@@ Returns 1 if player can take damage.
+&FN`IF`CHECK.DAMAGE %wm=[setq(i,1)][switch(%1,agg,[setq(i,1)],bash,[setq(i,1)],lethal,[setq(i,1)],[setq(i,0)][pemit(%0,+damage: Valid types are: /agg\, /bash\, and \lethal.)])][if([t(%qi)],[if([cor([not([isint(%2)])],[lte(%2,0)])],[setq(i,0)][pemit(%0,+damage: Please enter a positive integer of damage to take.)])])][if([t(%qi)],[if([gt(%2,9)],[setq(i,0)][pemit(%0,+damage: Blame Koug for limiting the number of damage at once\, needs to be less than 10.)])])][if([t(%qi)],[if([gte([lmath(add,[edit([get_hp(%0,current)],,%b)])],[mul([get_hp(%0,max)],3)])],[setq(i,0)][pemit(%0,+damage: You're already dead. Talk about beating a dead horse!)])])]%qi
+
+@@ Input player %0, # of vitae to spend %1.
+@@ Returns `1 if player can heal.
+@@ Currently only functions as a syntax checker.
+&FN`IF`CHECK.HEAL %wm=[setq(i,1)][if([t(%qi)],[if([strmatch([get_template(%0)],HUMAN)],[setq(i,0)][pemit(%0,+heal: Silly human\, Humans may not heal by spending vitae.)])])][if([t(%qi)],[if([eq([get_hp(%0,current)],0)],[setq(i,0)][pemit(%0,+heal: You're already at full health!)])])][if([t(%qi)],[if([cor([not([isint(%1)])],[lte(%1,0)])],[setq(i,0)][pemit(%0,+heal: Please enter a positive integer of vitae to spend.)])])][if([t(%qi)],[if([gt(%1,9)],[setq(i,0)][pemit(%0,+heal: Blame Koug for limiting the number of healing at once\, needs to be less than 10.)])])][if([t(%qi)],[if([gt(%1,[get_vitae(%0,current)])],[setq(i,0)][pemit(%0,+heal: You don't have that much Vitae to spend.)])])][if([t(%qi)],[if([cand([ncor([strmatch([get_hp(%0,current)],*1*)],[strmatch([get_hp(%0,current)],*2*)])],[neq(%1,5)])],[setq(i,0)][pemit(%0,+heal: You have all agg damage. Please spend exactly 5 vitae.)])])][if([t(%qi)],[setq(n,0)][iter([edit([get_hp(%0,current)],,%b)],[setq(n,[add(%qn,[switch(%i0,3,5,2,1,1,0.5)])])])][if([gt(%1,[floor(%qn)])],[setq(i,0)][pemit(%0,+heal: You don't have that much damage to heal\,  spend less vitae.)])])][if([t(%qi)],[if([get(%0/PC_DATA`VAMP.HEALAGG)],[setq(i,0)][pemit(%0,+heal: You have already healed 1 agg today.)])])]%qi
+
+
+&FN`NOTE %wm=[attrib_set2(%#/PC_DATA`NOTE,[edit([decompose(%0)],\\,)])][pemit(%#,Note set!)]
+&FN`PB %wm=[attrib_set2(%#/PC_DATA`PB,[edit([decompose(%0)],\\,)])][pemit(%#,Played-By set!)]
+&FN`QUOTE %wm=[attrib_set2(%#/PC_DATA`QUOTE,[edit([decompose(%0)],\\,)])][pemit(%#,Quote set!)]
+&FN`ONLINE %wm=[attrib_set2(%#/PC_DATA`ONLINE,[edit([decompose(%0)],\\,)])][pemit(%#,Online Info set!)]
+
+&FN`WILLPOWER %wm=[set_willpower(%#,%0)]
+
+@@ One-off to grab from map data from bb post - long term we should store this data dynamically or something!
+&CMD`MAP %wm=$+map:[pemit(%#,[u(%wm/CMD`MAP_PART1)][u(%wm/CMD`MAP_PART2)])]
+
+&CMD`MAP_PART1 %wm=[header(+map)]         [space(11)]%r[space(10)][ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),A),[ansi(hy,*)],A)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),B),[ansi(hy,*)],B)][ansi(hg,\])][space(7)][ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),C),[ansi(hy,*)],C)][ansi(hr,\])][space(26)]%r[space(11)]| \\/ |[space(6)]/ %b| %b\\[space(24)]%r[space(10)][ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),D),[ansi(hy,*)],D)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),E),[ansi(hy,*)],E)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),F),[ansi(hy,*)],F)][ansi(hg,\])]--[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),G),[ansi(hy,*)],G)][ansi(hr,\])]--[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),H),[ansi(hy,*)],H)][ansi(hr,\])]-------[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),I),[ansi(hy,*)],I)][ansi(hr,\])][space(12)][ansi(hw,MAP OF KINGSMOUTH)]%r[space(11)]| %b\\ | \\ %b| %b\\ | /\\ | %b\\[space(20)]\[[ansi(hy,*)]\] Your location %b%r[space(10)][ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),J),[ansi(hy,*)],J)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),K),[ansi(hy,*)],K)][ansi(hg,\])] \\ |[space(3)][ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),L),[ansi(hy,*)],L)][ansi(hr,\])]--[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),M),[ansi(hy,*)],M)][ansi(hr,\])] %b[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),N),[ansi(hy,*)],N)][ansi(hr,\])][space(17)][ansi(hg,\[ \])] Arkham%r[space(11)]| %b/[space(5)]\\|[space(7)]\\[space(6)]|[space(18)][ansi(hr,\[ \])] Innsmouth%r[space(10)][ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),O),[ansi(hy,*)],O)][ansi(hg,\])]-------[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),P),[ansi(hy,*)],P)][ansi(hg,\])][space(7)][ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),Q),[ansi(hy,*)],Q)][ansi(hr,\])][space(3)]|[space(18)][ansi(hx,\[ \])] Kingsport[space(6)]%r[space(19)]/[space(11)]|[space(4)]|[space(23)]%r[space(5)][ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),R),[ansi(hy,*)],R)][ansi(hg,\])] %b[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),S),[ansi(hy,*)],S)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),T),[ansi(hy,*)],T)][ansi(hg,\])][space(12)][ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),U),[ansi(hy,*)],U)][ansi(hr,\])]--[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),V),[ansi(hy,*)],V)][ansi(hr,\])][space(18)]A Borden Rim[space(6)]%r[space(6)]| \\[space(7)]|[space(14)]| / %b|[space(19)]B Kirby[space(11)]%r[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),W),[ansi(hy,*)],W)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),X),[ansi(hy,*)],X)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),Y),[ansi(hy,*)],Y)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),Z),[ansi(hy,*)],Z)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),A1),[ansi(hy,*)],a)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),B1),[ansi(hy,*)],b)][ansi(hg,\])]--[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),c1),[ansi(hy,*)],c)][ansi(hr,\])]--[ansi(hr,\[)][ifelse(strmatch(get(room(%#)/MAP),d1),[ansi(hy,*)],d)][ansi(hr,\])][space(18)]C Ramsay%r | %b\\ | %b\\ | /\\ | \\/... \\ | %b\\ | %b/[space(21)]D Arkham Green[space(4)]%r |.. [ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),E1),[ansi(hy,*)],e)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),F1),[ansi(hy,*)],f)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),G1),[ansi(hy,*)],g)][ansi(hg,\])][space(5)]\\ [ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),H1),[ansi(hy,*)],h)][ansi(hg,\])]--[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),I1),[ansi(hy,*)],i)][ansi(hg,\])][space(23)]E Chapman Fields %b%r | %b\\ |[space(12)]\\[space(3)]/[space(32)]F East-town[space(7)]
+
+&CMD`MAP_PART2 %wm=%r |[space(3)][ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),J1),[ansi(hy,*)],j)][ansi(hg,\])]------------[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),K1),[ansi(hy,*)],k)][ansi(hg,\])][space(7)][ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),L1),[ansi(hy,*)],l)][ansi(hx,\])]--[ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),M1),[ansi(hy,*)],m)][ansi(hx,\])]--[ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),N1),[ansi(hy,*)],n)][ansi(hx,\])][space(13)]G Verwood[space(9)]%r |[space(4)]|[space(14)]|\\[space(6)]/ |[space(24)]H North Merceyside%r |[space(4)]|..[space(12)]| \\[space(4)]/ [ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),O1),[ansi(hy,*)],o)][ansi(hx,\])][space(23)]I Isley[space(11)]%r |..[space(5)]\\[space(11)]| %b\\ %b/ / | \\[space(22)]J Lassiter[space(8)]%r[space(4)]\\[space(5)]\\[space(9)][ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),P1),[ansi(hy,*)],p)][ansi(hg,\])]--[ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),Q1),[ansi(hy,*)],q)][ansi(hx,\])]--[ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),R1),[ansi(hy,*)],r)][ansi(hx,\])]--[ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),S1),[ansi(hy,*)],s)][ansi(hx,\])][space(18)]K Asbury Marsh[space(4)]%r[space(5)]...[space(3)]...[space(7)]|[space(5)]\\ \\ | / /|[space(19)]L Bridgewater[space(5)]%r[space(7)]|[space(5)]|[space(7)]|[space(6)]\\ [ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),T1),[ansi(hy,*)],t)][ansi(hx,\])] / |[space(19)]M Oldtown[space(9)]%r[space(7)]|[space(5)]|[space(7)]|[space(7)]\\ | / %b|[space(19)]N Langmore Bridge %r[space(7)]..[space(4)].....[space(3)]|[space(8)][ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),U1),[ansi(hy,*)],u)][ansi(hx,\])]--[ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),V1),[ansi(hy,*)],v)][ansi(hx,\])][space(18)]O Grafton[space(9)]%r[space(9)]\\[space(8)]\\ %b|[space(9)]| %b/[space(21)]P Monaughey[space(7)]%r[space(11)]\\........[ansi(hg,\[)][ifelse(strmatch(get(room(%#)/MAP),W1),[ansi(hy,*)],w)][ansi(hg,\])]-------[ansi(hx,\[)][ifelse(strmatch(get(room(%#)/MAP),X1),[ansi(hy,*)],x)][ansi(hx,\])][space(23)]Q Water St Bridge %r[space(68)]%rR University Ruins[space(3)]a Dalton[space(11)]j Airport[space(7)]s Hartford%rS Unvisited Island[space(3)]b Bister Shore[space(5)]k Merecroft[space(5)]t Tiverton%rT Peabody[space(12)]c Tarbock[space(10)]l Hollow[space(8)]u Prospect%rU Newton[space(13)]d Kingsport Head[space(3)]m Osyth[space(9)]v Stratton%rV South Merceyside[space(3)]e Birchen[space(10)]n Chirk Point[space(3)]w Outskirts%rW Arkham Heights[space(5)]f Loftus[space(11)]o Central Hill %bx Derrick %b%rX Whitechapel[space(8)]g Wingrave[space(9)]p Derby[space(19)]%rY Casford[space(12)]h Covenside[space(8)]q Sagecroft[space(9)]%rZ Fairbridge[space(9)]i Crowninshield[space(4)]r Kerne[space(13)]%r%R[footer()]
+
+@set Misc Code=CMD`MAP_DATA:Borden Rim---Kirby[space(29)]Ramsay%r[space(5)]|[space(6)]/ %b |[space(30)]|[space(5)]\\%rArkham-Green---Chapman-Fields---East-town---Verwood---North Merceyside--Isley%r[space(5)]|[space(6)]\\[space(6)]/[space(7)]| %b /[space(15)]| \\ %b %b/[space(5)]/[space(5)]|%rLassiter---Ashbury-Marsh %b | %b/[space(16)]| %bOldtown %b/[space(6)]|%r[space(5)]| %b %b/[space(8)]\\[space(7)]| /[space(17)]| %b %b/[space(5)]/[space(7)]|%r %b Grafton----------Monaughey[space(18)]Bridgewater[space(8)]|%r[space(23)]|[space(29)]|[space(12)]|%rUnvisited-----------Peabody[space(21)]Water Street %bDangerous%r %bIsland[space(12)]Bridge[space(24)]Bridge[space(7)]Bridge%r[space(24)]|[space(29)]|[space(12)]|%rA---University Ruins %b %b|[space(28)]Newton[space(8)]|%rr %b %b| %b \\[space(14)]|[space(29)]| %b %b\\[space(7)]|%rk %b %b| %b %bCasford---Fairbridge---Dalton---Bister---Tarbock--South Merceyside%rh %b %b| %b /[space(5)]|[space(9)]| %b %b\\[space(5)]|[space(5)]Shore[space(5)]/[space(5)]\\[space(7)]/%ra--Whitechapel |[space(9)]|[space(5)]\\ %b %b| %b %b/ %b |[space(5)]/[space(7)]\\[space(5)]/%rm[space(11)]|\\ |[space(9)]|[space(5)]Covenside---Crowninshield--Kingsport Head%r[space(12)]| \\|[space(9)]| %b %b/[space(5)]|[space(33)]%rH[space(11)]| Loftus--Wingrave---Merecroft[space(5)]The-Hollow--Osyth--Chirk Point%re[space(11)]| %b/[space(10)]|[space(9)]| \\[space(9)]/ %b %b|%ri-----------Birchen[space(7)]|[space(9)]| %b\\[space(7)]/ %bCentral-Hill%rg[space(18)]\\[space(6)]|[space(9)]| %b \\[space(5)]/ %b / | %b %b\\%rh-------------------Airport-----Derby--Sagecroft--Kerne--Hartford%rt[space(23)]\\[space(10)]|[space(6)]\\ %b\\ %b\\ %b | %b %b/ %b |%rs[space(24)]\\[space(9)]|[space(7)]\\ %b\\ %bTiverton %b %b|%r \\[space(24)]\\[space(8)]|[space(8)]\\ %b\\ %b %b|[space(8)]|%r %b\\[space(24)]\\[space(7)]|[space(9)]\\ %bProspect---Stratton%r %b \\[space(24)]\\[space(6)]|[space(10)]\\[space(5)]|[space(6)]/%r %b %b------------------------ Outskirts---------D e r r i c k
+
+@@ Posebreak overrides
+&CMD`SAY %wm=$say *:[pemit(%#, %rYou say\, "[if([get(%#/SPEECHMOD)],[u(%#/SPEECHMOD, %0)],%0)]"%r)][pemit( [remove([lcon([loc(%#)])], %#)], %N says\, "[if([get(%#/SPEECHMOD)],[u(%#/SPEECHMOD, %0)],%0)]"%r)]
+&CMD`POSE %wm=$pose *:[remit([loc(%#)], %r%N [if([get(%#/SPEECHMOD)],[u(%#/SPEECHMOD, %0)],%0)]%r)]
+&CMD`EMIT %wm=$@emit *:[remit([loc(%#)], %r[if([get(%#/SPEECHMOD)],[u(%#/SPEECHMOD, %0)],%0)]%r)]
+@hook/override say=%wm, cmd`say
+@hook/override pose=%wm, cmd`pose
+@hook/override @emit=%wm, cmd`emit
+
+
+@@ Privs for Covenant Boards
+&CANREAD #2201=or(orflags(%0,Wr),has_merit(%0,Status Carthians))
+&CANWRITE #2201=or(orflags(%0,Wr),has_merit(%0,Status Carthians))
+
+&CANREAD #2199=or(orflags(%0,Wr),has_merit(%0,Status Invictus))
+&CANWRITE #2199=or(orflags(%0,Wr),has_merit(%0,Status Invictus))
+
+&CANREAD #2195=or(orflags(%0,Wr),has_merit(%0,Status Ordo Dracul))
+&CANWRITE #2195=or(orflags(%0,Wr),has_merit(%0,Status Ordo Dracul))
+
+&CANREAD #2200=or(orflags(%0,Wr),has_merit(%0,Status Circle of the Crone))
+&CANWRITE #2200=or(orflags(%0,Wr),has_merit(%0,Status Circle of the Crone))
+
+&CANREAD #2202=or(orflags(%0,Wr),has_merit(%0,Status Lancea Sanctum))
+&CANWRITE #2202=or(orflags(%0,Wr),has_merit(%0,Status Lancea Sanctum))
+
+
+&FN`PCAUDIT.RUN %wm=[pemit(%#,[header(Character audit for [name(%0)])])][pemit(%#,[lalign(10 17 51,Staff|Date|Description,|)])][u(%wm/FN`PCAUDIT.SELECT,%0)]
+&FN`PCAUDIT.SELECT %wm=[mapsql(FN`PCAUDIT.ROWFORMAT,[u(%wm/FN`PCAUDIT.SELECT_SQL,[trim(num(%0),#)])],%r)]
+
+&FN`PCAUDIT.ROWFORMAT %wm=[pemit(%#,[align(10 17 51,[left([name(#%1)],8)],[left(%3,16)],%2)])]
+
+@@ SQL
+&FN`PCAUDIT.SELECT_SQL %wm=SELECT staff_dbref,event,dt_time FROM wizset WHERE player_dbref=%0
+&FN`CENSUS.SELECT_SQL %wm=SELECT dt_time,playstyle_civilian,playstyle_support,playstyle_political,template_vampire,template_ghoul,template_mortal,daeva,gangrel,mekhet,nosferatu,ventrue,carthians,circle_of_the_crone,invictus,lancea_sanctum,ordo_dracul,players,characters FROM census ORDER BY dt_time DESC LIMIT 1
+
+&WM Misc Code=#1774

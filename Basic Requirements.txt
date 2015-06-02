@@ -1,0 +1,24 @@
+Required Basics:
+
+All: Surname, DOB, Apparent_Age, Concept, Quote, Note, Email, Gender, Description, Online,Playstyle
+
+VAMP/GHOUL: Date_Of_Embrace, Clan, Bloodline, Covenant
+
+VAMP Only: Masquerade, Requiem
+
+
+Optional for All: Online
+<Admin> Shaalwyd says, "Playstyle: Minion or Mastermind." for all
+<Admin> Shaalwyd says, "The other thing we haven't gotten to yet, but should be added to the Status stuff: Influence. It's a scale of 0-10. Minions start at 0 (and will never go further than that), Masterminds start at 1."
+
+
+Skills Room:
+<Admin> Shaalwyd says, "Oh, I think I forgot about skill specialties! Everyone gets three free skill specialties after they select their skills. Those aren't from a list, they're free text."
+
+Merits ROom:
+<Admin> Shaalwyd says, "The bit that makes it more complicated than skills is that there are some merits that are 0-5, but there are also some that are a flat 1 or 2 or 4."
+<Admin> Shaalwyd says, "Not yet. I'll send you that in a moment here. But question first! There's a whooooole bunch of merits that have pre-requisites. 'Requires Resolve 2+ and one skill specialty' for example. Those can be manually checked, of course - how much of a hair-tearing headache would it be to code them in?"
++ad Not terribly hair-tearing. I did prerequisites on software on Transformers, if you didn't have Hardware X you couldn't take Software Y.
+<Admin> Kougyoku says, "Not terribly hair-tearing. I did prerequisites on software on Transformers, if you didn't have Hardware X you couldn't take Software Y."
+<Admin> Shaalwyd says, "You're amazing."
+
