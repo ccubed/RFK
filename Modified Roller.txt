@@ -189,7 +189,7 @@
 @		%q9 - Parsed text of the stats (turns str+dex into Strength+Dexterity)
 @		%q2 - Holds the original input spaced out for parsing
 @		%q5 - Temp Var. Holds Stat/# pair.
-&PARSE.GETDICE #3376=[setq(0,0)][setq(9,[space(0)])][setq(2,[edit([edit([edit([lcstr(%0)],blood-potency,blood,blood potency,blood,primal-urge,primal,primal urge,primal,feral heart,feral,feral-heart,feral,animal ken,animal_ken,animal-ken,animal_ken)],%b,)],-,%b-,+,%b+)])][iter(%q2,[switch([u(F.POSNEG,%i0)],1,[if(after(%i0,+),[if(isnum(after(%i0,+)),[setq(0,[add(%q0,[after(%i0,+)])])][setq(9,[setunion(%q9,[after(%i0,+)],+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,+),%qJ)])])])][setq(9,[setunion(%q9,[capstr([after(%i0,+)])],+)])])],[if(isnum(%i0),[setq(0,add(%q0,%i0))][setq(9,[setunion(%q9,%i0,+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,%i0,%qJ)])])])][setq(9,[setunion(%q9,[capstr(%i0)],+)])])])],0,[if(isnum(after(%i0,-)),[setq(0,sub(%q0,after(%i0,-)))][setq(9,[setunion(%q9,[after(%i0,-)],-)])],[setq(0,[sub(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,-),%qJ)])])][setq(9,[setunion(%q9,[capstr(%i0)],-)])])])])], ,[space(0)])]
+&PARSE.GETDICE #3376=[setq(0,0)][setq(9,[space(0)])][setq(2,[edit([edit([lcstr(%0)],%b,_)],-,%b-,+,%b+)])][iter(%q2,[switch([u(F.POSNEG,%i0)],1,[if(after(%i0,+),[if(isnum(after(%i0,+)),[setq(0,[add(%q0,[after(%i0,+)])])][setq(9,[setunion(%q9,[after(%i0,+)],+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,+),%qJ)])])])][setq(9,[setunion(%q9,[capstr([after(%i0,+)])],+)])])],[if(isnum(%i0),[setq(0,add(%q0,%i0))][setq(9,[setunion(%q9,%i0,+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,%i0,%qJ)])])])][setq(9,[setunion(%q9,[capstr(%i0)],+)])])])],0,[if(isnum(after(%i0,-)),[setq(0,sub(%q0,after(%i0,-)))][setq(9,[setunion(%q9,[after(%i0,-)],-)])],[setq(0,[sub(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,-),%qJ)])])][setq(9,[setunion(%q9,[capstr(%i0)],-)])])])])], ,[space(0)])]
 
 @	F.POSNEG
 @	Usage: Takes an input and returns whether that is positive or negative
@@ -203,7 +203,7 @@
 @	%0 - stat to check
 @	%1 - /perm
 @	Returns: The stat pair. IE: stat name/value
-&PARSE.STAT #3376=[setq(0,[GET_ATTRIB(%#,%0)])][setq(1,[GET_DISCIPLINE(%#,%0)])][setq(2,[GET_DISCIPLINE_THEME(%#,%0)])][setq(3,[GET_MERIT(%#,%0)])][setq(4,[GET_SKILL(%#,%0)])][switch([t(%q0)][t(%q1)][t(%q2)][t(%q3)][t(%q4)][t(%q5)],1*,%q0,01*,%q1,001*,%q2,0001*,%q3,00001*,%q4,0)]
+&PARSE.STAT #3376=[setq(0,[GET_ATTRIB(%#,%0)])][setq(1,[GET_DISCIPLINE(%#,%0)])][setq(2,[GET_DISCIPLINE_THEME(%#,%0)])][setq(3,[GET_MERIT(%#,[edit(%0,_,%b)])])][setq(4,[GET_SKILL(%#,[edit(%0,_,%b)])])][switch([t(%q0)][t(%q1)][t(%q2)][t(%q3)][t(%q4)][t(%q5)],1*,%q0,01*,%q1,001*,%q2,0001*,%q3,00001*,%q4,0)]
 
 @	F.GET.ROLL.DICE
 @	Usage: Returns a stat pair. IE: stat name/value
