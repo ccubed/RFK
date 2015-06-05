@@ -50,7 +50,7 @@ th [set(Library Controller,vb:[num(CG Description DB)])]
 
 &FN.REMOVE_ENTRY #4079=[ldelete(%0,[match(%0,%1*,|)],|)]
 
-&CMD.STAT.SET [xget(me,GNITCG)]=$+stat/set */*=*:@assert [isstaff(%#)]={@pemit %#=[ansi(hr,STAFF ONLY)]};@assert [pmatch(%0)]={@pemit %#=[ansi(hr,%0 doesn't match a player.)]};@assert [hasattr(%va,LIST_[edit(%1,%b,_)])]={@pemit %#=[ansi(hr,%1 doesn't match a stat type.)]};@assert [gte([words(%2,:)],2)]={@pemit %#=[ansi(hr,Didn't put in a stat or level)]};@switch [strmatch(%2,!*)][strmatch(%2,*Specialty*)]=00,{@pemit %#=[u(F.SET.STAT,[pmatch(%0)],[edit(%1,%b,_)],%2)]},10,{@pemit %#=[u(F.REMOVE.STAT,[pmatch(%0)],[edit(%1,%b,_)],%2)]},01,{@pemit %#=[u(F.SPEC.ADD,[pmatch(%0)],[edit(%1,%b,_)],%2)]},11,{@pemit %#=[u(F.SPEC.REM,[pmatch(%0)],[edit(%1,%b,_)],%2)]}
+&CMD.STAT.SET #4079=$+stat/set */*=*:@assert [isstaff(%#)]={@pemit %#=[ansi(hr,STAFF ONLY)]};@assert [pmatch(%0)]={@pemit %#=[ansi(hr,%0 doesn't match a player.)]};@assert [hasattr(%va,LIST_[edit(%1,%b,_)])]={@pemit %#=[ansi(hr,%1 doesn't match a stat type.)]};@assert [gte([words(%2,:)],2)]={@pemit %#=[ansi(hr,Didn't put in a stat or level)]};@switch [strmatch(%2,!*)][strmatch(%2,*Specialty*)]=00,{@pemit %#=[u(F.SET.STAT,[pmatch(%0)],[edit(%1,%b,_)],%2)]},10,{@pemit %#=[u(F.REMOVE.STAT,[pmatch(%0)],[edit(%1,%b,_)],%2)]},01,{@pemit %#=[u(FN.SPEC.ADD,[pmatch(%0)],[edit(%1,%b,_)],%2)]},11,{@pemit %#=[u(FN.SPEC.REM,[pmatch(%0)],[edit(%1,%b,_)],%2)]}
 
 @@ Passed - Player DBRef, Type, Merit:Level/Notes
 &F.SET.STAT #4079=[setq(a,[before(%2,:)])][switch(words(after(%2,:),/),1,[if(setr(z,match(xget(%0,%1),%qA*,|)),[set(%0,%1:[edit(xget(%0,%1),extract(xget(%0,%1),%qZ,1,|),%qA~[after(%2,:)]~)])],[set(%0,%1:[setunion(xget(%0,%1),%qA~[after(%2,:)]~,|,|)])])],2,[if(setr(z,match(xget(%0,%1),%qA~*~[after(after(%2,:),/)],|)),[set(%0,%1:[edit(xget(%0,%1),extract(xget(%0,%1),%qZ,1,|),%qA~[before(after(%2,:),/)]~[after(after(%2,:),/)])])],[set(%0,%1:[setunion(xget(%0,%1),%qA~[before(after(%2,:),/)]~[after(after(%2,:),/)],|,|)])])])][set(%0/%1,Wizard)][set(%0/%1,Mortal_dark)][ansi(hw,Stats:)]%bAdded %qA to [name(%0)] as [edit(%2,_,%b)]
@@ -58,14 +58,15 @@ th [set(Library Controller,vb:[num(CG Description DB)])]
 @@ Passed - Player DBRef, Type, Merit:Level/Notes
 &F.REMOVE.STAT #4079=[setq(a,[edit([before(%2,:)],!,)])][setq(b,[lcstr(xget(%0,%1))])][switch(words(%qB,|),0,[ansi(hw,Stats:)]%bNo [edit(%2,_,%b)] on player,[set(%0,%1:[setdiff(lcstr(xget(%0,%1)),[lcstr(%qA~[before(after(%2,:),/)]~[after(after(%2,:),/)])],|,|)])][ansi(hw,Stats:)]%bRemoved [before(%2,:)][if(t(setr(test,[after(%2,/)])),%b%q<test>)] from [name(%0)])]
 
-&FN.SPEC.ADD [xget(me,GNITCG)]=[setq(A,[before([after(%2,:)],.)])][setq(b,[after([after(%2,:)],.)])][if(member(xget(%va,LIST_%1),%qA,|),[set(%0,%1.SPECS:[setunion(xget(%0,%1.SPECS),%qA~%qB,|,|)])][ansi(hw,STAT:)]%bAdded %qB as a specialty of %qA,[ansi(hr,STAT:)]%b%qA doesn't match a skill.)]
+@@replace(<list>, <position(s)>, <new item>[, <delimiter>[, <osep>]])
+&FN.SPEC.ADD #4079=[setq(A,[before([after(%2,:)],.)])][setq(b,[after([after(%2,:)],.)])][if(match(xget(%va,LIST_%1),%qA,|),[if(t(setr(pos,match(xget(%0,%1.SPECS),%qA*,|))),[set(%0,%1.SPECS:[replace(xget(%0,%1.SPECS),%q<pos>,[extract(xget(%0,%1.SPECS),%q<pos>,1,|)]:%qB,|)])],[set(%0,%1.SPECS:[setunion(xget(%0,%1.SPECS),%qA~%qB,|,|)])])][ansi(hw,STAT:)]%bAdded %qB as a specialty of %qA,[ansi(hr,STAT:)]%b%qA doesn't match a skill.)]
 
-&FN.SPEC.REM [xget(me,GNITCG)]=[setq(A,[before([after(%2,:)],.)])][setq(b,[after([after(%2,:)],.)])][set(%0,%1.SPECS:[setdiff(lcstr(xget(%0,%1.SPECS)),lcstr(%qA~%qB),|,|)])][ansi(hr,STAT:)]%bRemoved %qB Specialty from [name(%0)] for skill %qA.
+&FN.SPEC.REM #4079=[setq(A,[before([after(%2,:)],.)])][setq(b,[after([after(%2,:)],.)])][set(%0,%1.SPECS:[setdiff(lcstr(xget(%0,%1.SPECS)),lcstr(%qA~%qB),|,|)])][ansi(hr,STAT:)]%bRemoved %qB Specialty from [name(%0)] for skill %qA.
 
 @@ Passed - Player DBREF, Type, What
-&FN.GET.STAT [xget(me,GNITCG)]=[switch([hasattrval(%0,%1)][t([setr(num,[match(xget(%0,%1),%2*,|)])])],0*,0,10,0,11,[extract([extract(xget(%0,%1),%q<num>,1,|)],2,1,~)])]
+&FN.GET.STAT #4079=[switch([hasattrval(%0,%1)][t([setr(num,[match(xget(%0,%1),%2*,|)])])],0*,0,10,0,11,[extract([extract(xget(%0,%1),%q<num>,1,|)],2,1,~)])]
 
 @@ passed - Player DBREF, Type, What, Note
-&FN.GET.STAT.EX [xget(me,GNITCG)]=[switch([hasattrval(%0,%1)][t([setr(num,[match(xget(%0,%1),%2~*~%3,|)])])],0*,0,10,0,11,[extract([extract(xget(%0,%1),%q<num>,1,|)],2,1,~)])]
+&FN.GET.STAT.EX #4079=[switch([hasattrval(%0,%1)][t([setr(num,[match(xget(%0,%1),%2~*~%3,|)])])],0*,0,10,0,11,[extract([extract(xget(%0,%1),%q<num>,1,|)],2,1,~)])]
 
 th End Library Controller

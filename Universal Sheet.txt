@@ -1,23 +1,54 @@
-&CMD.SHEET #4063=$+wizsheet:@break [match(name(%#),*guest*)]={@pemit %#=[ansi(hr,SHEET:)]%bGuests can't use this command.};@pemit %#=[header([name(%#)]'s Sheet)]%R[u(DISPLAY.[GET_TEMPLATE(%#)],%#)]%R[footer()]
+&CMD.SHEET #4063=$+wizsheet:@break [match(name(%#),*guest*)]={@pemit %#=[ansi(hr,SHEET:)]%bGuests can't use this command.};@pemit %#=[header([name(%#)]'s Sheet)]%R[u(TEMPLATE.[GET_TEMPLATE(%#)],%#)]%R[footer()]
+&CMD.SHEET.SPECIFIC #4063=$+wizsheet *:@break [match(name(%#),*guest*)]={@pemit %#=[ansi(hr,SHEET:)]%bGuests can't use this command.};@assert [hasattrval(#4063,DISPLAY.%0)]={@pemit %#=%0 doesn't match a sheet section. Type +sections to see them.};@pemit %#=[header([name(%#)]'s [if(strmatch(right(%0,1),s),%0',%0's)])]%R[u(DISPLAY.%0,%#)]%R[footer()
+&CMD.SHEET.SECTIONS #4063=$+sections:@pemit %#=[center(+Sheet has these Sections:,78)]%R[iter(lattr(#4063/DISPLAY.*),[ljust(ansi(hw,after(%i0,.)),26)][if(not(mod(inum(0),3)),%R)], ,)]
 
-&DISPLAY.VAMPIRE #4063=[u(VAMPIRE.DEMOGRAPHICS,%0)]%R[footer()]%R[u(DISPLAY.SKILLS,%0)]%R[footer()]%R[u(DISPLAY.DISCIPLINES)]%R[footer()]%RDEVOTIONS%R[footer()]%RVITALS
-&VAMPIRE.DEMOGRAPHICS #4063=|%b[ljust([ansi(hw,Clan:)]%b[xget(%0,PC_DATA`CLAN)],37)][rjust([ansi(hw,Bloodline:)]%b[xget(%0,PC_DATA`BLOODLINE)],37)]%b|%R|%b[ljust([ansi(hw,Covenant:)]%b[xget(%0,PC_DATA`COVENANT)],37)][rjust([ansi(hw,Concept:)]%b[xget(%0,PC_DATA`CONCEPT)],37)]%b|%R|%b[ljust([ansi(hw,DoB:)]%b[xget(%0,PC_DATA`DOB)],37)][rjust([ansi(hw,DoE:)]%b[xget(%0,PC_DATA`DATE_OF_EMBRACE)],37)]%b|[if(isstaff(%0),%R|%b[center([ansi(hw,EMAIL:)]%b[xget(%0,PC_DATA`EMAIL)],74)]%b|)]
+@@ Vampire Section
+&TEMPLATE.VAMPIRE #4063=[u(DISPLAY.VAMPIREINFO,%0)]%R[footer()]%R[u(DISPLAY.SKILLS,%0)]%R[if(hasattrval(%0,SKILL.SPECS),[header(Specialties)]%R[u(DISPLAY.SPECS,%0)])][u(DISPLAY.DISCIPLINES,%0)]%R[footer()]%RDEVOTIONS%R[footer()]%RVITALS
 
+&DISPLAY.VAMPIREINFO #4063=|%b[ljust([ansi(hw,Clan:)]%b[xget(%0,PC_DATA`CLAN)],37)][rjust([ansi(hw,Bloodline:)]%b[xget(%0,PC_DATA`BLOODLINE)],37)]%b|%R|%b[ljust([ansi(hw,Covenant:)]%b[xget(%0,PC_DATA`COVENANT)],37)][rjust([ansi(hw,Concept:)]%b[xget(%0,PC_DATA`CONCEPT)],37)]%b|%R|%b[ljust([ansi(hw,DoB:)]%b[xget(%0,PC_DATA`DOB)],37)][rjust([ansi(hw,DoE:)]%b[xget(%0,PC_DATA`DATE_OF_EMBRACE)],37)]%b|[if(isstaff(%0),%R|%b[center([ansi(hw,EMAIL:)]%b[xget(%0,PC_DATA`EMAIL)],74)]%b|)]
 
-&DISPLAY.SKILLS #4063=[u(FN`GET_MENTAL,%0)][u(FN`GET_PHYSICAL,%0)][u(FN`GET_SOCIAL,%0)]|%b[center([ansi(hw,Mental)],24)][center([ansi(hw,Physical)],24)][center([ansi(hw,Social)],24)][space(3)]|%R[iter(lnum(1,8),|%b%b%b[if(t(extract(%q<mental>,inum(0),1,|)),[ljust([before([extract(%q<mental>,inum(0),1,|)],~)],20,.)]%b[after(extract(%q<mental>,inum(0),1,|),~)],[space(24)])][space(2)][if(t(extract(%q<physical>,inum(0),1,|)),[ljust([before([extract(%q<physical>,inum(0),1,|)],~)],20,.)]%b[after(extract(%q<physical>,inum(0),1,|),~)],[space(24)])][space(2)][if(t(extract(%q<social>,inum(0),1,|)),[ljust([before([extract(%q<social>,inum(0),1,|)],~)],20,.)]%b[after(extract(%q<social>,inum(0),1,|),~)],[space(24)])]%b%b%b|, ,%R)]
-&DISPLAY.DISCIPLINES #4063=
+&DISPLAY.DISCIPLINES #4063=%R[header(Disciplines)]%R[iter(xget(%0,Disciplines),|%b[ljust(extract(%i0,1,1,~),setr(temp,strlen(extract(%i0,1,1,~))))][space(2)][repeat(.,sub(69,%q<temp>))][space(2)][rjust(extract(%i0,2,1,~),1)]%b|,|,%R)]
 
-&DISPLAY.BEGIN #4063=|%b[ljust([ansi(hw,Name:)]%b[xget(%#,fullname)],37)][rjust([ansi(hw,DoB:)]%b[xget(%#,dob)],37)]%b|%R|%b[ljust([ansi(hw,Concept:)]%b[xget(%#,concept)],74)]%b|%R[u(SEP)]%R[u(DISPLAY.REST)]
-&DISPLAY.REST #4063=[iter(xget(me,DISPLAY-STATS),[if(hasattr(%#,before(%i0,~)),[u(TITLE,[before(%i0,~)])]%R[switch(after(%i0,~),1,[u(FORMAT-1,%#,before(%i0,~))],2,[u(FORMAT-2,%#,before(%i0,~))],3,[u(FORMAT-3,%#,before(%i0,~))],[u(FORMAT-1,%#,before(%i0,~))])])][if(hasattr(%#,[before(%i0,~)].specs),[setq(A,%qA%b[before(%i0,~)])])], ,[space(0)])][if(t(%qA),[u(DISPLAY.SPECS,%qA)])]
-&DISPLAY.SPECS #4063=[u(TITLE,Specialties)]%R[iter(%0,[u(FORMAT-SPECS,%#,%i0.SPECS)], ,[space(0)])]
-&DISPLAY-STATS #4063=Attribute~2 Merits~3
-&FORMAT-1 #4063=[iter(xget(%0,%1),[if(mod(inum(0),2),|%b)][ljust([ansi(hw,before(%i0,~))],37)][if(not(mod(inum(0),2)),%b|%R)],|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
-&FORMAT-2 #4063=[iter(xget(%0,%1),|%b[ljust([ansi(hw,extract(%i0,1,1,~))],68)][space(3)][rjust([ansi(hw,extract(%i0,2,1,~))],3)]%b|%R,|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
-&FORMAT-3 #4063=[iter(xget(%0,%1),|%b[ljust([ansi(hw,extract(%i0,1,1,~))],33)][space(3)][ljust([chr(40)][extract(%i0,3,1,~)][chr(41)],33)][space(2)][rjust([ansi(hw,extract(%i0,2,1,~))],3)]%b|%R,|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
-&FORMAT-SPECS #4063=[iter(xget(%0,%1),[if(mod(inum(0),2),|%b)][ljust([ansi(hw,[before(%i0,~)].[after(%i0,~)])],37)][if(not(mod(inum(0),2)),%b|%R)],|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
-&SEP #4063=[repeat(=,78)]
-&TITLE #4063=[center([ansi(hw,[chr(91)]%b%0%b[chr(93)])],78,-)]
+&DISPLAY.DEVOTIONS #4063=
+
+&DISPLAY.VITALS.VAMP #4063=
+
+@@ General Functions
+&DISPLAY.SKILLS #4063=[u(FN`GET_MENTAL,%0)][u(FN`GET_PHYSICAL,%0)][u(FN`GET_SOCIAL,%0)]|%b[center([ansi(hw,Mental)],24)][center([ansi(hw,Physical)],24)][center([ansi(hw,Social)],24)][space(3)]|%R[iter(lnum(1,max(words(%q<physical>,|),words(%q<mental>,|),words(%q<social>,|))),|%b%b%b[if(t(extract(%q<mental>,inum(0),1,|)),[ljust([before([extract(%q<mental>,inum(0),1,|)],~)],20,.)]%b[after(extract(%q<mental>,inum(0),1,|),~)],[space(22)])][space(2)][if(t(extract(%q<physical>,inum(0),1,|)),[ljust([before([extract(%q<physical>,inum(0),1,|)],~)],20,.)]%b[after(extract(%q<physical>,inum(0),1,|),~)],[space(22)])][space(2)][if(t(extract(%q<social>,inum(0),1,|)),[ljust([before([extract(%q<social>,inum(0),1,|)],~)],20,.)]%b[after(extract(%q<social>,inum(0),1,|),~)],[space(22)])]%b%b%b|, ,%R)]
+
+&DISPLAY.SPECS #4063=[unsetq(mental)][unsetq(physical)][unsetq(social)][u(FN`GET_MENTAL_SPECS,%0)][u(FN`GET_PHYSICAL_SPECS,%0)][u(FN`GET_SOCIAL_SPECS,%0)]|%b[center([ansi(hw,Mental)],24)][center([ansi(hw,Physical)],24)][center([ansi(hw,Social)],24)][space(3)]|%R[iter(lnum(1,[max(words(%q<mental>,|),words(%q<physical>,|),words(%q<social>,|))]),[u(FN`SPEC.ROW,extract(%q<mental>,inum(0),1,|),extract(%q<physical>,inum(0),1,|),extract(%q<social>,inum(0),1,|))], ,%R)]
+
+@@ Occult~Demons:Kindred,Weaponry~Alpha:omega,Stealth~Plain Sight
+&FN`SPEC.ROW #4063=|%b[ljust(before(%0,~),24)][ljust(before(%1,~),24)][ljust(before(%2,~),24)][space(3)]|%R[iter(lnum(1,max(words(after(%0,~),:),words(after(%1,~),:),words(after(%2,~),:))),|[space(3)][if(t(extract(after(%0,~),inum(0),1,:)),[center(extract(after(%0,~),inum(0),1,:),24)],[space(24)])][if(t(extract(after(%1,~),inum(0),1,:)),[center(extract(after(%1,~),inum(0),1,:),24)],[space(24)])][if(t(extract(after(%2,~),inum(0),1,:)),[center(extract(after(%2,~),inum(0),1,:),24)],[space(24)])]%b|, ,%R)]
+
+[if(t(%q<mental>),|%b[ansi(hw,Mental)][space(68)]%b|%R[iter(%q<mental>,|%b[ljust(before(%i0,~),74)]%b|%R[u(FN`DISPLAY.SPECS,after(%i0,~))],|,%R)])][if(t(%q<physical>),[if(t(%q<mental>),%R)]|%b[ansi(hw,Physical)][space(66)]%b|%R[iter(%q<physical>,|%b[ljust(before(%i0,~),74)]%b|%R[u(FN`DISPLAY.SPECS,after(%i0,~))],|,%R)])][if(t(%q<social>),[if(or(t(%q<physical>),t(%q<mental>)),%R)]|%b[ansi(hw,Social)][space(68)]%b|%R[iter(%q<social>,|%b[ljust(before(%i0,~),74)]%b|%R[u(FN`DISPLAY.SPECS,after(%i0,~))],|,%R)])]
+
+&FN`DISPLAY.SPECS #4063=[if(gt(strlen(itemize(%0,:)),69),[iter(%0,[if(gt(inum(%0),div(words(%0,:),2)),[setq(list2,[setunion(extract(%0,inum(0),1,:),:,:)])],[setq(list1,[setunion(extract(%0,inum(0),1,:),:,:)])])],:,)]|[space(6)][itemize(%q<list1>,:)][if(lt(setr(temp,strlen(itemize(%q<list1>,:))),69),[space(sub(69,%q<temp>))])]%b|%r|%b[itemize(%q<list2>,:)][if(lt(setr(temp,strlen(itemize(%q<list2>,:))),69),[space(sub(69,%q<temp>))])]%b|,|[space(6)][itemize(%0,:)][if(lt(setr(temp,strlen(itemize(%0,:))),69),[space(sub(69,%q<temp>))])]%b|)]
 
 &FN`GET_MENTAL #4063=[iter(xget(%0,SKILL),[if(match(xget(#2821,LIST_MENTAL-SKILLS),before(%i0,~),|),[setq(mental,setunion(%q<mental>,%i0,|,|))])],|,)]
 &FN`GET_PHYSICAL #4063=[iter(xget(%0,SKILL),[if(match(xget(#2821,LIST_PHYSICAL-SKILLS),before(%i0,~),|),[setq(physical,setunion(%q<physical>,%i0,|,|))])],|,)]
 &FN`GET_SOCIAL #4063=[iter(xget(%0,SKILL),[if(match(xget(#2821,LIST_SOCIAL-SKILLS),before(%i0,~),|),[setq(social,setunion(%q<social>,%i0,|,|))])],|,)]
+
+&FN`GET_MENTAL_SPECS #4063=[iter(xget(%0,SKILL.SPECS),[if(match(xget(#2821,LIST_MENTAL-SKILLS),before(%i0,~),|),[setq(mental,setunion(%q<mental>,%i0,|,|))])],|,)]
+&FN`GET_PHYSICAL_SPECS #4063=[iter(xget(%0,SKILL.SPECS),[if(match(xget(#2821,LIST_PHYSICAL-SKILLS),before(%i0,~),|),[setq(physical,setunion(%q<physical>,%i0,|,|))])],|,)]
+&FN`GET_SOCIAL_SPECS #4063=[iter(xget(%0,SKILL.SPECS),[if(match(xget(#2821,LIST_SOCIAL-SKILLS),before(%i0,~),|),[setq(social,setunion(%q<social>,%i0,|,|))])],|,)]
+
+
+@@ Old Functions
+&DISPLAY.BEGIN #4063=|%b[ljust([ansi(hw,Name:)]%b[xget(%#,fullname)],37)][rjust([ansi(hw,DoB:)]%b[xget(%#,dob)],37)]%b|%R|%b[ljust([ansi(hw,Concept:)]%b[xget(%#,concept)],74)]%b|%R[u(SEP)]%R[u(DISPLAY.REST)]
+
+&DISPLAY.REST #4063=[iter(xget(me,DISPLAY-STATS),[if(hasattr(%#,before(%i0,~)),[u(TITLE,[before(%i0,~)])]%R[switch(after(%i0,~),1,[u(FORMAT-1,%#,before(%i0,~))],2,[u(FORMAT-2,%#,before(%i0,~))],3,[u(FORMAT-3,%#,before(%i0,~))],[u(FORMAT-1,%#,before(%i0,~))])])][if(hasattr(%#,[before(%i0,~)].specs),[setq(A,%qA%b[before(%i0,~)])])], ,[space(0)])][if(t(%qA),[u(DISPLAY.SPECS,%qA)])]
+
+&DISPLAY-STATS #4063=Attribute~2 Merits~3
+
+&FORMAT-1 #4063=[iter(xget(%0,%1),[if(mod(inum(0),2),|%b)][ljust([ansi(hw,before(%i0,~))],37)][if(not(mod(inum(0),2)),%b|%R)],|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
+
+&FORMAT-2 #4063=[iter(xget(%0,%1),|%b[ljust([ansi(hw,extract(%i0,1,1,~))],68)][space(3)][rjust([ansi(hw,extract(%i0,2,1,~))],3)]%b|%R,|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
+
+&FORMAT-3 #4063=[iter(xget(%0,%1),|%b[ljust([ansi(hw,extract(%i0,1,1,~))],33)][space(3)][ljust([chr(40)][extract(%i0,3,1,~)][chr(41)],33)][space(2)][rjust([ansi(hw,extract(%i0,2,1,~))],3)]%b|%R,|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
+
+&FORMAT-SPECS #4063=[iter(xget(%0,%1),[if(mod(inum(0),2),|%b)][ljust([ansi(hw,[before(%i0,~)].[after(%i0,~)])],37)][if(not(mod(inum(0),2)),%b|%R)],|,[space(0)])][if(mod(words(xget(%0,%1),|),2),[repeat(%b,38)]|%R)]
+
+&SEP #4063=[repeat(=,78)]
+
+&TITLE #4063=[center([ansi(hw,[chr(91)]%b%0%b[chr(93)])],78,-)]
