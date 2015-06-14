@@ -1,0 +1,59 @@
+@	Automated Player Conditions
+@	Coded by: Gizmo AKA Ourea, Alzie, Oukranos
+@	Email: ccubed.techno@gmail.com
+@----------------------------------------------------------------------------
+@	Purpose: Conditions tracker for RFK
+@----------------------------------------------------------------------------
+@
+@	+conditions - show your conditions
+@	+conditions/list - Show the conditions in the db
+@	+condition/end <id>=<reason> - End a condition. AKA remove it from my conditions. Reason is why you're ending it.
+@	+condition/begin <condition>/<note>/<date>=<reason> - add a condition. If it requires a note, put it. If it requires a date, put it in as M/DD (IE 6-12). Reason is why you're adding it.
+@	+condition/add <condition>/<notes>/<multiple> - Add a condition to the db. <notes> should be 0 or 1 to indicate if it requires a note. Multiple is 0 or 1 
+@													to indicate if they can have more than 1.
+@	+condition/edit <condition>/<notes/multiple>=<input> - Edit a condition's given attribute.  
+@	+condition/set  <player>/<reason>=<condition>/<note>/<date> -- Same as add just put Player Name/ in front of reason.
+@
+@--VA is Condition DB.
+@--Storage Format:
+@	Name`Notes:0 or 1
+@	Name`Multiple:0 or 1
+@
+@ Table: Conditions
+@ Columns: id int, player int (dbref), condition text, end_date datetime null ok, note text null ok
+
+&SQL`GET_ALL_CONDITIONS #4264=SELECT * FROM Conditions WHERE player=[sqlescape(%0)]
+
+&SQL`COUNT_CONDITIONS #4264=SELECT COUNT(*) FROM Conditions WHERE player=[sqlescape(%0)]
+
+&SQL`CHECK_EXPIRED #4264=SELECT * FROM Conditions WHERE end_date < CURDATE()
+
+&SQL`CHECK_EXISTS #4264=SELECT * FROM Conditions WHERE id=[sqlescape(%0)]
+
+&SQL`CHECK_OWNERSHIP #4264=SELECT * FROM Conditions WHERE id=[sqlescape(%0)] AND player=[sqlescape(%1)]
+
+&SQL`INSERT_CONDITION #4264=INSERT INTO Conditions (Conditions.player,Conditions.condition,end_date,note) VALUES ([sqlescape(%0)],'[sqlescape(%1)]',[if(t(%2),'[sqlescape(%2)]',Null)],[if(t(%3),'[sqlescape(%3)]',Null)])
+
+&SQL`DROP_CONDITION #4264=DELETE FROM Conditions WHERE id=[sqlescape(%0)]
+
+&SQL`COUNT_SPECIFIC_CONDITION #4264=SELECT COUNT(*) FROM Conditions WHERE Conditions.player=[sqlescape(%0)] and Conditions.condition='[sqlescape(%1)]'
+
+&CMD`CONDITIONS #4264=$+conditions:@assert [sql(u(SQL`COUNT_CONDITIONS,trim(%#,#)))]=@pemit %#=[ansi(hw,Conditions:)]%bYou have no conditions.;@pemit %#=[header()]%R[center([ansi(hw,[apostrophe_name(%#)] Conditions)],78)]%R[u(DISP`CONDITiONS,[sql(u(SQL`GET_ALL_CONDITIONS,trim(%#,#)),|,~)])]%r[footer()]
+
+&CMD`CONDITIONS_LIST #4264=$+conditions/list:@pemit %#=[header(Conditions Listing)]%R[iter(lattr(%va/**),[ljust(edit(%i0,_,%b),50)][ljust(switch(t(extract(xget(%va,%i0),1,1,:)),1,Allows Notes,Disallows Notes),15)][rjust(switch(t(extract(xget(%va,%i0),2,1,:)),1,Multiples,Single),13)], ,%R)]%R[footer()]
+
+&CMD`CONDITIONS2 #4264=$+conditions *:@assert [isstaff(%#)];@assert [pmatch(%0)]=@pemit %#=[ansi(hw,Conditions:)]%b%0 doesn't match a player;[setq(A,pmatch(%0))];@assert [sql(u(SQL`COUNT_CONDITIONS,trim(%qA,#)))]=@pemit %#=[ansi(hw,Conditions:)]%b[name(%qA)] has no conditions.;@pemit %#=[header([apostrophe_name(%qA)] Conditions)]%r[u(DISP`CONDITiONS,[sql(u(SQL`GET_ALL_CONDITIONS,trim(%qA,#)),|,~)])]%r[footer()]
+
+&DISP`CONDITIONS #4264=[iter(%0,[ljust([extract(%i0,1,1,~)].,6)][ljust([extract(%i0,3,1,~)][if(cand(strlen(extract(%i0,5,1,~)),not(strmatch(extract(%i0,5,1,~),Null))),:[extract(%i0,5,1,~)])],48)][if(not(strmatch(extract(%i0,4,1,~),Null)),[before([ljust(extract(%i0,4,1,~),24)],%b)],[space(24)])],|,%R)]
+
+&CMD`CONDITIONS.ADD #4264=$+condition/add */*/*:@assert [isstaff(%#)];@assert [cand(isnum(%1),isnum(%2))]=@pemit %#=[ansi(hw,Conditions:)]%bNotes and Multiple should be 0 to indicate no or 1 to indicate yes. They should only be numbers.;@break [hasattrval(%va,[edit(%0,%b,_)])]=@pemit %#=[ansi(hw,Conditions:)]%b%0 is already in the DB. Use edit instead.;[attrib_set(%va/[edit(%0,%b,_)],%1:%2)];@pemit %#=[ansi(hw,Conditions:)]%bAdded %0 to the Database. It [if(%1,takes,refuses)] a date and [if(%2,takes,refuses)] a specific target or note.
+
+&CMD`CONDITIONS.EDIT #4264=$+condition/edit */*=*:@assert [isstaff(%#)];@assert [hasattrval(%va,[edit(%0,%b,_)])]=@pemit %#=[ansi(hw,Conditions:)]%b%0 doesn't match a condition in the Database.;@assert [match(multiple notes,%1)]=@pemit %#=[ansi(hw,Conditions:)]%bThe only options you can change are Multiple or Note.;@switch %1=Multiple,{[attrib_set(%va/[edit(%0,%b,_)],[extract(xget(%va,[edit(%0,%b,_)]),1,1,:)]:%2)];@pemit %#=[ansi(hw,Conditions:)]%bSet %0 to [if(%2,accept,refuse)] having it multiple times.},Notes,{[attrib_set(%va/[edit(%0,%b,_)],[extract(xget(%va,[edit(%0,%b,_)]),2,1,:)]:%2)];@pemit %#=[ansi(hw,Conditions:)]%bSet %0 to [if(%2,accept,refuse)] having it multiple times.}
+
+&FN`MONTH_TO_NAME #4264=[switch(%0,1,Jan,2,Feb,3,Mar,4,Apr,5,May,6,Jun,7,Jul,8,Aug,9,Sep,10,Oct,11,Nov,12,Dec)]
+
+&CMD`CONDITIONS.BEGIN #4264=$+condition/begin *=*:@assert [hasattrval(%va,[edit([first(%0,/)],%b,_)])]=@pemit %#=[ansi(hw,Conditions:)]%b[first(%0,/)] doesn't match a condition. See +help conditions.;@break [cand(gte(words(%0,/),2),not(extract(xget(%va,edit(first(%0,/),%b,_)),1,1,:)))]=@pemit %#=[ansi(hw,Conditions:)]%bYou set a note for a condition that does not accept notes.;@break [cand(gt(sql(u(SQL`COUNT_SPECIFIC_CONDITION,trim(%#,#),first(%0,/))),0),not(extract(xget(%va,edit(first(%0,/),%b,_)),2,1,:)))]=@pemit %#=[ansi(hw,Conditions:)]%bYou are not allowed to have more than one of that condition at a time;@switch [words(%0,/)]=1,{[sql(u(SQL`INSERT_CONDITION,trim(%#,#),%0,0,0))];@cemit/noisy debug=[name(%#)] added [first(%0,/)] to their conditions for %1.;[u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#4264,Added [first(%0,/)] for %1)];@pemit %#=[ansi(hw,Conditions:)]%bAdded %0 to your conditions.},2,{[sql(u(SQL`INSERT_CONDITION,trim(%#,#),first(%0,/),0,last(%0,/)))];@pemit %#=[ansi(hw,Conditions:)]%bAdded [edit(%0,/,:)] to your conditions.},3,{@assert [cand(cand(isnum(before(last(%0,/),-)),isnum(after(last(%0,/),-))),lte(before(last(%0,/),-),12),lte(after(last(%0,/),-),31))]=@pemit %#=[ansi(hw,Conditions:)]%bYour date was badly formatted. It should be in the format MM-DD. IE 06-12.;[sql(u(SQL`INSERT_CONDITION,trim(%#,#),first(%0,/),[timefmt($Y-$m-$d $H:$M:$S,convtime([u(FN`MONTH_TO_NAME,before(last(%0,/),-))] [after(last(%0,/),-)] [timefmt($Y,secs())]))],extract(%0,2,1,/)))];@pemit %#=[ansi(hw,Conditions:)]%bAdded [first(%0,/)]:[last(%0,/)] to your conditions.}
+
+&CMD`CONDITIONS.SET #4264=$+condition/set */*=*:@assert [isstaff(%#)];@assert [pmatch(%0)]=@pemit %#=[ansi(hw,Conditions:)]%b%0 didn't match a player.;@switch [words(%2,/)]=1,{[sql(u(SQL`INSERT_CONDITION,trim(%#,#),%2,0,0))];@pemit %#=[ansi(hw,Conditions:)]%bAdded %2 to your conditions.},2,{[sql(u(SQL`INSERT_CONDITION,trim(%#,#),first(%2,/),0,last(%2,/)))];@pemit %#=[ansi(hw,Conditions:)]%bAdded [edit(%2,/,:)] to [name(pmatch(%0))] conditions.},3,{@assert [cand(cand(isnum(before(last(%2,/),-)),isnum(after(last(%2,/),-))),lte(before(last(%2,/),-),12),lte(after(last(%2,/),-),31))]=@pemit %#=[ansi(hw,Conditions:)]%bYour date was badly formatted. It should be in the format MM-DD. IE 06-12.;[sql(u(SQL`INSERT_CONDITION,trim(%#,#),first(%2,/),[timefmt($Y-$m-$d $H:$M:$S,convtime([u(FN`MONTH_TO_NAME,before(last(%2,/),-))] [after(last(%2,/),-)] [timefmt($Y,secs())]))],extract(%2,2,1,/)))];@pemit %#=[ansi(hw,Conditions:)]%bAdded [first(%2,/)]:[last(%2,/)] to [name(pmatch(%0))] for %1.};[u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#4264,Added [first(%2,/)] for %1)];@cemit/noisy debug=[name(%#)] added [first(%2,/)] to [name(pmatch(%0))].
+
+&CMD`CONDITIONS.END #4264=$+condition/end *=*:@assert [t(sql(u(SQL`CHECK_EXISTS,%0)))]=@pemit %#=[ansi(hw,Conditions:)]%bCan't find that Condition ID.;@assert [t(setr(a,sql(u(SQL`CHECK_OWNERSHIP,%0,trim(%#,#)),:,~)))]=@pemit %#=[ansi(hw,Conditions:)]%bThat condition ID isn't yours.;[sql(u(SQL`DROP_CONDITION,%0))];@pemit %#=[ansi(hw,Conditions:)]%bRemoved Condition %0 - [extract(%qA,3,1,~)].;@cemit/noisy debug=[name(%#)] removed their [extract(%qA,3,1,~)] Condition for %1.;[u(#1773/FN`WIZSET.INSERT_AUDIT,%#,#4264,Removed [extract(%qA,3,1,~)] for %1)]

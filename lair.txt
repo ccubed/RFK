@@ -1,0 +1,86 @@
+@	Reach Mux
+@	+Lair System
+@	Coded by: Gizmo AKA Ourea, Alzie
+@	Coded for: The Reach Mux
+@	Email: ccubed.techno@gmail.com
+@	Date Last Touched: 6/13/2014
+@----------------------------------------------------------------------------
+@	Purpose: Remake +lair. #4648
+@----------------------------------------------------------------------------
+@
+@	Basic Layout:
+@		LAIR_TYPES - List of Lair Types
+@		LAIR_TRAITS - List of Lair Traits
+@		LAIRS_[ID] - DBRef of OBject
+@		CID - Next ID
+@		
+@	Lair Objects:
+@		TYPE - Type of Lair
+@		LOCATION - Grid Location
+@		Access:
+@			PLAYER - | separated list of players with access
+@		TRAIT.[TRAIT_NAME].[SUB_TRAIT] - Level
+@		PLAYER.[DBREF] - | separated list of contributions
+@
+@--
+@	Commands
+@--
+@	+lair
+@	+lair ID
+@	+lair/addtype TYPE
+@	+lair/addtrait TRAIT
+@	+lair/create TYPE=NAME:LOCATION
+@	+lair/add ID=!TRAIT.SUBTRAIT:LEVEL/NOTES
+@	+lair/con ID/WHO=!TRAIT.SUBTRAIT:LEVEL/NOTES
+@	+lair/cons ID
+@	+lair/player #=Who
+@	+lair/faction #=Which
+@	+lair/delete *
+@
+@	Lair DB: #4649
+
+&VA #4648=#4649
+
+&CMD.ADDTYPE #4648=$+lair/addtype *:@assert [isstaff(%#)]={@pemit %#=[ansi(hr,ERROR:)]%bStaff Only.};[set(me,LAIR_TYPES:[setunion([xget(me,LAIR_TYPES)],[edit(%0,%b,_)],|,|)])];@pemit %#=[ansi(hr,LAIR:)]%bAdded %0 to Lair Types.
+
+&CMD.ADDTRAIT #4648=$+lair/addtrait *:@assert [isstaff(%#)]={@pemit %#=[ansi(hr,ERROR:)]%bStaff Only.};[set(me,LAIR_TRAITS:[setunion([xget(me,LAIR_TRAITS)],[edit(%0,%b,_)],|,|)])];@pemit %#=[ansi(hr,LAIR:)]%bAdded %0 to Lair Traits.
+
+&CMD.LAIR #4648=$+lair:@switch [attrcnt(%va/LAIRS_*)]=0,{@pemit %#=[header(+Lair System)]%R%R[center(No Lairs,78)]%R%R[footer()]},{@pemit %#=[header(+Lair System)]%R[if(isstaff(%#),u(DISP.STAFF),u(DISP.PLAYER))][footer()]}
+
+&DISP.STAFF #4648=[iter(lattr(%va/LAIRS*),[ansi(hw,[after(%i0,_)])].%b[name(xget(%va,%i0))]%R, ,)]
+
+&DISP.PLAYER #4648=[iter(lattr(%va/LAIRS*),[if(u(authed,[xget(%va,%i0)],%#),[ansi(hw,[after(%i0,_)])].%b[name(xget(%va,%i0))]%R)], ,)]
+
+&AUTHED #4648=[match(xget(%0,PLAYER),%1,|)]
+
+&CMD.LAIR.DETAILS #4648=$+lair *:@assert [hasattr(%va,LAIRS_%0)]={@pemit %#=[ansi(hr,LAIR:)]%b%0 is not a Lair.};@switch [cor(isstaff(%#),match(xget(xget(%va,LAIRS_%0),PLAYER),%#,|))]=0,{@pemit %#=[ansi(hr,LAIR:)]%bYou don't have access to that lair.},1,{@pemit %#=[header(+Lair System)]%R[u(DISP.LAIR,[xget(%va,LAIRS_%0)])][footer()]}
+
+&DISP.LAIR #4648=[ansi(hw,NAME)]:%b[name(%0)]%R[ansi(hw,TYPE)]:%b[xget(%0,TYPE)]%R[ansi(hw,LOCATION:)]%b[xget(%0,LOCATION)]%R%R[ansi(hw,Access)]:%R%TPlayers:%b[itemize([iter(xget(%0,PLAYER),[name(##)]%b,|,)])]%R%TFactions:%b[itemize(xget(%0,Faction),|)]%R%R[ansi(hw,Traits)]:%R[iter(lattr(%0/TRAIT*),[space(3)][edit([before([after(%i0,.)],.)],_,%b)][if(t([after([after(%i0,.)],.)]),.[edit([after([after(%i0,.)],.)],_,%b)])] at [before([xget(%0,%i0)],|)][if(t(after(xget(%0,%i0),|)),%R[space(6)]Notes:%b[after(xget(%0,%i0),|)])]%R, ,)]
+
+&CMD.LAIR.CREATE #4648=$+lair/create *=*:@assert [isstaff(%#)]={@pemit %#=[ansi(hr,LAIR:)]%bStaff Only.};@assert [match(xget(me,LAIR_TYPES),[edit(%0,%b,_)],|)]={@pemit %#=[ansi(hr,LAIR:)]%b%0 is not a valid Lair Type.};@switch [words(%1,:)]=1,{@pemit %#=[ansi(hr,LAIR:)]%bDidn't provide a location.},2,{@pemit %#=[u(f.create,%0,[before(%1,:)],[after(%1,:)])]},{@pemit %#=[ansi(hr,LAIR:)]%bUsage is +lair/create TYPE\=NAME:LOCATION}
+
+&F.CREATE #4648=[setq(A,[create(%1)])][tel(%qA,%va)][set(%qA,LOCATION:%2)][set(%qA,TYPE:%0)][set(%va,LAIRS_[xget(me,CID)]:%qA)][set(me,CID:[inc(xget(me,CID))])][ansi(hw,LAIR:)]%bLair %1 created as a %0 in location %2
+
+&CMD.LAIR.ADD.TRAIT #4648=$+lair/add *=*:@assert [isstaff(%#)]={@pemit  %#=[ansi(hr,LAIR:)]%bStaff Only.};@assert [gt(words(%1,:),1)]={@pemit %#=[ansi(hr,LAIR:)]%bDidn't provide a trait or level.};@assert [hasattr(%va,LAIRS_%0)]={@pemit %#=[ansi(hr,LAIR:)]%b%0 is not a valid Lair ID.};@assert [match(xget(me,LAIR_TRAITS),edit([before([before(%1,:)],.)],%b,_,!,[space(0)]),|)]={@pemit %#=[ansi(hr,LAIR:)]%bYou didn't put in a valid trait.};@switch [strmatch([before(before(%1,:),.)],!*)]=1,{@pemit %#=[u(F.LAIR.TRAIT.REMOVE,[xget(%va,LAIRS_%0)],[before(%1,:)],[after(%1,:)])]},{@pemit %#=[u(F.LAIR.TRAIT.ADD,[xget(%va,LAIRS_%0)],[before(%1,:)],[after(%1,:)])]}
+
+&F.LAIR.TRAIT.ADD #4648=[if(match(xget(me,LAIR_TRAITS),edit(before(%1,.),%b,_),|),[switch(words(%1,.),1,[switch(words(%2,/),1,[set(%0,TRAIT.[edit(%1,%b,_)]:%2)],2,[set(%0,TRAIT.[edit(%1,%b,_)]:[edit(%2,/,|)])])],2,[switch(words(%2,/),1,[set(%0,TRAIT.[edit([before(%1,.)],%b,_)].[edit([after(%1,.)],%b,_)]:%2)],2,[set(%0,TRAIT.[edit([before(%1,.)].[after(%1,.)],%b,_)]:[before(%2,/)]|[after(%2,/)])])])][ansi(hw,LAIR:)]%bAdded %1 to lair [name(%0)].,[ansi(hr,LAIR:)]%b[before(%1,.)] isn't a valid lair trait.)]
+
+&F.LAIR.TRAIT.REMOVE #4648=[pemit(#18188,REMOVING)][switch(words(%1,.),1,[set(%0,TRAIT.[edit(%1,%b,_,!,[space(0)])]:)],2,[set(%0,TRAIT.[edit([before(%1,.)].[after(%1,.)],%b,_,!,[space(0)])]:)])][ansi(hw,LAIR:)]%bRemoved [edit(%1,!,[space(0)])] from [name(%0)]
+
+&CMD.LAIR.CONTRIBUTION #4648=$+lair/con */*=*:@assert [isstaff(%#)]={@pemit  %#=[ansi(hr,LAIR:)]%bStaff Only.};@assert [gt(words(%2,:),1)]={@pemit %#=[ansi(hr,LAIR:)]%bDidn't provide a trait or level.};@assert [hasattr(%va,LAIRS_%0)]={@pemit %#=[ansi(hr,LAIR:)]%b%0 is not a valid Lair ID.};@assert [match(xget(me,LAIR_TRAITS),edit([before([before(%2,:)],.)],%b,_,!,[space(0)]),|)]={@pemit %#=[ansi(hr,LAIR:)]%bYou didn't put in a valid trait.};@assert [pmatch(%1)]={@pemit %#=[ansi(hr,LAIR:)]%b%1 didn't match a player.};@switch [strmatch([before(before(%2,:),.)],!*)]=1,{@pemit %#=[u(F.LAIR.CON.REMOVE,[xget(%va,LAIRS_%0)],[pmatch(%1)],%2)]},{@pemit %#=[u(F.LAIR.CON.ADD,[xget(%va,LAIRS_%0)],[pmatch(%1)],[edit(%2,%b,_)])]}
+
+&F.LAIR.CON.ADD #4648=[switch([hasattr(%0,PLAYER.%1)],0,[set(%0,PLAYER.%1:[lcstr(%2)])],1,[set(%0,PLAYER.%1:[setunion([xget(%0,PLAYER.%1)],[lcstr(%2)])])])][ansi(hw,LAIR:)]%bAdded [name(%1)]'s contribution of %2 to [name(%0)]
+
+&F.LAIR.CON.REMOVE #4648=[switch([hasattr(%0,PLAYER.%1)][words(xget(%0,PLAYER.%1),|)],0*,[ansi(hr,LAIR:)]%b[name(%1)] hasn't contributed to [name(%0)],11,[set(%0,PLAYER.%1:)][ansi(hw,LAIR:)]%bRemoved [name(%1)] from contributions list for [name(%0)],[set(%0,PLAYER.%1:[setdiff(xget(%0,PLAYER.%1),[lcstr(%2)])])][ansi(hw,LAIR:)]%bRemoved %2 from [name(%0)]'s contributions to [name(%0)])]
+
+&CMD.LAIR.CONTRIBUTORS #4648=$+lair/cons *:@assert [isstaff(%#)]={@pemit  %#=[ansi(hr,LAIR:)]%bStaff Only.};@assert [hasattr(%va,LAIRS_[before(%0,=)])]={@pemit %#=[ansi(hr,LAIR:)]%b[before(%0,=)] is not a valid lair ID.};@switch [words(%0,=)]=1,{@pemit %#=[u(disp.lair.contributors,[xget(%va,LAIRS_%0)],0)]},2,{@pemit %#=[u(disp.lair.contributors,[xget(%va,LAIRS_[before(%0,=)])],[after(%0,=)])]}
+
+&DISP.LAIR.CONTRIBUTORS #4648=[switch(%1,0,[header(+Lair System)]%R[ljust([ansi(hw,Player)],60)][rjust([ansi(hw,Contributions)],19)]%R[repeat(-,79)]%R[iter(lattr(%0/PLAYER.*),[ljust([ansi(hw,[name(after(%i0,.))])],60)][rjust([ansi(hw,[words(xget(%0,%i0),|)])],19)]%R, ,)][footer()],[switch(pmatch(%1),#-1*,[ansi(hr,LAIR:)]%b%1 didn't match a player.,[header(+Lair System)]%R[header([name([pmatch(%1)])] on [name(%0)])]%R[iter(xget(%0,Player.[pmatch(%1)]),[ansi(hw,[capstr([edit([before(%i0,:)],_,%b)])])] at [before(after(%i0,:),/)][if(t(after(after(%i0,:),/)),%RNotes:%T[after(after(%i0,:),/)]%R)]%R, ,)][footer()])])]
+
+&CMD.LAIR.ACCESS.PLAYER #4648=$+lair/player *=*:@assert [isstaff(%#)]={@pemit  %#=[ansi(hr,LAIR:)]%bStaff Only.};@assert [hasattr(%va,LAIRS_%0)]={@pemit %#=[ansi(hr,LAIR:)]%b%0 is not a Lair.};@switch [pmatch(%1)]=#-1*,{@pemit %#=[ansi(hr,LAIR:)]%b%1 didn't match a player!},{@pemit %#=[u(F.ACCESS.PLAYER,[xget(%va,LAIRS_%0)],[pmatch(%1)])]}
+
+&F.ACCESS.PLAYER #4648=[if(match(xget(%0,PLAYER),%1),[set(%0,PLAYER:[setdiff(xget(%0,PLAYER),%1,|,|)])][ansi(hw,LAIR:)]%bRemoved [name(%1)] from [name(%0)] access list.,[set(%0,PLAYER:[setunion(xget(%0,PLAYER),%1,|,|)])][ansi(hw,LAIR:)]%bAdded [name(%1)] to [name(%0)] access list.)]
+
+&CMD.LAIR.DELETE #4648=$+lair/delete *:@assert [isstaff(%#)]={@pemit  %#=[ansi(hr,LAIR:)]%bStaff Only.};@assert [hasattr(%va,LAIRS_%0)]={@pemit %#=[ansi(hr,LAIR:)]%b%0 is not a Lair.};@destroy [xget(%va,LAIRS_%0)];@set %va=LAIRS_%0:
+
+&CMD.LAIR.RENAME #4648=$+lair/rename *=*:@assert [isstaff(%#)]={@pemit  %#=[ansi(hr,LAIR:)]%bStaff Only.};@assert [hasattr(%va,LAIRS_%0)]={@pemit %#=[ansi(hr,LAIR:)]%b%0 is not a Lair.};@name [xget(%va,LAIRS_%0)]=%1
