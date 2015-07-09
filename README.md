@@ -28,6 +28,8 @@ Misc Code - Miscellaneous code. Finger setting code, aspirations, lots of things
 
 Modified roller - The New Roller
 
+New CG - New Character Generation Code by Room
+
 OSS Automation Strings - String Table for +OSS
 
 Requiem Skill Rol - Old Roller
