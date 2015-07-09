@@ -205,7 +205,7 @@
 
 &SSXP`DENIED #7=Herd|Resources|Fame|Alternate Identity|Blood Potency|Producer
 
-&CMD`XP #7=$+xp:@pemit %#=[header(XP Overview)]%R[center(Unspent: [before(xget(%#,PC_DATA`EXP),/)],78)]%R[center(Spent: [sub([after(xget(%#,PC_DATA`EXP),/)],[before(xget(%#,PC_DATA`EXP),/)])],78)]%R[center(Total: [after(xget(%#,PC_DATA`EXP),/)],78)]%R[center(Tier: Each Experience is [u(FN`SSXP`TIER,sub(after(xget(%#,PC_DATA`EXP),/),before(xget(%#,PC_DATA`EXP),/)))] Beats,78)]
+&CMD`XP #7=$+xp:@pemit %#=[header(XP Overview)]%R[center(Unspent: [before(xget(%#,PC_DATA`EXP),/)],78)]%R[center(Spent: [sub([after(xget(%#,PC_DATA`EXP),/)],[before(xget(%#,PC_DATA`EXP),/)])],78)]%R[center(Total: [after(xget(%#,PC_DATA`EXP),/)],78)]%R[center(Tier: Each Experience is [u(FN`SSXP`TIER,sub(after(xget(%#,PC_DATA`EXP),/),before(xget(%#,PC_DATA`EXP),/)))] Beats,78)]%R[footer()]
 
 &CMD`WIZBEATS %ww=$+wizspend */*=*:@assert [pmatch(%0)]={@pemit %#=[ansi(hr,ERROR:)]%bCan't match a player with %0.};[switch(mid(%1,0,1),+,[setq(a,[add(extract(xget(pmatch(%0),PC_DATA`EXP),1,1,/),mid(%1,1,sub(strlen(%1),1)))])][setq(B,[add(extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/),mid(%1,1,sub(strlen(%1),1)))])],-,[setq(A,[sub(extract(xget(pmatch(%0),PC_DATA`EXP),1,1,/),mid(%1,1,sub(strlen(%1),1)))])])];@assert [gte(%qA,0)]={@pemit %#=[ansi(hr,ERROR:)]%bCan't reduce current beats below 0.};[u(#1773/FN`WIZSET.RUN,%#,[name(pmatch(%0))],/MISC,Beats,%qA/[if(%qB,%qB,[extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/)])])][u(#1773/FN`WIZSET.INSERT_AUDIT,[pmatch(%0)],%#,Set beats to %qA/[if(%qB,%qB,[extract(xget(pmatch(%0),PC_DATA`EXP),2,1,/)])] for %2)];@pemit %#=[ansi(hw,BEATS:)]%bSet beats and added an entry to audit.
 
