@@ -103,7 +103,7 @@
 @	%2 - 0 or a list of DBREFs for pemit
 @	%3-%8 - Roll Flags
 @	%9 - original string input for roller
-&DISPLAY.OUTPUT.SIMPLE #3376=[u(F.ROLL,%0,%3,%4,%5,%6,%7,%8)][if(not(or(eq(%3,8),eq(%3,9))),[setq(A,0)])][setq(T,[u(LIT.HEADER,%1,%2)][if(or(%6,%7),%RExtended Roll%RRolls: %qR%RSuccesses: %qS%RExceptional Successes: %qE%R[switch([t(%6)][gte(%qS,%6)],11,You succeeded at meeting the Target Number,10,You did not meet the Target Number,There was no Target Number)]%R[iter(%q<litrolls>,[if(%8,Roll [inum(0)]: [map(FIL_COLOR,[sort(%i0)])],Roll [inum(0)]: [map(FIL_COLOR,%i0)])],|,%R)]%R,%R[space(4)]Rolled [if(gt(%q0,0),%qS [if(gt(%qS,1),Successes,Success)] [if(%qE,for an exceptional success.)],a chance die for [switch(%qS,0,a failure,1,a success,-1,a dramatic failure,successes)])]%R[space(4)]< [map(FIL_COLOR,trim(%qU))] >%R)][u(LIT.FOOTER,%9)])][if(%1,[remit(where(%#),%qT)])][if(t(%2),[pemit(%qX,%qT)])][if(or(%6,%7),[cemit(debug,[name(%#)] rolled %9 (%0 Dice) with %3-Again[if(%4,%band Rote)] %qR times on an extended action. They rolled %qS Successes. Their Target Number was %6.,1)],[cemit(debug,[name(%#)] rolled [if(%0,%9 (%0 Dice),a chance die)] with %3-Again[if(%4,%band Rote)] for %qS successes,1)])]
+&DISPLAY.OUTPUT.SIMPLE #3376=[u(F.ROLL,%0,%3,%4,%5,%6,%7,%8)][if(not(or(eq(%3,8),eq(%3,9))),[setq(A,0)])][setq(T,[u(LIT.HEADER,%1,%2)][if(or(%6,%7),%RExtended Roll%RRolls: %qR%RSuccesses: %qS%RExceptional Successes: %qE%R[switch([t(%6)][gte(%qS,%6)],11,You succeeded at meeting the Target Number,10,You did not meet the Target Number,There was no Target Number)]%R[iter(%q<litrolls>,[if(%8,Roll [inum(0)]: [map(FIL_COLOR,[sort(%i0)])],Roll [inum(0)]: [map(FIL_COLOR,%i0)])],|,%R)]%R,%R[space(4)]Rolled [if(gt(%q0,0),%qS [if(gt(%qS,1),Successes,Success)] [if(%qE,for an exceptional success.)],a chance die for [switch(%qS,0,a failure,1,a success,-1,a dramatic failure,successes)])]%R[space(4)]< [map(FIL_COLOR,trim(%qU))] >%R)][u(LIT.FOOTER,%9)])][if(%1,[remit(where(%#),%qT)])][if(t(%2),[if(t(%qX),[pemit(setdiff(%2,%#),%qT)],[pemit(%2,%qT)])])][if(or(%6,%7),[cemit(debug,[name(%#)] rolled %9 (%0 Dice) with %3-Again[if(%4,%band Rote)] %qR times on an extended action. They rolled %qS Successes. Their Target Number was %6.,1)],[cemit(debug,[name(%#)] rolled [if(%0,%9 (%0 Dice),a chance die)] with %3-Again[if(%4,%band Rote)] for %qS successes,1)])]
 
 @	DISPLAY.OUTPUT.TICKET
 @ 	Usage: Outputs a roll to a ticket
@@ -203,7 +203,7 @@
 @	%0 - stat to check
 @	%1 - /perm
 @	Returns: The stat pair. IE: stat name/value
-&PARSE.STAT #3376=[setq(0,[GET_ATTRIB(%#,%0)])][setq(1,[GET_DISCIPLINE(%#,%0)])][setq(2,[GET_DISCIPLINE_THEME(%#,%0)])][setq(3,[GET_MERIT(%#,[edit(%0,_,%b)])])][setq(4,[GET_SKILL(%#,[edit(%0,_,%b)])])][switch([t(%q0)][t(%q1)][t(%q2)][t(%q3)][t(%q4)][t(%q5)],1*,%q0,01*,%q1,001*,%q2,0001*,%q3,00001*,%q4,0)]
+&PARSE.STAT #3376=[max([GET_ATTRIB(%#,%0)],[GET_DISCIPLINE(%#,%0)],[GET_DISCIPLINE_THEME(%#,%0)],[GET_MERIT(%#,%0)],[GET_SKILL(%#,%0)],[u(#4079/FN.GET.STAT,%#,[get_type(%0)],%0)])]
 
 @	F.GET.ROLL.DICE
 @	Usage: Returns a stat pair. IE: stat name/value

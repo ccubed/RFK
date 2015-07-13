@@ -17,7 +17,7 @@ FUNCTIONS`FUN.GET_DISCIPLINE [#5]: [setq(t,0)][unsetq(GDISCIPLINE)][setq(GDISCIP
 FUNCTIONS`FUN.GET_DISCIPLINE_THEME [#5]: [setq(t,0)][unsetq(GTHEME)][setq(GTHEME,%1)][iter([get(%0/PC_DATA`DISCIPLINES.THEMES)],[if([strmatch(%i0,%q<GTHEME>:*)],[elements(%i0,2,:)][setq(t,1)][ibreak()])],|,)][if([not(%qt)],[t(%qt)])]
 FUNCTIONS`FUN.GET_HP [#5]: [switch(%1,current,[get(%0/PC_DATA`STATUS`HP)],max,[add([get_attrib(%0,stamina)],[get(%0/PC_DATA`SIZE)])],[pemit(%0, BUG: Get_HP did not accept 'current' or 'max'. Please report to Kougyoku.)])]
 FUNCTIONS`FUN.GET_INIT_MOD [#1905]: [add([get_init_mod_base(%0)],[get(%0/PC_DATA`STATUS`INIT_MOD_MOD)])]
-FUNCTIONS`FUN.GET_INIT_MOD_BASE [#1905]: [add([get_attrib(%0,Dexterity)],[get_attrib(%0,Composure)],[get_merit(%0,Fast Reflexes)])]
+&FUNCTIONS`FUN.GET_INIT_MOD_BASE #1706=[add([get_attrib(%0,Dexterity)],[get_attrib(%0,Composure)],[u(#4079/FN.GET.STAT,%0,Merit,Fast Reflexes)])]
 FUNCTIONS`FUN.GET_MERIT [#5]: [setq(t,0)][unsetq(GMERIT)][setq(GMERIT,[edit(%1,_,[space(1)])])][iter([get(%0/PC_DATA`MERITS)],[if([strmatch(%i0,%q<GMERIT>:*)],[elements(%i0,2,:)][setq(t,1)][ibreak()])],|,)][if([not(%qt)],[t(%qt)])]
 FUNCTIONS`FUN.GET_PERCENTAGE [#5]: [setq(p,[floor([div([mul(%0,100)],%1)])])]%qp
 FUNCTIONS`FUN.GET_SKILL [#5]: [setq(t,0)][unsetq(GSKILL)][setq(GSKILL,%1)][iter([strcat([get(%0/PC_DATA`SKILL.MENTAL)],|[get(%0/PC_DATA`SKILL.PHYSICAL)],|[get(%0/PC_DATA`SKILL.SOCIAL)])],[if([strmatch(%i0,%q<GSKILL>:*)],[elements(%i0,2,:)][setq(t,1)][ibreak()])],|,)][if([not(%qt)],[t(%qt)])]
