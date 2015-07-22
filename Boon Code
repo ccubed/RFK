@@ -92,9 +92,9 @@
 
 &CMD`BOON.TRADE #2885=$+boons/trade */*=*/*:@assert [pmatch(%0)]={@pemit %#=[ansi(hr,ERROR:)]%b%0 doesn't match a player. Please review the name given. You can also use an alias.};@assert [t(setr(a,sql(u(SQL`GET_SPECIFIC_ID,%1),:,~)))]={@pemit %#=[ansi(hr,ERR:)]%bCouldn't find that ID in the database. Is %1 right?};@assert [setq(b,[ulocal(F`PARSE.BOON.AMT,%2)])][cand(if(t(extract(%qB,1,1)),gte(sub(extract(%qA,8,1,~),extract(%qB,1,1)),0),1),if(t(extract(%qB,2,1)),gte(sub(extract(%qA,7,1,~),extract(%qB,2,1)),0),1),if(t(extract(%qB,3,1)),gte(sub(extract(%qA,6,1,~),extract(%qB,3,1)),0),1))]={@pemit %#=[ansi(hr,ERR:)]%bYou don't have enough boons from that ID to trade that many.};@break [strmatch(extract(%qA,2,1,~),[after(%#,#)])]={@pemit %#=[ansi(hr,ERR:)]%bYou can't trade debt!};[u(F`TRADE.BOON,%0,%1,%2,%3,%qB,%qA)];@cemit/noisy debug=[name(%#)] just traded some boons with [name(pmatch(%0))];@pemit %#=[ansi(hw,BOONS:)]%bYou traded some boons with [name(pmatch(%0))].
 
-&DISP`BBDETAILS.HEADER #2885=[ljust(Boons,13)]%R%R[ljust(Reason,65)]%R%b[repeat(-,76)]
+&DISP`BBDETAILS.HEADER #2885=[ljust(Boons,13)][rjust(Date,65)]%R[ljust(Reason,65)]%R%b[repeat(-,76)]
 
-&DISP`BOON.BANK.DETAILS #2885=[u(DISP`BBDETAILS.HEADER)]%R[iter([extract(%qA,3,1,~)],[ljust(after(%i0,/),13)]%R%R[before(%i0,/)],|,%R%b[repeat(-,76)]%R)]
+&DISP`BOON.BANK.DETAILS #2885=[u(DISP`BBDETAILS.HEADER)]%R[iter([extract(%0,3,1,~)],[ljust(after(%i0,/),13)][rjust(after(after(extract(extract(%0,9,1,~),inum(0),1,|),-),-),65)]%R[before(%i0,/)],|,%R%b[repeat(-,76)]%R)]
 
 &DISP`BOON.DETAILS #2885=[setq(A,[sql(u(SQL`GET_MY_BOONS_DEBT,[after(%0,#)]),:,~)])][setq(B,[sql(u(SQL`GET_MY_BOONS_CREDIT,[after(%0,#)]),:,~)])][header(Outstanding Boons Owed to You)]%R[u(DISP`DETAILS.HEADER)]%R[switch([gt(words(%qB,:),10)],1,[iter(%qB,[if(lte(inum(0),10),[u(DISP`BOON.ROW.CREDIT,%i0)])],:,%R)][footer(Pg. 1/[u(F`CALC.PAGES,[words(%qB,:)])]. Use +boons/credit # for more)],0,[iter(%qB,[u(DISP`BOON.ROW.CREDIT,%i0)],:,%R)])]%R%R[header(Outstanding Boons You Owe)]%R[u(DISP`DETAILS.HEADER)]%R[switch([gt(words(%qA,:),10)],1,[iter(%qA,[if(lte(inum(0),10),[u(DISP`BOON.ROW.DEBT,%i0)])],:,%R)]%R[footer(Pg. 1/[u(F`CALC.PAGES,[words(%qA,:)])]. Use +boons/debt # for more)],0,[iter(%qA,[u(DISP`BOON.ROW.DEBT,%i0)],:,%R)]%R%R[footer()])]
 

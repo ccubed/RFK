@@ -140,7 +140,7 @@
 @	%4 - TN (If extended, Target Number)
 @	%5 - RN (If extended, Maximum number of rolls) (0 or absent for unlimited)
 @	%6 - 1 for Literal, 0 for Sorte
-@
+@blend
 @	Registers Used
 @	U - Hold uncolored string of roll results
 @	S - # of Sux
@@ -189,7 +189,15 @@
 @		%q9 - Parsed text of the stats (turns str+dex into Strength+Dexterity)
 @		%q2 - Holds the original input spaced out for parsing
 @		%q5 - Temp Var. Holds Stat/# pair.
-&PARSE.GETDICE #3376=[setq(0,0)][setq(9,[space(0)])][setq(2,[edit([edit([lcstr(%0)],%b,_)],-,%b-,+,%b+)])][iter(%q2,[switch([u(F.POSNEG,%i0)],1,[if(after(%i0,+),[if(isnum(after(%i0,+)),[setq(0,[add(%q0,[after(%i0,+)])])][setq(9,[setunion(%q9,[after(%i0,+)],+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,+),%qJ)])])])][setq(9,[setunion(%q9,[capstr([after(%i0,+)])],+)])])],[if(isnum(%i0),[setq(0,add(%q0,%i0))][setq(9,[setunion(%q9,%i0,+)])],[setq(0,[add(%q0,[setr(5,[ulocal(PARSE.STAT,%i0,%qJ)])])])][setq(9,[setunion(%q9,[capstr(%i0)],+)])])])],0,[if(isnum(after(%i0,-)),[setq(0,sub(%q0,after(%i0,-)))][setq(9,[setunion(%q9,[after(%i0,-)],-)])],[setq(0,[sub(%q0,[setr(5,[ulocal(PARSE.STAT,after(%i0,-),%qJ)])])][setq(9,[setunion(%q9,[capstr(%i0)],-)])])])])], ,[space(0)])]
+&PARSE.GETDICE #3376=[setq(0,0)][setq(9,[space(0)])][setq(2,[edit([edit([lcstr(%0)],%b,_)],-,%b-,+,%b+)])][iter(%q2,[switch([u(F.POSNEG,%i0)],1,[if(after(%i0,+),[if(isnum(after(%i0,+)),[setq(0,[add(%q0,[after(%i0,+)])])][setq(9,[setunion(%q9,[after(%i0,+)],+)])],[setq(0,[add(%q0,[u(PARSE.UNTRAINED,[setr(5,[ulocal(PARSE.STAT,after(%i0,+),%qJ)])],after(%i0,+),0)])])][setq(9,[setunion(%q9,[capstr([after(%i0,+)])],+)])])],[if(isnum(%i0),[setq(0,add(%q0,%i0))][setq(9,[setunion(%q9,%i0,+)])],[setq(0,[add(%q0,[u(PARSE.UNTRAINED,[setr(5,[ulocal(PARSE.STAT,%i0,%qJ)])],%i0,0)])])][setq(9,[setunion(%q9,[capstr(%i0)],+)])])])],0,[if(isnum(after(%i0,-)),[setq(0,sub(%q0,after(%i0,-)))][setq(9,[setunion(%q9,[after(%i0,-)],-)])],[setq(0,[sub(%q0,[u(PARSE.UNTRAINED,[setr(5,[ulocal(PARSE.STAT,after(%i0,-),%qJ)])],after(%i0,-),1)])][setq(9,[setunion(%q9,[capstr(%i0)],-)])])])])], ,[space(0)])]
+
+@   Parse.Untrained
+@   Usage: Determines untrained penalties
+@	Returns:
+@		The number passed or a number for the penalty
+@
+@	%0 - Result of Parse Stat, %1 - Stat parsed, %2 - Return positive? (for sub function)
+&PARSE.UNTRAINED #3376=[if(not(%0),[switch([t([match(xget(#2821,LIST_SOCIAL-SKILLS),%1,|)])][t([match(xget(#2821,LIST_PHYSICAL-SKILLS),%1,|)])][t([match(xget(#2821,LIST_MENTAL-SKILLS),%1,|)])],1*,[if(%2,1,-1)],01*,[if(%2,1,-1)],001,[if(%2,3,-3)],%0)],%0)]
 
 @	F.POSNEG
 @	Usage: Takes an input and returns whether that is positive or negative
@@ -203,7 +211,7 @@
 @	%0 - stat to check
 @	%1 - /perm
 @	Returns: The stat pair. IE: stat name/value
-&PARSE.STAT #3376=[max([GET_ATTRIB(%#,%0)],[GET_DISCIPLINE(%#,%0)],[GET_DISCIPLINE_THEME(%#,%0)],[GET_MERIT(%#,%0)],[GET_SKILL(%#,%0)],[u(#4079/FN.GET.STAT,%#,[get_type(%0)],%0)])]
+&PARSE.STAT #3376=[max([GET_ATTRIB(%#,%0)],[GET_DISCIPLINE(%#,%0)],[GET_DISCIPLINE_THEME(%#,%0)],[GET_MERIT(%#,%0)],[GET_SKILL(%#,%0)],[u(#4079/FN.GET.SPEC,%#,%0)])]
 
 @	F.GET.ROLL.DICE
 @	Usage: Returns a stat pair. IE: stat name/value

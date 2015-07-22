@@ -1,58 +1,44 @@
-Requiem - Friday, October 17, 2014, 12:33 AM
---------------------------------------------
-
-@@ CRON - Myrddin's mushcron (#54)
-@create CRON - Myrddin's mushcron
-@link CRON - Myrddin's mushcron = #0
-@lock/Basic #54=me
-@lset CRON - Myrddin's mushcron/Basic=no_inherit
-@set CRON - Myrddin's mushcron = WIZARD
-@set CRON - Myrddin's mushcron = SAFE
-@set CRON - Myrddin's mushcron = NO_COMMAND
-&CREDITS #54=mushcron was coded by Myrddin (merlin@firstmagic.com).  Permission is granted to distribute the code freely as long as the initial CREDIT attribute is kept intact.  This code is located at www.firstmagic.com/~merlin/mushcode
-&CRON #54=@trigger me/cronjobs; @wait 60={@trigger me/cron}
-
-&CRON_JOB_ANONJOBDAILY #54=@trigger #20/DAILY
-&CRON_JOB_DAWN #54=@trigger %wu/FN`DAWN
-&CRON_JOB_DUSK #54=@trigger %wu/FN`DUSK
-&CRON_JOB_UPKEEP #54=@trigger %wd/FN`UPKEEP.WEEKLY_REMAINING_DT_AUDIT_ALL
-&CRON_JOB_FEED #54=@dol mwho()={@set %i0=PC_DATA`FEED:;@set %i0=PC_DATA`FEED.AMT:}
-&CRON_JOB_FILLBLOODPOOLS #54=@trigger %wh/FN`FILL_BLOODPOOLS
-&CRON_JOB_CRISESDAILY #54=@trigger %wt/TRIG`TERRITORIES.TODAY_TBD_CRISES
-&CRON_JOB_CRISESMONTHLY #54=@trigger %wt/TRIG`TERRITORIES.MONTHLY_CRISES_GEN
-
-&CRON_JOB_CENSUSBASIC #54=@trigger %wu/FN`CENSUS_BASIC_UPDATE
-&CRON_JOB_CENSUSCLAN #54=@trigger %wu/FN`CENSUS_CLAN_UPDATE
-&CRON_JOB_CENSUSCOVENANT #54=@trigger %wu/FN`CENSUS_COVENANT_UPDATE
-
-
-&CRON_JOB_RESOURCES #54=@dol lsearch(all,type,player)={@switch/inline [get(%i0/CHARGEN`APPROVED)][has_merit(%i0,Resources)]=11,+donate %i0=[switch([get_merit(%i0,Resources)],1,1,2,4,3,12,4,25,5,100)] rp;@mail %i0=Resources added/You have been given your monthly allocation of [switch([get_merit(%i0,Resources)],1,1,2,4,3,12,4,25,5,100)] resource points. Check your +money and spend wisely.}
-&CRON_JOB_RESOURCESEXTRA #54=@dol lsearch(all,type,player)={@switch/inline [get(%i0/CHARGEN`APPROVED)][IF([get(%i0/PC_DATA`EXTRA_MONEY)],1,0)]=11,+donate %i0=[IF([get(%i0/PC_DATA`EXTRA_MONEY)],[get(%i0/PC_DATA`EXTRA_MONEY)],0)] rp;@mail %i0=Bonus Resources added/You have been given your monthly allocation of bonus [IF([get(%i0/PC_DATA`EXTRA_MONEY)],[get(%i0/PC_DATA`EXTRA_MONEY)],0)] resource points. Check your +money and spend wisely.}
-
-
-&CRONJOBS #54=@dolist [setq(8,time())][setq(1,extract(%q8,2,1))][setq(2,extract(%q8,3,1))][setq(3,extract(%q8,1,1))][setq(4,extract(extract(%q8,4,1),1,1,:))][setq(5,extract(time(),2,1,:))][lattr(me/cron_time_*)]={@switch and(or(member(extract([setq(0,v(##))]%q0,1,1,|),%q1),not(strlen(extract(%q0,1,1,|)))), or(member(extract(%q0,2,1,|),%q2), not(strlen(extract(%q0,2,1,|)))), or(member(extract(%q0,3,1,|),%q3), not(strlen(extract(%q0,3,1,|)))), or(member(extract(%q0,4,1,|),%q4), not(strlen(extract(%q0,4,1,|)))), or(member(extract(%q0,5,1,|),%q5), not(strlen(extract(%q0,5,1,|)))))=1,{@pemit #1=Triggering CRON_JOB_[extract(##,3,1,_)]; @trigger me/cron_job_[extract(##,3,1,_)]=[last(%q0,|)]}}
-
-&CRON_TIME_ANONJOBDAILY #54=|||05|00|
-&CRON_TIME_DAWN #54=|||06|00
-&CRON_TIME_DUSK #54=|||18|30
-&CRON_TIME_FEED #54=|||||
-&CRON_TIME_FILLBLOODPOOLS #54=|||03|00
-&CRON_TIME_GHOULMAINT #54=|01||01|00
-&CRON_TIME_RESOURCES #54=|01||01|00|
-&CRON_TIME_RESOURCESEXTRA #54=|01||01|01|
-&CRON_TIME_UPKEEP #54=||Mon|04|00|
-&CRON_TIME_CRISESDAILY #54=|||05|00|
-&CRON_TIME_CRISESMONTHLY #54=|01||01|00|
-&CRON_TIME_CENSUSBASIC #54=|||03|15
-&CRON_TIME_CENSUSCLAN #54=|||03|16
-&CRON_TIME_CENSUSCOVENANT #54=|||03|17
-
-&DESCRIBE #54=[repeat(=,78)]%r%b[iter(lattr(me/cron_time_*),[ljust(rest(rest(##,_),_),25)][v(##)]%r)][repeat(-,78)]%rPattern of CRON_TIME_* attributes:%r%t<month>|<date>|<day of week>|<hour>|<minute>|<args>%r(ex. Mar||Sun|04|54| would trigger a cron job at 4:54am every sunday in the month of march)%r[repeat(=,78)]
-
-@set CRON - Myrddin's mushcron/DESCRIBE=no_command visual prefixmatch public nearby
-&STARTUP #54=@trigger me/cron
-@set CRON - Myrddin's mushcron/STARTUP=no_command prefixmatch
-&WH #54=#2062
-&WU #54=#2280
-&WD #54=#2930
-&WT #54=#2279
+CREDITS #54=mushcron was coded by Myrddin (merlin@firstmagic.com).  Permission is granted to distribute the code freely as long as the initial CREDIT attribute is kept intact.  This code is located at www.firstmagic.com/~merlin/mushcode
+CRON #54=@trigger me/cronjobs; @wait 60={@trigger me/cron}
+CRON_JOB_ANONJOBDAILY #54=@trigger #20/DAILY
+CRON_JOB_CENSUSBASIC #54=@trigger %wu/FN`CENSUS_BASIC_UPDATE
+CRON_JOB_CENSUSCLAN #54=@trigger %wu/FN`CENSUS_CLAN_UPDATE
+CRON_JOB_CENSUSCOVENANT #54=@trigger %wu/FN`CENSUS_COVENANT_UPDATE
+CRON_JOB_CRISESDAILY #54=@trigger %wt/TRIG`TERRITORIES.TODAY_TBD_CRISES
+CRON_JOB_CRISESMONTHLY #54=@trigger %wt/TRIG`TERRITORIES.MONTHLY_CRISES_GEN
+CRON_JOB_DAILYEVENTS #54=@trigger #4307/TRIG.DAILY
+CRON_JOB_DAWN #54=@trigger %wu/FN`DAWN
+CRON_JOB_DUSK #54=@trigger %wu/FN`DUSK
+CRON_JOB_FEED #54=@dol mwho()={@set %i0=PC_DATA`FEED:;@set %i0=PC_DATA`FEED.AMT:}
+CRON_JOB_FILLBLOODPOOLS #54=@trigger %wh/FN`FILL_BLOODPOOLS
+CRON_JOB_GHOULMAINT #54=@dol lsearch(all,type,player)={@switch/inline [get(%i0/CHARGEN`APPROVED)][strmatch([get_template(%i0)],GHOUL)]=11,@set %i0=PC_DATA`EVENT`GHOUL_MAINT:0}
+CRON_JOB_PATROLDT #54=@trigger #1773/TRIG`PATROLDT
+CRON_JOB_RESOURCES #54=@dol lsearch(all,type,player)={@switch/inline [get(%i0/CHARGEN`APPROVED)][has_merit(%i0,Resources)]=11,+donate %i0=[switch([get_merit(%i0,Resources)],1,1,2,4,3,12,4,25,5,100)] rp;@mail %i0=Resources added/You have been given your monthly allocation of [switch([get_merit(%i0,Resources)],1,1,2,4,3,12,4,25,5,100)] resource points. Check your +money and spend wisely.}
+CRON_JOB_RESOURCESEXTRA #54=@dol lsearch(all,type,player)={@switch/inline [get(%i0/CHARGEN`APPROVED)][IF([get(%i0/PC_DATA`EXTRA_MONEY)],1,0)]=11,+donate %i0=[IF([get(%i0/PC_DATA`EXTRA_MONEY)],[get(%i0/PC_DATA`EXTRA_MONEY)],0)] rp;@mail %i0=Bonus Resources added/You have been given your monthly allocation of bonus [IF([get(%i0/PC_DATA`EXTRA_MONEY)],[get(%i0/PC_DATA`EXTRA_MONEY)],0)] resource points. Check your +money and spend wisely.}
+CRON_JOB_RITUALSDAILY #54=@trigger #2542/CRON`DAILY
+CRONJOBS #54=@dolist [setq(8,time())][setq(1,extract(%q8,2,1))][setq(2,extract(%q8,3,1))][setq(3,extract(%q8,1,1))][setq(4,extract(extract(%q8,4,1),1,1,:))][setq(5,extract(time(),2,1,:))][lattr(me/cron_time_*)]={@switch and(or(member(extract([setq(0,v(##))]%q0,1,1,|),%q1),not(strlen(extract(%q0,1,1,|)))), or(member(extract(%q0,2,1,|),%q2), not(strlen(extract(%q0,2,1,|)))), or(member(extract(%q0,3,1,|),%q3), not(strlen(extract(%q0,3,1,|)))), or(member(extract(%q0,4,1,|),%q4), not(strlen(extract(%q0,4,1,|)))), or(member(extract(%q0,5,1,|),%q5), not(strlen(extract(%q0,5,1,|)))))=1,{@pemit #1=Triggering CRON_JOB_[extract(##,3,1,_)]; @trigger me/cron_job_[extract(##,3,1,_)]=[last(%q0,|)]}}
+CRON_JOB_UPKEEP #54=@trigger %wd/FN`UPKEEP.WEEKLY_REMAINING_DT_AUDIT_ALL
+CRON_TIME_ANONJOBDAILY #54=|||05|00|
+CRON_TIME_CENSUSBASIC #54=|||03|15
+CRON_TIME_CENSUSCLAN #54=|||03|16
+CRON_TIME_CENSUSCOVENANT #54=|||03|17
+CRON_TIME_CRISESDAILY #54=|||05|00|
+CRON_TIME_CRISESMONTHLY #54=|01||01|00|
+CRON_TIME_DAILYEVENTS #54=|||00|00|
+CRON_TIME_DAWN #54=|||06|00
+CRON_TIME_DUSK #54=|||18|30
+CRON_TIME_FEED #54=|||||
+CRON_TIME_FILLBLOODPOOLS #54=|||03|00
+CRON_TIME_GHOULMAINT #54=|01||01|00
+CRON_TIME_PATROLDT #54=|||05|00|
+CRON_TIME_RESOURCES #54=|01||01|00|
+CRON_TIME_RESOURCESEXTRA #54=|01||01|01|
+CRON_TIME_RITUALSDAILY #54=|||05|00
+CRON_TIME_UPKEEP #54=||Mon|04|00|
+DEBUGFORWARDLIST #54=#1905
+DESCRIBE #54=[repeat(=,78)]%r%b[iter(lattr(me/cron_time_*),[ljust(rest(rest(##,_),_),25)][v(##)]%r)][repeat(-,78)]%rPattern of CRON_TIME_* attributes:%r%t<month>|<date>|<day of week>|<hour>|<minute>|<args>%r(ex. Mar||Sun|04|54| would trigger a cron job at 4:54am every sunday in the month of march)%r[repeat(=,78)]
+STARTUP #54=@trigger me/cron
+WD #54=#2930
+WH #54=#2062
+WT #54=#2279
+WU #54=#2280

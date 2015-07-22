@@ -90,6 +90,7 @@ th [set(Library Controller,vb:[num(CG Description DB)])]
 @@ passed - Player DBREF, Type, What, Note
 &FN.GET.STAT.EX #4079=[switch([hasattrval(%0,%1)][t([setr(num,[match(xget(%0,%1),%2~*~%3,|)])])],0*,0,10,0,11,[extract([extract(xget(%0,%1),%q<num>,1,|)],2,1,~)])]
 
+@@ passed - Player DBref, Spec
+&FN.GET.SPEC #4079=[setq(found,0)][iter(xget(%0,Skill.Specs),[iter(%i0,[if(strmatch(%i0,%1),[setq(found,1)])],:,)],|,)]%q<found>
+
 th End Library Controller
-
-

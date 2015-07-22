@@ -35,7 +35,7 @@
 
 @@ Territory Actions
 
-&CMD`TERRITORIES_REPORT %wt=$+territories/report *:@assert [u(%vt/FN`VALID_TERRITORY,%0)]=@nspemit/silent %#=+territories: No such territory by that name;[pemit(%#,[header(Territory Report for [ucstr(%0)])])]%r[pemit(%#,Active crises: [u(%vt/FN`TERRITORIES.ACTIVE_CRISES,%0)]%r)][pemit(%#,Current Actions)][pemit(%#,[u(%wt/FN`TERRITORIES.SELECT_ACTIONS,%0)][pemit(%#,%rRecent Actions)][pemit(%#,[u(%wt/FN`TERRITORIES.SELECT_ACTIONS,%0,-1)])][pemit(%#,Feeding Report)][pemit(%#,[u(%wh/FN`MONTHLY_BP_REPORT_BY_TERRITORY,%0)])][iter(lsearch(all,type,player),[switch([get(%i0/CHARGEN`APPROVED)][t([match(xget(%i0,PC_DATA`MERITS),Safe Place %0*,|)])],11,[setq(LIST,[strcat(%q<LIST>,name(%i0),[space(1)])])])])][pemit(%#,%rHavens here: %q<LIST>)]
+&CMD`TERRITORIES_REPORT %wt=$+territories/report *:@assert [u(%vt/FN`VALID_TERRITORY,%0)]=@nspemit/silent %#=+territories: No such territory by that name;[pemit(%#,[header(Territory Report for [ucstr(%0)])])]%r[pemit(%#,Active crises: [u(%vt/FN`TERRITORIES.ACTIVE_CRISES,%0)]%r)][pemit(%#,Current Actions)][pemit(%#,[u(%wt/FN`TERRITORIES.SELECT_ACTIONS,%0)][pemit(%#,%rRecent Actions)][pemit(%#,[u(%wt/FN`TERRITORIES.SELECT_ACTIONS,%0,-1)])][pemit(%#,Feeding Report)][pemit(%#,[u(%wh/FN`MONTHLY_BP_REPORT_BY_TERRITORY,%0)])][iter(lsearch(all,type,player),[switch([get(%i0/CHARGEN`APPROVED)][t([match(xget(%i0,MERITS),Safe Place~*~%0,|)])],11,[setq(LIST,[strcat(%q<LIST>,name(%i0),[space(1)])])])])][pemit(%#,%rHavens here: %q<LIST>)]
 
 &CMD`TERRITORIES_ACTIONS %wt=$+territories/actions *:@assert [u(%vt/FN`VALID_TERRITORY,%0)]=@nspemit/silent %#=+territories: No such territory by that name;[pemit(%#,[pemit(%#,Actions this week)][u(%wt/FN`TERRITORIES.SELECT_ACTIONS,%0)])]
 
