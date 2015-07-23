@@ -124,7 +124,7 @@
 &FN`INIT.VIEW %wh=[setq(VIEW,\[[ansi(hy,Initiative)]\]: Pose order is set in this room! Current pose order is:%R)][iter([get(%L/INIT`ORDER)],[setq(ORDER,[strcat(%q<ORDER>,\, [elements(%i0,1,:)])])],|)][setq(VIEW,[strcat(%q<VIEW>,[trim(%q<ORDER>,\,)])])][trim(%q<VIEW>)]
 
 @@ Input type %0, number of vitae %1
-&FN`HUNT %wh=[attrib_set2(%wh/TEMP`AJOBTYPE)][if([cand([u(%wh/FN`IF`CHECK.HUNT,%#,%0,%1)],[u(%wd/FN`DT_CHECK_AND_INSERT,%#,[if([has_merit(%#,Status Daeva)],1,1)],Hunt in [name(room(%#))] for %1 Vitae method %0)])],[u(%wh/FN`HUNT.RUN2,%#,%0,%1)])]
+&FN`HUNT %wh=[attrib_set2(%wh/TEMP`AJOBTYPE)][if([cand([u(%wh/FN`IF`CHECK.HUNT,%#,%0,%1)],[u(%wd/FN`DT_CHECK_AND_INSERT,%#,[if([has_merit(%#,Status Daeva)],0,1)],Hunt in [name(room(%#))] for %1 Vitae method %0)])],[u(%wh/FN`HUNT.RUN2,%#,%0,%1)])]
 
 @@ input type %0, vitae %1, ajobtype %2
 @@ AJOBTYPE = DramaticFailure, TookMoreThanBpool, -or- TookMoreThan4
