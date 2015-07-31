@@ -12,7 +12,7 @@
 &FN`VALID_TERRITORY %vt=[setq(RET,[sql([ u(%vt/FN`VALID_TERRITORY_SQL, "[sqlescape(%0)]") ])])][if(%Q<RET>,%Q<RET>,0)]
 
 &FN`TERRITORIES.GET_SITE %vt=[sql([u(FN`TERRITORIES.SELECT_SITE_SQL,%0)])]
-&FN`TERRITORIES.GET_MODIFIER %vt=[if([member(attitude|access|safety|information|ignorance|prestige|stability|feeding_pool,%0,|)],[setq(0,[sql(u(FN`TERRITORIES.SELECT_MODIFIER_SQL,%0,%1))])],[setq(0,0)])][if(%q0,%q0,0)]
+&FN`TERRITORIES.GET_MODIFIER %vt=[if([member(attitude|access|safety|information|awareness|prestige|stability|feeding_pool,%0,|)],[setq(0,[sql(u(FN`TERRITORIES.SELECT_MODIFIER_SQL,%0,%1))])],[setq(0,0)])][if(%q0,%q0,0)]
 &FN`TERRITORIES.GET_KINGPIN %vt=[setq(0,[sql(u(FN`TERRITORIES.SELECT_MODIFIER_SQL,kingpin_dbref,%0))])][if(%q0,%q0,0)]
 
 @@ Territory Investigation functions
@@ -22,7 +22,7 @@
 &FN`INVESTIGATION.MERIT_POOL %vt=[if(has_merit(%0,Acute Senses),[get_merit(%0,Blood Potency)],0)
 &FN`INVESTIGATION.TERRITORY_POOL %vt=[u(FN`TERRITORIES.GET_MODIFIER,information,%0)]
 
-&FN`PATROL.DICE_POOL %vt=[sub([add([get_attrib(%0,wits)],[get_skill(%0,streetwise)])],[u(FN`TERRITORIES.GET_MODIFIER,ignorance,%1)])]
+&FN`PATROL.DICE_POOL %vt=[sub([add([get_attrib(%0,wits)],[get_skill(%0,streetwise)])],[u(FN`TERRITORIES.GET_MODIFIER,awareness,%1)])]
 
 @@ Territory Actions
 &FN`TERRITORIES.ACTION.TYPE_TO_NAME %vt=[switch(%0,1,[ansi(rh,Patrol)],2,[ansi(yh,Investigate)],3,[ansi(yh,Solve crisis)],4,[ansi(gh,Finesse)],5,[ansi(bh,Site Usage)],0)]
@@ -67,7 +67,7 @@
 &FN`TERRITORIES.GET_FACE %vt=[sql(
 
 @@ SQL
-&FN`TERRITORIES.SELECT_SQL %vt=SELECT CONCAT_WS('-',name,dbref),dbref,CONCAT_WS('|',attitude,access,safsety,information,ignorance,prestige,stability,feeding_pool),IFNULL(kingpin_dbref,0) FROM territory ORDER BY name
+&FN`TERRITORIES.SELECT_SQL %vt=SELECT CONCAT_WS('-',name,dbref),dbref,CONCAT_WS('|',attitude,access,safsety,information,awareness,prestige,stability,feeding_pool),IFNULL(kingpin_dbref,0) FROM territory ORDER BY name
 &FN`TERRITORIES.SELECT_NEW_CRISES_SQL %vt=SELECT CONCAT_WS('-',name,dbref),dbref,stability FROM territory ORDER BY name
 &FN`TERRITORIES.SELECT_MODIFIER_SQL %vt=SELECT [sqlescape(%0)] FROM territory WHERE name='[sqlescape(%1)]'
 

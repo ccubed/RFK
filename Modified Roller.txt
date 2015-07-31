@@ -211,7 +211,7 @@
 @	%0 - stat to check
 @	%1 - /perm
 @	Returns: The stat pair. IE: stat name/value
-&PARSE.STAT #3376=[max([GET_ATTRIB(%#,%0)],[GET_DISCIPLINE(%#,%0)],[GET_DISCIPLINE_THEME(%#,%0)],[GET_MERIT(%#,%0)],[GET_SKILL(%#,%0)],[u(#4079/FN.GET.SPEC,%#,%0)])]
+&PARSE.STAT #3376=[max([GET_ATTRIB(%#,%0)],[GET_DISCIPLINE(%#,%0)],[GET_DISCIPLINE_THEME(%#,%0)],[GET_MERIT(%#,%0)],[GET_SKILL(%#,%0)],[u(#4079/FN.GET.SPEC,%#,%0)],[u(#4079/FN.GET.STAT,%#,Blood-Sorcery,%0)])]
 
 @	F.GET.ROLL.DICE
 @	Usage: Returns a stat pair. IE: stat name/value
