@@ -13,7 +13,7 @@
 &CMD`INIT_NPC %wh=$+init/npc *=*:@include %wh/FN`INIT_ADD_NPC=%0,%1
 &CMD`INIT_REMOVE_NPC %wh=$+init/removenpc *:@include %wh/FN`INIT_REMOVE_NPC=%0
 
-&CMD`VITAE %wh=$+vitae *=*:[setq(CURR_VITAE,[get_vitae(%#,current)])]@assert [isint(%0)]=@nspemit/silent %#=+vitae: Must pass in a valid number.;@assert [strlen(%1)]=@nspemit/silent %#=+vitae: Must pass in a valid message.;@assert [gt(%0,0)]=@nspemit/silent %#=+vitae: Vitae must be greater than 0;[setq(VITAE_CALC,[sub(%q<CURR_VITAE>,%0)])];@assert [gte(%q<VITAE_CALC>,0)]=@nspemit/silent %#=+vitae: Vitae cannot be lower than 0;[remit(loc(%#),%N spends %0 Vitae for %1)][cemit(Debug,+vitae: %N spends %0 Vitae for %1, NOISY)];@include %wh/FN`VITAE=%q<VITAE_CALC>
+&CMD`VITAE %wh=$+vitae *=*:@break [strmatch(%1,job*)];[setq(CURR_VITAE,[get_vitae(%#,current)])]@assert [isint(%0)]=@nspemit/silent %#=+vitae: Must pass in a valid number.;@assert [strlen(%1)]=@nspemit/silent %#=+vitae: Must pass in a valid message.;@assert [gt(%0,0)]=@nspemit/silent %#=+vitae: Vitae must be greater than 0;[setq(VITAE_CALC,[sub(%q<CURR_VITAE>,%0)])];@assert [gte(%q<VITAE_CALC>,0)]=@nspemit/silent %#=+vitae: Vitae cannot be lower than 0;[remit(loc(%#),%N spends %0 Vitae for %1)][cemit(Debug,+vitae: %N spends %0 Vitae for %1, NOISY)];@include %wh/FN`VITAE=%q<VITAE_CALC>
 
 @set %wh/CMD`VITAE_UPKEEP=regexp
 &CMD`VITAE_UPKEEP %wh=$\+vitae/upkeep (\d+)$:[setq(UPKEEP_ID,%1)][setq(PAY,0)][if([u(%wd/FN`UPKEEP.ID_CHECK,%#,%Q<UPKEEP_ID>,%Q<PAY>)],[u(%wh/FN`VITAE_UPKEEP.RUN,%#,%Q<UPKEEP_ID>,%Q<PAY>)])]
