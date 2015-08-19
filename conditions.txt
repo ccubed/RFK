@@ -22,7 +22,7 @@
 @ Table: Conditions
 @ Columns: id int, player int (dbref), condition text, end_date datetime null ok, note text null ok
 
-&SQL`GET_ALL_CONDITIONS #4264=SELECT * FROM Conditions WHERE player=[sqlescape(%0)]
+&SQL`GET_ALL_CONDITIONS #4264=SELECT * FROM Conditions WHERE player=[sqlescape(%0)] ORDER BY Conditions.condition
 
 &SQL`COUNT_CONDITIONS #4264=SELECT COUNT(*) FROM Conditions WHERE player=[sqlescape(%0)]
 
