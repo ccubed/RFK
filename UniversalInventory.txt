@@ -103,7 +103,7 @@ th [set(Inventory Master,vb:[num(Inventory Descriptions)])]
 &F.REMOVEITEM Inventory Master=[setq(0,[xget(%0,INVITEMS)])][setq(1,[element(%q0,%1*,|)])][setq(2,[extract(%q0,%q1,1,|)])][switch([lte([sub([after(%q2,:)],%2)],0)],1,[set(%0,INVITEMS:[ldelete(%q0,%q1,|)])][ansi(hw,INV:)]%bRemoved [before(xget(%va,%1),/)] from [name(%0)]'s Inventory because none remained.,0,[setq(3,[ldelete(%q0,%q1,|)])][set(%0,INVITEMS:[setunion(%q3,%1:[sub([after(%q2,:)],%2)],|)])][ansi(hw,INV:)]%bRemoved %2 [before(xget(%va,%1),/)] from [name(%0)]'s Inventory.)]
 
 @ Function to add items to a player's inventory. Passed Player dbref as %0, item id as %1, # to add as %2
-&F.ADDITEM Inventory Master=[setq(0,[xget(%0,INVITEMS)])][set(%0,INVITEMS:[setunion(%q0,%1:%2,|)])][set(%0/INVITEMS,wizard)][ansi(hw,INV:)]%bAdded [before(xget(%va,%1),/)] to [name(%0)]'s Inventory.
+&F.ADDITEM Inventory Master=[setq(0,[xget(%0,INVITEMS)])][setq(pos,element(%q0,%1*,|))][if(%q<pos>,[setq(item,[extract(%q0,%q<pos>,1,|)])][set(%0,INVITEMS:[replace(%q0,%q<pos>,%1:[add(%2,after(%q<item>,:))],|,|)])],[set(%0,INVITEMS:[setunion(%q0,%1:%2,|)])])][set(%0/INVITEMS,wizard)][ansi(hw,INV:)]%bAdded [before(xget(%va,%1),/)] to [name(%0)]'s Inventory.
 
 @ Add the first stat to an item
 &F.ADDSTAT.FIRST Inventory Master=[set(%va,%0:[xget(%va,%0)]/%1)]
