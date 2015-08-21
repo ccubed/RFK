@@ -230,3 +230,5 @@
 &WC %ww=#1706
 &wl %ww=#1705
 &WW %ww=#1773
+
+&CMD`Find-Command #1773 = $+command/search *:[@@( Lythaliya asks often how to do X Y or Z and I imagine the +ahelp does not get updated very often so this thing here searches for commands that match a keyword. )];@pemit %#=[setq(0, iter(lcon(#2), [if(gte(words(grep(##,*,%0)),1),##)] ) )] [iter(%q0, %R%R [ansi(hw, Object ## ([name(##)]) has the following commands that match "%0")]: [edit([squish(trim(iter(lattr(itext(0)), switch( get([itext(1)]/[itext(0)]) , *$* , [itext(0)]:[first( get([itext(1)]/[itext(0)]) , :)] ) , , | ),|),|)],|,%R)]
