@@ -33,7 +33,7 @@
 
 &CMD`RITUALS.REMOVE #2542=$+rituals/remove *:@assert [orflags(%#,Wr)];@assert [setr(0,[num(Ritual %0)])]={@pemit %#=[ansi(hr,Rituals:)]%bNot a valid ritual ID.};@nuke %q0;@nuke %q0;@pemit %#=[ansi(hw,Rituals:)]
 
-&CRON`DAILY #2542=@assert [words([setr(0,lcon(#2542))])];@dolist [filter(#2542/FILS`EXPIRED,%q0)]={@trigger #18/TRIG_CREATE=#2542,#3843,2,Ritual Expired,This is a notice that a ritual you had previously cast has expired. Please find attached the details.%R%RRitual: [xget(##,Ritual)]%RTarget: [xget(##,Target)]%R%RWould you like to renew this ritual? Please let us know.,[pmatch([xget(##,Ritualist)])];@nuke ##;@nuke ##}
+&CRON`DAILY #2542=@assert [words([setr(0,lcon(#2542))])];@dolist [filter(#2542/FILS`EXPIRED,%q0)]={@trigger #18/TRIG_CREATE=[pmatch(xget(##,Ritualist))],#3843,2,Ritual Expired,This is a notice that a ritual you had previously cast has expired. Please find attached the details.%R%RRitual: [xget(##,Ritual)]%RTarget: [xget(##,Target)]%R%RWould you like to renew this ritual? Please let us know.,[pmatch([xget(##,Ritualist)])];@nuke ##;@nuke ##}
 
 &FILS`EXPIRED #2542=[lte(sub(xget(%0,ends),secs()),0)]
 
