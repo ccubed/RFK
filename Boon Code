@@ -1,7 +1,7 @@
 @	#2885
 @	Coded by: Gizmo AKA Ourea, Alzie, Oukranos
 @	Email: ccubed.techno@gmail.com
-@	Date Last Touched: 1/28/15
+@@ Date Last Touched: 1/28/15
 @----------------------------------------------------------------------------
 @	Purpose: #2885 Commands
 @----------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 @	+boons/credit # - If you have more than 10 entries, they're paginated. This allows you to view a specific page of entries for Boons owed to you.
 @	+boons/debt # - If you have more than 10 entries, they're paginated. This allows you to view a specific page of entries for Boons you owe.
 @	+boons/detail # - Show details on a boon group. Shows each boon that adds to the total and what it was given for.
-#	+boons/add Name/Amt and Type=Reason - This says that you owe Name Amt And Type of boons for reason.
+@	+boons/add Name/Amt and Type=Reason - This says that you owe Name Amt And Type of boons for reason.
 @	+boons/claim Name/Amt and Type=Reason - Claim that Name owes you Amt and Type of boons for reason. Amt and Type in following format: #M#m#t. In any order. Major, minor, trivial
 @	+boons/callin ID/Amt and Type=Reason - Call in Amt and Type of Boon from ID for Reason. This opens a job between you, the other player and the harpy to discuss and then move forward.
 @	+boons/trade Name/ID=Amt and Type/Reason - Trade Amt and Type of boons from ID to Name for Reason
@@ -21,7 +21,7 @@
 @	+boons/unapproved - Show unapproved boons
 @	+boons/approve ID - Approve an unapproved boon and slap it in that DB
 @	+boons/deny ID=Reason - Deny an unapproved boon for reason. Sends mail to both people.
-@	+boons/closejob Job Number=<0/1>/<reasaon> - Close a job in the boon bucket for harpies. 0 will deny the called in boon but requires a reason. 1 will approve it and requires no 
+@	+boons/closejob Job Number=<0/1>/<reasaon> - Close a job in the boon bucket for harpies. 0 will deny the called in boon but requires a reason. 1 will approve it and requires no
 @	reason.
 @	This will only work for the boons bucket.
 @
